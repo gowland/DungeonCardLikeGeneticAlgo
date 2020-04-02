@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticAlgo", "GeneticAlgo\GeneticAlgo.csproj", "{45FE6178-6471-4604-818A-E1A74F568A95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticSolver", "GeneticSolver\GeneticSolver.csproj", "{613107F7-1D9F-457F-B32B-9555BD220622}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,15 @@ Global
 		{45FE6178-6471-4604-818A-E1A74F568A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45FE6178-6471-4604-818A-E1A74F568A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45FE6178-6471-4604-818A-E1A74F568A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3D42DB9-1E5C-4F39-8F1D-0643B4B5823D}
 	EndGlobalSection
 EndGlobal
