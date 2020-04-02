@@ -6,10 +6,10 @@ namespace GeneticSolver
 {
     public class Solver<T>
     {
-        public IGenome<T> Evolve(IGenomeRandomGenerator<T> genomeRandomGenerator, IGenomeEvalautor<T> evaluator, int count, int iterations)
+        public IGenome<T> Solve(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, int count, int iterations)
         {
             // Produce an initial generation of Genomes using a random number generator.
-            var generation = genomeRandomGenerator.CreateGeneration(count);
+            var generation = generationFactory.CreateGeneration(count);
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
@@ -21,10 +21,10 @@ namespace GeneticSolver
 
                 // Crossover  the Genome pairs  in the allowable population.
                 // Pick the 2 fittest Genomes of the 2 parents and 2 children resulting from the crossover and add them       to the next generation.
-                var children = GetChildren(genomeRandomGenerator, evaluator, count, worthyGenomes);
+                var children = GetChildren(generationFactory, evaluator, count, worthyGenomes);
 
                 // Produce random mutations through the next generation population.
-                children = genomeRandomGenerator.MutateGenomes(children);
+                children = generationFactory.MutateGenomes(children);
 
                 // Calculate the next generations fitness and loop back to step 3.
                 generation = worthyGenomes.Concat(children).ToArray();
@@ -33,12 +33,12 @@ namespace GeneticSolver
             return generation.OrderByDescending(evaluator.GetFitness).First();
         }
 
-        private IEnumerable<IGenome<T>> GetChildren(IGenomeRandomGenerator<T> genomeRandomGenerator, IGenomeEvalautor<T> evalautor, int count,
+        private IEnumerable<IGenome<T>> GetChildren(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evalautor, int count,
             IEnumerable<IGenome<T>> worthyGenomes)
         {
             foreach (var pair in GetPairs(worthyGenomes))
             {
-                var children = genomeRandomGenerator.CreateChildren(count, pair.Item1, pair.Item2);
+                var children = generationFactory.CreateChildren(count, pair.Item1, pair.Item2);
                 var worthyChildren = children.OrderByDescending(evalautor.GetFitness).Take(2).ToArray();
                 yield return worthyChildren[0];
                 yield return worthyChildren[1];

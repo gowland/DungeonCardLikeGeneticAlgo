@@ -4,7 +4,7 @@ using GeneticSolver;
 
 namespace GeneticAlgo.Values
 {
-    public class ValuesGenomeRandomGenerator : IGenomeRandomGenerator<Values>
+    public class ValuesGenerationFactory : IGenerationFactory<Values>
     {
         private readonly Random _random = new Random();
         public IEnumerable<IGenome<Values>> CreateGeneration(int count)

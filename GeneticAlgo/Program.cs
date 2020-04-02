@@ -9,12 +9,12 @@ namespace GeneticAlgo
     {
         public static void Main(string[] args)
         {
-            var evolver = new Solver<Values.Values>();
+            var solver = new Solver<Values.Values>();
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X)
             {
-                var best = evolver.Evolve(
-                    new ValuesGenomeRandomGenerator(), new ValuesGenomeEvaluator(), 100, 1000);
+                var best = solver.Solve(
+                    new ValuesGenerationFactory(), new ValuesGenomeEvaluator(), 100, 1000);
 
                 Console.WriteLine($"Best = {best.Value.Sum}");
                 key = Console.ReadKey();
