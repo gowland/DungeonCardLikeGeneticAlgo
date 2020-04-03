@@ -1,7 +1,9 @@
-﻿namespace GeneticSolver
+﻿using System.Collections.Generic;
+
+namespace GeneticSolver
 {
     public interface IGenomeEvalautor<T>
     {
-        int GetFitness(IGenome<T> genome);
+        IEnumerable<FitnessResult<T>> GetFitnessResults(IEnumerable<IGenome<T>> genomes);
     }
 }

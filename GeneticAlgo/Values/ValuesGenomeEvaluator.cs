@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GeneticSolver;
 
 namespace GeneticAlgo.Values
@@ -10,6 +12,11 @@ namespace GeneticAlgo.Values
             int sum = genome.Value.Sum;
 
             return IsPrime(sum) ? sum : sum / 4;
+        }
+
+        public IEnumerable<FitnessResult<Values>> GetFitnessResults(IEnumerable<IGenome<Values>> genomes)
+        {
+            return genomes.Select(g => new FitnessResult<Values>(g, GetFitness(g)));
         }
 
         private static bool IsPrime(int number)

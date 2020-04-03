@@ -6,40 +6,58 @@ namespace GeneticSolver
 {
     public class Solver<T>
     {
-        public IGenome<T> Solve(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, int count, int iterations)
+        private readonly IGenerationFactory<T> _generationFactory;
+        private IGenomeEvalautor<T> _evaluator;
+
+        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator)
+        {
+            _generationFactory = generationFactory;
+            _evaluator = evaluator;
+        }
+
+        public IGenome<T> Solve(int count, int iterations)
         {
             // Produce an initial generation of Genomes using a random number generator.
-            var generation = generationFactory.CreateGeneration(count);
+            var generation = _generationFactory.CreateGeneration(count);
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
                 // Determine the fitness of all of the Genomes.
                 // Determine which Genomes are allowed to reproduce.
-                var worthyGenomes = generation
-                    .OrderByDescending(evaluator.GetFitness)
-                    .Take(HalfButEven(count)).ToArray();
+                var worthyGenomes = GetFitnessResultsDescending(generation)
+                    .Take(HalfButEven(count))
+                    .Select(r => r.Genome)
+                    .ToArray();
 
                 // Crossover  the Genome pairs  in the allowable population.
-                // Pick the 2 fittest Genomes of the 2 parents and 2 children resulting from the crossover and add them       to the next generation.
-                var children = GetChildren(generationFactory, evaluator, count, worthyGenomes);
+                // Pick the 2 fittest Genomes of the 2 parents and 2 children resulting from the crossover and add them to the next generation.
+                var children = GetChildren(count, worthyGenomes);
 
                 // Produce random mutations through the next generation population.
-                children = generationFactory.MutateGenomes(children);
+                children = _generationFactory.MutateGenomes(children);
 
                 // Concat the current generation's best genomes to the new set of child genomes to produce a new generation
                 generation = worthyGenomes.Concat(children).ToArray();
             }
 
-            return generation.OrderByDescending(evaluator.GetFitness).First();
+            return GetFitnessResultsDescending(generation).First().Genome;
         }
 
-        private IEnumerable<IGenome<T>> GetChildren(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evalautor, int count,
-            IEnumerable<IGenome<T>> worthyGenomes)
+        private IOrderedEnumerable<FitnessResult<T>> GetFitnessResultsDescending(IEnumerable<IGenome<T>> generation)
+        {
+            return _evaluator.GetFitnessResults(generation).OrderByDescending(r => r.Fitness);
+        }
+
+        private IEnumerable<IGenome<T>> GetChildren(int count, IEnumerable<IGenome<T>> worthyGenomes)
         {
             foreach (var pair in GetPairs(worthyGenomes))
             {
-                var children = generationFactory.CreateChildren(count, pair.Item1, pair.Item2);
-                var worthyChildren = children.OrderByDescending(evalautor.GetFitness).Take(2).ToArray();
+                var children = _generationFactory.CreateChildren(count, pair.Item1, pair.Item2);
+                var worthyChildren = GetFitnessResultsDescending(children)
+                    .Take(2)
+                    .Select(r => r.Genome)
+                    .ToArray();
+
                 yield return worthyChildren[0];
                 yield return worthyChildren[1];
             }
@@ -54,7 +72,7 @@ namespace GeneticSolver
         private IEnumerable<Tuple<IGenome<T>, IGenome<T>>> GetPairs(IEnumerable<IGenome<T>> genomes)
         {
             var genomesArr = genomes.ToArray();
-            while (genomesArr.Count() > 1)
+            while (genomesArr.Length > 1)
             {
                 var pair = genomesArr.Take(2).ToArray();
                 yield return new Tuple<IGenome<T>, IGenome<T>>(pair[0], pair[1]);

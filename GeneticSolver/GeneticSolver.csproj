@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FitnessResult.cs" />
     <Compile Include="IGenome.cs" />
     <Compile Include="IGenomeEvalautor.cs" />
     <Compile Include="IGenerationFactory.cs" />
