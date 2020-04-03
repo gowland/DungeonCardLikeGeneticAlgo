@@ -26,7 +26,7 @@ namespace GeneticSolver
                 // Produce random mutations through the next generation population.
                 children = generationFactory.MutateGenomes(children);
 
-                // Calculate the next generations fitness and loop back to step 3.
+                // Concat the current generation's best genomes to the new set of child genomes to produce a new generation
                 generation = worthyGenomes.Concat(children).ToArray();
             }
 
