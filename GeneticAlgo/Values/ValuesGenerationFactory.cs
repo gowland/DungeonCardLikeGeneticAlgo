@@ -12,14 +12,13 @@ namespace GeneticAlgo.Values
         {
             for (int i = 0; i < count; i++)
             {
-                yield return new ValuesGenome(new Values()
+                var genome = new ValuesGenome(new Values());
+                foreach (var property in genome.Properties)
                 {
-                    A = _random.Next(0,1001),
-                    B = _random.Next(0,1001),
-                    C = _random.Next(0,1001),
-                    D = _random.Next(0,1001),
-                    E = _random.Next(0,1001),
-                });
+                    property.SetRandom();
+                }
+
+                yield return genome;
             }
         }
 

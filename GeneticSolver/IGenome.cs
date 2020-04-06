@@ -16,6 +16,7 @@ namespace GeneticSolver
     public interface IGenomeProperty
     {
         void Mutate();
+        void SetRandom();
     }
 
     public class IntegerGenomeProperty : IGenomeProperty
@@ -44,9 +45,14 @@ namespace GeneticSolver
             _setterAction(AlterNumber(_getterFunc()));
         }
 
+        public void SetRandom()
+        {
+            _setterAction(_random.Next(_min, _max + 1));
+        }
+
         private int AlterNumber(int originalValue)
         {
-            int change = _random.Next(_minChange, _maxChange);
+            int change = _random.Next(_minChange, _maxChange + 1);
             int newValue = originalValue + change;
             if (newValue < _min) newValue = _min;
             if (newValue > _max) newValue = _max;
