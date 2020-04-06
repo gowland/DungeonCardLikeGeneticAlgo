@@ -33,20 +33,14 @@ namespace GeneticAlgo.Values
         {
             for (int i = 0; i < count; i++)
             {
-                double aPct = _random.NextDouble();
-                double bPct = _random.NextDouble();
-                double cPct = _random.NextDouble();
-                double dPct = _random.NextDouble();
-                double ePct = _random.NextDouble();
+                var child = new Values();
 
-                yield return new Values()
+                foreach (var property in _genomeDescription.Properties)
                 {
-                    A = (int)( parentA.A * aPct + parentB.A * (1 - aPct)),
-                    B = (int)( parentA.B * bPct + parentB.B * (1 - bPct)),
-                    C = (int)( parentA.C * cPct + parentB.C * (1 - cPct)),
-                    D = (int)( parentA.D * dPct + parentB.D * (1 - dPct)),
-                    E = (int)( parentA.E * ePct + parentB.A * (1 - ePct)),
-                };
+                    property.Merge(parentA, parentB, child);
+                }
+
+                yield return child;
             }
         }
     }

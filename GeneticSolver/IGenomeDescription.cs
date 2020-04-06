@@ -10,8 +10,9 @@ namespace GeneticSolver
 
     public interface IGenomeProperty<in T>
     {
-        void Mutate(T value);
-        void SetRandom(T value);
+        void Mutate(T genome);
+        void SetRandom(T genome);
+        void Merge(T parent1, T parent2, T child);
     }
 
     public class IntegerGenomeProperty<T> : IGenomeProperty<T>
@@ -36,14 +37,21 @@ namespace GeneticSolver
             _random = random;
         }
 
-        public void Mutate(T value)
+        public void Mutate(T genome)
         {
-            _setterAction(value, AlterNumber(_getterFunc(value)));
+            _setterAction(genome, AlterNumber(_getterFunc(genome)));
         }
 
-        public void SetRandom(T value)
+        public void SetRandom(T genome)
         {
-            _setterAction(value, _random.Next(_min, _max + 1));
+            _setterAction(genome, _random.Next(_min, _max + 1));
+        }
+
+        public void Merge(T parent1, T parent2, T child)
+        {
+            double parent1Percent = _random.NextDouble();
+            var newValue = (int)(_getterFunc(parent1) * parent1Percent + _getterFunc(parent2) * (1- parent1Percent));
+            _setterAction(child, newValue);
         }
 
         private int AlterNumber(int originalValue)
