@@ -8,19 +8,21 @@ namespace GeneticSolver
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
+        private readonly IGenome<T> _genomeDescription;
 
-        public Generation(IEnumerable<IGenome<T>> genomes, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator)
+        public Generation(IEnumerable<T> genomes, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenome<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
+            _genomeDescription = genomeDescription;
             Genomes = genomes;
         }
 
-        public IEnumerable<IGenome<T>> Genomes { get; }
+        public IEnumerable<T> Genomes { get; }
 
         public ScoredGeneration<T> Score()
         {
-            return new ScoredGeneration<T>(_evaluator.GetFitnessResults(Genomes), _generationFactory, _evaluator);
+            return new ScoredGeneration<T>(_evaluator.GetFitnessResults(Genomes), _generationFactory, _evaluator, _genomeDescription);
         }
 
         public Generation<T> Mutate()
@@ -28,20 +30,21 @@ namespace GeneticSolver
             return new Generation<T>(
                 _generationFactory.MutateGenomes(Genomes),
                 _generationFactory,
-                _evaluator);
+                _evaluator,
+                _genomeDescription);
         }
 
         public Generation<T> Concat(Generation<T> other)
         {
-            return new Generation<T>(Genomes.Concat(other.Genomes).ToArray(), _generationFactory, _evaluator);
+            return new Generation<T>(Genomes.Concat(other.Genomes).ToArray(), _generationFactory, _evaluator, _genomeDescription);
         }
 
         public Generation<T> BreedPairs(int count)
         {
-            return new Generation<T>(GetChildren(count), _generationFactory, _evaluator);
+            return new Generation<T>(GetChildren(count), _generationFactory, _evaluator, _genomeDescription);
         }
 
-        private IEnumerable<IGenome<T>> GetChildren(int count)
+        private IEnumerable<T> GetChildren(int count)
         {
             foreach (var pair in GetPairs(Genomes))
             {
@@ -56,18 +59,18 @@ namespace GeneticSolver
             }
         }
 
-        private IOrderedEnumerable<FitnessResult<T>> GetFitnessResultsDescending(IEnumerable<IGenome<T>> generation)
+        private IOrderedEnumerable<FitnessResult<T>> GetFitnessResultsDescending(IEnumerable<T> generation)
         {
             return _evaluator.GetFitnessResults(generation).OrderByDescending(r => r.Fitness);
         }
 
-        private IEnumerable<Tuple<IGenome<T>, IGenome<T>>> GetPairs(IEnumerable<IGenome<T>> genomes)
+        private IEnumerable<Tuple<T, T>> GetPairs(IEnumerable<T> genomes)
         {
             var genomesArr = genomes.ToArray();
             while (genomesArr.Length > 1)
             {
                 var pair = genomesArr.Take(2).ToArray();
-                yield return new Tuple<IGenome<T>, IGenome<T>>(pair[0], pair[1]);
+                yield return new Tuple<T, T>(pair[0], pair[1]);
 
                 genomesArr = genomesArr.Skip(2).ToArray();
             }
@@ -78,16 +81,18 @@ namespace GeneticSolver
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
+        private readonly IGenome<T> _genomeDescription;
 
-        public ScoredGeneration(IEnumerable<FitnessResult<T>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator)
+        public ScoredGeneration(IEnumerable<FitnessResult<T>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenome<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
+            _genomeDescription = genomeDescription;
             FitnessResults = fitnessResults;
         }
 
         public IEnumerable<FitnessResult<T>> FitnessResults { get; }
-        public IEnumerable<IGenome<T>> Genomes => FitnessResults.Select(r => r.Genome);
+        public IEnumerable<T> Genomes => FitnessResults.Select(r => r.Genome);
 
         public Generation<T> TakeBest(int count)
         {
@@ -96,7 +101,8 @@ namespace GeneticSolver
                     .Take(count)
                     .Select(r => r.Genome),
                 _generationFactory,
-                _evaluator);
+                _evaluator,
+                _genomeDescription);
         }
     }
 
@@ -104,17 +110,19 @@ namespace GeneticSolver
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
+        private readonly IGenome<T> _genomeDescription;
 
-        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator)
+        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenome<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
+            _genomeDescription = genomeDescription;
         }
 
-        public IGenome<T> Solve(int count, int iterations)
+        public T Solve(int count, int iterations)
         {
             int numberToKeep = HalfButEven(count);
-            var generation = new Generation<T>(_generationFactory.CreateGeneration(count), _generationFactory, _evaluator);
+            var generation = new Generation<T>(_generationFactory.CreateGeneration(count), _generationFactory, _evaluator, _genomeDescription);
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
@@ -155,12 +163,12 @@ namespace GeneticSolver
 */
         }
 
-        private IOrderedEnumerable<FitnessResult<T>> GetFitnessResultsDescending(IEnumerable<IGenome<T>> generation)
+        private IOrderedEnumerable<FitnessResult<T>> GetFitnessResultsDescending(IEnumerable<T> generation)
         {
             return _evaluator.GetFitnessResults(generation).OrderByDescending(r => r.Fitness);
         }
 
-        private IEnumerable<IGenome<T>> GetChildren(int count, IEnumerable<IGenome<T>> worthyGenomes)
+        private IEnumerable<T> GetChildren(int count, IEnumerable<T> worthyGenomes)
         {
             foreach (var pair in GetPairs(worthyGenomes))
             {
@@ -181,13 +189,13 @@ namespace GeneticSolver
             return half % 2 == 0 ? half : half - 1;
         }
 
-        private IEnumerable<Tuple<IGenome<T>, IGenome<T>>> GetPairs(IEnumerable<IGenome<T>> genomes)
+        private IEnumerable<Tuple<T, T>> GetPairs(IEnumerable<T> genomes)
         {
             var genomesArr = genomes.ToArray();
             while (genomesArr.Length > 1)
             {
                 var pair = genomesArr.Take(2).ToArray();
-                yield return new Tuple<IGenome<T>, IGenome<T>>(pair[0], pair[1]);
+                yield return new Tuple<T, T>(pair[0], pair[1]);
 
                 genomesArr = genomesArr.Skip(2).ToArray();
             }

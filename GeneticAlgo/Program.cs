@@ -9,13 +9,14 @@ namespace GeneticAlgo
     {
         public static void Main(string[] args)
         {
-            var solver = new Solver<Values.Values>(new ValuesGenerationFactory(), new ValuesGenomeEvaluator());
+            var genomeDescription = new ValuesGenome();
+            var solver = new Solver<Values.Values>(new ValuesGenerationFactory(genomeDescription), new ValuesGenomeEvaluator(), genomeDescription);
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
-            while (key.Key != ConsoleKey.X)
+            while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
             {
                 var best = solver.Solve(100, 1000);
 
-                Console.WriteLine($"Best = {best.Value.Sum}");
+                Console.WriteLine($"Best = {best.Sum}");
                 key = Console.ReadKey();
             }
         }

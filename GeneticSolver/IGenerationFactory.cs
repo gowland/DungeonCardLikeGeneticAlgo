@@ -4,8 +4,8 @@ namespace GeneticSolver
 {
     public interface IGenerationFactory<T>
     {
-        IEnumerable<IGenome<T>> CreateGeneration(int count);
-        IEnumerable<IGenome<T>> CreateChildren(int count, IGenome<T> parentA, IGenome<T> parentB);
-        IEnumerable<IGenome<T>> MutateGenomes(IEnumerable<IGenome<T>> genomes);
+        IEnumerable<T> CreateGeneration(int count);
+        IEnumerable<T> CreateChildren(int count, T parentA, T parentB);
+        IEnumerable<T> MutateGenomes(IEnumerable<T> genomes);
     }
 }

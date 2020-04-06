@@ -7,22 +7,29 @@ namespace GeneticAlgo.Values
 {
     public class ValuesGenerationFactory : IGenerationFactory<Values>
     {
+        private readonly IGenome<Values> _genomeDescription;
         private readonly Random _random = new Random();
-        public IEnumerable<IGenome<Values>> CreateGeneration(int count)
+
+        public ValuesGenerationFactory(IGenome<Values> genomeDescription)
+        {
+            _genomeDescription = genomeDescription;
+        }
+
+        public IEnumerable<Values> CreateGeneration(int count)
         {
             for (int i = 0; i < count; i++)
             {
-                var genome = new ValuesGenome(new Values());
-                foreach (var property in genome.Properties)
+                var genome = new Values();
+                foreach (var property in _genomeDescription.Properties)
                 {
-                    property.SetRandom(genome.Value);
+                    property.SetRandom(genome);
                 }
 
                 yield return genome;
             }
         }
 
-        public IEnumerable<IGenome<Values>> CreateChildren(int count, IGenome<Values> parentA, IGenome<Values> parentB)
+        public IEnumerable<Values> CreateChildren(int count, Values parentA, Values parentB)
         {
             for (int i = 0; i < count; i++)
             {
@@ -32,24 +39,24 @@ namespace GeneticAlgo.Values
                 double dPct = _random.NextDouble();
                 double ePct = _random.NextDouble();
 
-                yield return new ValuesGenome(new Values()
+                yield return new Values()
                 {
-                    A = (int)( parentA.Value.A * aPct + parentB.Value.A * (1 - aPct)),
-                    B = (int)( parentA.Value.B * bPct + parentB.Value.B * (1 - bPct)),
-                    C = (int)( parentA.Value.C * cPct + parentB.Value.C * (1 - cPct)),
-                    D = (int)( parentA.Value.D * dPct + parentB.Value.D * (1 - dPct)),
-                    E = (int)( parentA.Value.E * ePct + parentB.Value.A * (1 - ePct)),
-                });
+                    A = (int)( parentA.A * aPct + parentB.A * (1 - aPct)),
+                    B = (int)( parentA.B * bPct + parentB.B * (1 - bPct)),
+                    C = (int)( parentA.C * cPct + parentB.C * (1 - cPct)),
+                    D = (int)( parentA.D * dPct + parentB.D * (1 - dPct)),
+                    E = (int)( parentA.E * ePct + parentB.A * (1 - ePct)),
+                };
             }
         }
 
-        public IEnumerable<IGenome<Values>> MutateGenomes(IEnumerable<IGenome<Values>> genomes)
+        public IEnumerable<Values> MutateGenomes(IEnumerable<Values> genomes)
         {
             foreach (var genome in genomes)
             {
-                foreach (var property in genome.Properties.Where(p => _random.NextDouble() > 0.95))
+                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() > 0.95))
                 {
-                    property.Mutate(genome.Value);
+                    property.Mutate(genome);
                 }
 
                 yield return genome;

@@ -7,14 +7,14 @@ namespace GeneticAlgo.Values
 {
     public class ValuesGenomeEvaluator : IGenomeEvalautor<Values>
     {
-        public int GetFitness(IGenome<Values> genome)
+        public int GetFitness(Values genome)
         {
-            int sum = genome.Value.Sum;
+            int sum = genome.Sum;
 
             return IsPrime(sum) ? sum : sum / 4;
         }
 
-        public IEnumerable<FitnessResult<Values>> GetFitnessResults(IEnumerable<IGenome<Values>> genomes)
+        public IEnumerable<FitnessResult<Values>> GetFitnessResults(IEnumerable<Values> genomes)
         {
             return genomes.Select(g => new FitnessResult<Values>(g, GetFitness(g)));
         }

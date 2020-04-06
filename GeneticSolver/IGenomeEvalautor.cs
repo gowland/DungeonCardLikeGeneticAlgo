@@ -4,6 +4,6 @@ namespace GeneticSolver
 {
     public interface IGenomeEvalautor<T>
     {
-        IEnumerable<FitnessResult<T>> GetFitnessResults(IEnumerable<IGenome<T>> genomes);
+        IEnumerable<FitnessResult<T>> GetFitnessResults(IEnumerable<T> genomes);
     }
 }

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace GeneticSolver
 {
-    public interface IGenome<T>
+    public interface IGenome<in T>
     {
-        T Value { get; }
         IEnumerable<IGenomeProperty<T>> Properties { get; }
     }
 

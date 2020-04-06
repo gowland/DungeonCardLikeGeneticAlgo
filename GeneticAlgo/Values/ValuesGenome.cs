@@ -5,13 +5,6 @@ namespace GeneticAlgo.Values
 {
     public class ValuesGenome : IGenome<Values>
     {
-        public ValuesGenome(Values values)
-        {
-            Value = values;
-        }
-
-        public Values Value { get; }
-
         public IEnumerable<IGenomeProperty<Values>> Properties => new[]
         {
             new IntegerGenomeProperty<Values>(g => g.A, (g, val) => g.A = val, 0, 1000, -30, 30),
