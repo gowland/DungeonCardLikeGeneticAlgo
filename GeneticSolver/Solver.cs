@@ -8,9 +8,9 @@ namespace GeneticSolver
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
-        private readonly IGenome<T> _genomeDescription;
+        private readonly IGenomeDescription<T> _genomeDescription;
 
-        public Generation(IEnumerable<T> genomes, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenome<T> genomeDescription)
+        public Generation(IEnumerable<T> genomes, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenomeDescription<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
@@ -81,9 +81,9 @@ namespace GeneticSolver
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
-        private readonly IGenome<T> _genomeDescription;
+        private readonly IGenomeDescription<T> _genomeDescription;
 
-        public ScoredGeneration(IEnumerable<FitnessResult<T>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenome<T> genomeDescription)
+        public ScoredGeneration(IEnumerable<FitnessResult<T>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenomeDescription<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
@@ -110,9 +110,9 @@ namespace GeneticSolver
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
-        private readonly IGenome<T> _genomeDescription;
+        private readonly IGenomeDescription<T> _genomeDescription;
 
-        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenome<T> genomeDescription)
+        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenomeDescription<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;

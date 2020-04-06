@@ -7,10 +7,10 @@ namespace GeneticAlgo.Values
 {
     public class ValuesGenerationFactory : IGenerationFactory<Values>
     {
-        private readonly IGenome<Values> _genomeDescription;
+        private readonly IGenomeDescription<Values> _genomeDescription;
         private readonly Random _random = new Random();
 
-        public ValuesGenerationFactory(IGenome<Values> genomeDescription)
+        public ValuesGenerationFactory(IGenomeDescription<Values> genomeDescription)
         {
             _genomeDescription = genomeDescription;
         }
@@ -60,34 +60,7 @@ namespace GeneticAlgo.Values
                 }
 
                 yield return genome;
-
-/*
-                double aPct = _random.NextDouble();
-                double bPct = _random.NextDouble();
-                double cPct = _random.NextDouble();
-                double dPct = _random.NextDouble();
-                double ePct = _random.NextDouble();
-
-                yield return new ValuesGenome(new Values()
-                {
-                    A = aPct > 0.95 ? AlterNumber(genome.Value.A) : genome.Value.A,
-                    B = bPct > 0.95 ? AlterNumber(genome.Value.B) : genome.Value.B,
-                    C = cPct > 0.95 ? AlterNumber(genome.Value.C) : genome.Value.C,
-                    D = dPct > 0.95 ? AlterNumber(genome.Value.D) : genome.Value.D,
-                    E = ePct > 0.95 ? AlterNumber(genome.Value.E) : genome.Value.E,
-                });
-*/
             }
-        }
-
-        private int AlterNumber(int originalValue)
-        {
-            int modifier = _random.Next(0, 2) == 1 ? -1 : 1;
-            int change = _random.Next(0, 30);
-            int newValue = originalValue + modifier * change;
-            if (newValue < 0) newValue = 0;
-            if (newValue > 1000) newValue = 1000;
-            return newValue;
         }
     }
 }

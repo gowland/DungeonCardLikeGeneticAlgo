@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FitnessResult.cs" />
-    <Compile Include="IGenome.cs" />
+    <Compile Include="IGenomeDescription.cs" />
     <Compile Include="IGenomeEvalautor.cs" />
     <Compile Include="IGenerationFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

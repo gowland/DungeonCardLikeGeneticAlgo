@@ -9,7 +9,7 @@ namespace GeneticAlgo
     {
         public static void Main(string[] args)
         {
-            var genomeDescription = new ValuesGenome();
+            var genomeDescription = new ValuesGenomeDescription();
             var solver = new Solver<Values.Values>(new ValuesGenerationFactory(genomeDescription), new ValuesGenomeEvaluator(), genomeDescription);
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)

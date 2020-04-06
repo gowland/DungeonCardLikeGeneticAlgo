@@ -41,7 +41,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Values\Values.cs" />
-    <Compile Include="Values\ValuesGenome.cs" />
+    <Compile Include="Values\ValuesGenomeDescription.cs" />
     <Compile Include="Values\ValuesGenomeEvaluator.cs" />
     <Compile Include="Values\ValuesGenerationFactory.cs" />
   </ItemGroup>
