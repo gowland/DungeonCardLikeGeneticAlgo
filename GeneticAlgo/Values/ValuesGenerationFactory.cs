@@ -15,7 +15,7 @@ namespace GeneticAlgo.Values
                 var genome = new ValuesGenome(new Values());
                 foreach (var property in genome.Properties)
                 {
-                    property.SetRandom();
+                    property.SetRandom(genome.Value);
                 }
 
                 yield return genome;
@@ -49,7 +49,7 @@ namespace GeneticAlgo.Values
             {
                 foreach (var property in genome.Properties.Where(p => _random.NextDouble() > 0.95))
                 {
-                    property.Mutate();
+                    property.Mutate(genome.Value);
                 }
 
                 yield return genome;

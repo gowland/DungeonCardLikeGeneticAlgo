@@ -3,34 +3,30 @@ using System.Collections.Generic;
 
 namespace GeneticSolver
 {
-    public interface IGenome<out T> : IGenome
+    public interface IGenome<T>
     {
         T Value { get; }
+        IEnumerable<IGenomeProperty<T>> Properties { get; }
     }
 
-    public interface IGenome
+    public interface IGenomeProperty<in T>
     {
-        IEnumerable<IGenomeProperty> Properties { get; }
+        void Mutate(T value);
+        void SetRandom(T value);
     }
 
-    public interface IGenomeProperty
-    {
-        void Mutate();
-        void SetRandom();
-    }
-
-    public class IntegerGenomeProperty : IGenomeProperty
+    public class IntegerGenomeProperty<T> : IGenomeProperty<T>
     {
         private readonly Random _random = new Random();
 
-        private readonly Func<int> _getterFunc;
-        private readonly Action<int> _setterAction;
+        private readonly Func<T, int> _getterFunc;
+        private readonly Action<T, int> _setterAction;
         private readonly int _min;
         private readonly int _max;
         private readonly int _minChange;
         private readonly int _maxChange;
 
-        public IntegerGenomeProperty(Func<int> getterFunc, Action<int> setterAction, int min, int max, int minChange, int maxChange)
+        public IntegerGenomeProperty(Func<T, int> getterFunc, Action<T, int> setterAction, int min, int max, int minChange, int maxChange)
         {
             _getterFunc = getterFunc;
             _setterAction = setterAction;
@@ -40,14 +36,14 @@ namespace GeneticSolver
             _maxChange = maxChange;
         }
 
-        public void Mutate()
+        public void Mutate(T value)
         {
-            _setterAction(AlterNumber(_getterFunc()));
+            _setterAction(value, AlterNumber(_getterFunc(value)));
         }
 
-        public void SetRandom()
+        public void SetRandom(T value)
         {
-            _setterAction(_random.Next(_min, _max + 1));
+            _setterAction(value, _random.Next(_min, _max + 1));
         }
 
         private int AlterNumber(int originalValue)

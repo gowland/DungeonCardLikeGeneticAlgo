@@ -12,13 +12,13 @@ namespace GeneticAlgo.Values
 
         public Values Value { get; }
 
-        public IEnumerable<IGenomeProperty> Properties => new[]
+        public IEnumerable<IGenomeProperty<Values>> Properties => new[]
         {
-            new IntegerGenomeProperty(() => Value.A, val => Value.A = val, 0, 1000, -30, 30),
-            new IntegerGenomeProperty(() => Value.B, val => Value.B = val, 0, 1000, -30, 30),
-            new IntegerGenomeProperty(() => Value.C, val => Value.C = val, 0, 1000, -30, 30),
-            new IntegerGenomeProperty(() => Value.D, val => Value.D = val, 0, 1000, -30, 30),
-            new IntegerGenomeProperty(() => Value.E, val => Value.E = val, 0, 1000, -30, 30),
+            new IntegerGenomeProperty<Values>(g => g.A, (g, val) => g.A = val, 0, 1000, -30, 30),
+            new IntegerGenomeProperty<Values>(g => g.B, (g, val) => g.B = val, 0, 1000, -30, 30),
+            new IntegerGenomeProperty<Values>(g => g.C, (g, val) => g.C = val, 0, 1000, -30, 30),
+            new IntegerGenomeProperty<Values>(g => g.D, (g, val) => g.D = val, 0, 1000, -30, 30),
+            new IntegerGenomeProperty<Values>(g => g.E, (g, val) => g.E = val, 0, 1000, -30, 30),
         };
     }
 }
