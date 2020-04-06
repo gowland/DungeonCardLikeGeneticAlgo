@@ -9,6 +9,7 @@ namespace GeneticSolver
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
         private readonly IGenomeDescription<T> _genomeDescription;
+        private readonly Random _random = new Random();
 
         public Generation(IEnumerable<T> genomes, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T> evaluator, IGenomeDescription<T> genomeDescription)
         {
@@ -28,10 +29,23 @@ namespace GeneticSolver
         public Generation<T> Mutate()
         {
             return new Generation<T>(
-                _generationFactory.MutateGenomes(Genomes),
+                MutateGenomes(Genomes),
                 _generationFactory,
                 _evaluator,
                 _genomeDescription);
+        }
+
+        private IEnumerable<T> MutateGenomes(IEnumerable<T> genomes)
+        {
+            foreach (var genome in genomes)
+            {
+                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() > 0.95))
+                {
+                    property.Mutate(genome);
+                }
+
+                yield return genome;
+            }
         }
 
         public Generation<T> Concat(Generation<T> other)

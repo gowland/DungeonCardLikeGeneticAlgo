@@ -49,18 +49,5 @@ namespace GeneticAlgo.Values
                 };
             }
         }
-
-        public IEnumerable<Values> MutateGenomes(IEnumerable<Values> genomes)
-        {
-            foreach (var genome in genomes)
-            {
-                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() > 0.95))
-                {
-                    property.Mutate(genome);
-                }
-
-                yield return genome;
-            }
-        }
     }
 }
