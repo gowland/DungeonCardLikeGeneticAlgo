@@ -15,11 +15,16 @@ namespace GeneticAlgo.Values
             _genomeDescription = genomeDescription;
         }
 
+        public Values GetNewGenome()
+        {
+            return new Values();
+        }
+
         public IEnumerable<Values> CreateGeneration(int count)
         {
             for (int i = 0; i < count; i++)
             {
-                var genome = new Values();
+                var genome = GetNewGenome();
                 foreach (var property in _genomeDescription.Properties)
                 {
                     property.SetRandom(genome);
@@ -33,7 +38,7 @@ namespace GeneticAlgo.Values
         {
             for (int i = 0; i < count; i++)
             {
-                var child = new Values();
+                var child = GetNewGenome();
 
                 foreach (var property in _genomeDescription.Properties)
                 {
