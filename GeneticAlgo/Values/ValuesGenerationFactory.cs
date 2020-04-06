@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GeneticSolver;
 
 namespace GeneticAlgo.Values
@@ -47,6 +48,14 @@ namespace GeneticAlgo.Values
         {
             foreach (var genome in genomes)
             {
+                foreach (var property in genome.Properties.Where(p => _random.NextDouble() > 0.95))
+                {
+                    property.Mutate();
+                }
+
+                yield return genome;
+
+/*
                 double aPct = _random.NextDouble();
                 double bPct = _random.NextDouble();
                 double cPct = _random.NextDouble();
@@ -61,6 +70,7 @@ namespace GeneticAlgo.Values
                     D = dPct > 0.95 ? AlterNumber(genome.Value.D) : genome.Value.D,
                     E = ePct > 0.95 ? AlterNumber(genome.Value.E) : genome.Value.E,
                 });
+*/
             }
         }
 
