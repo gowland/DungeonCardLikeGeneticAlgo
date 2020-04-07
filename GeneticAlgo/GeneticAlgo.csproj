@@ -44,6 +44,7 @@
     <Compile Include="Values\ValuesGenomeDescription.cs" />
     <Compile Include="Values\ValuesGenomeEvaluator.cs" />
     <Compile Include="Values\ValuesGenerationFactory.cs" />
+    <Compile Include="Values\ValuesSolverLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GeneticSolver\GeneticSolver.csproj">

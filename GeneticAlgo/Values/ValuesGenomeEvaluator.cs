@@ -14,9 +14,9 @@ namespace GeneticAlgo.Values
             return IsPrime(sum) ? sum : sum / 4;
         }
 
-        public IEnumerable<FitnessResult<Values, int>> GetFitnessResults(IEnumerable<Values> genomes)
+        public IEnumerable<FitnessResult<Values, int>> GetFitnessResults(IEnumerable<IGenomeInfo<Values>> genomes)
         {
-            return genomes.Select(g => new FitnessResult<Values, int>(g, GetFitness(g)));
+            return genomes.Select(g => new FitnessResult<Values, int>(g, GetFitness(g.Genome)));
         }
 
         private static bool IsPrime(int number)
