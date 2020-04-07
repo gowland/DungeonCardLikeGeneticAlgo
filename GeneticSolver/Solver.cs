@@ -39,9 +39,9 @@ namespace GeneticSolver
 
         public IEnumerable<IGenomeInfo<T>> Genomes { get; }
 
-        public ScoredGeneration<T, TScore> Score()
+        public IEnumerable<FitnessResult<T, TScore>> Score()
         {
-            return new ScoredGeneration<T, TScore>(_evaluator.GetFitnessResults(Genomes), _generationFactory, _evaluator, _genomeDescription);
+            return _evaluator.GetFitnessResults(Genomes);
         }
 
         public Generation<T, TScore> Mutate()
@@ -124,34 +124,6 @@ namespace GeneticSolver
         }
     }
 
-    internal sealed class ScoredGeneration<T, TScore> where TScore : IComparable<TScore>
-    {
-        private readonly IGenerationFactory<T> _generationFactory;
-        private readonly IGenomeEvaluator<T, TScore> _evaluator;
-        private readonly IGenomeDescription<T> _genomeDescription;
-
-        public ScoredGeneration(IEnumerable<FitnessResult<T, TScore>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription)
-        {
-            _generationFactory = generationFactory;
-            _evaluator = evaluator;
-            _genomeDescription = genomeDescription;
-            FitnessResults = fitnessResults;
-        }
-
-        public IEnumerable<FitnessResult<T, TScore>> FitnessResults { get; }
-
-        public Generation<T, TScore> TakeBest(int count)
-        {
-            return new Generation<T, TScore>(
-                FitnessResults.OrderByDescending(r => r.Fitness)
-                    .Take(count)
-                    .Select(r => r.Genome),
-                _generationFactory,
-                _evaluator,
-                _genomeDescription);
-        }
-    }
-
     public interface ISolverLogger<T, TScore>
     {
         void LogStartGeneration(int generationNumber);
@@ -165,6 +137,7 @@ namespace GeneticSolver
         private readonly IGenomeEvaluator<T, TScore> _evaluator;
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly ISolverLogger<T, TScore> _logger;
+        private readonly Random _random = new Random();
 
         public Solver(IGenerationFactory<T> generationFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger)
         {
@@ -177,19 +150,83 @@ namespace GeneticSolver
         public T Solve(int count, int iterations)
         {
             int numberToKeep = HalfButEven(count);
-            var generation = new Generation<T, TScore>(CreateGeneration(count), _generationFactory, _evaluator, _genomeDescription).Score();
+            var generation = _evaluator.GetFitnessResults(CreateGeneration(count)).ToArray();
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
                 _logger.LogStartGeneration(generationNum);
-                var keepers = generation.TakeBest(numberToKeep);
-                var children = keepers.BreedPairs(2, generationNum).Mutate();
-                generation = keepers.Concat(children).Score();
-                _logger.LogGenerationInfo(generation.FitnessResults);
-                _logger.LogGenome(generation.FitnessResults.First());
+
+                var keepers = SelectFittest(generation, numberToKeep).ToArray();
+
+                var children = GetChildren(keepers, 2, generationNum);
+                children = MutateGenomes(children);
+
+                var nextGenerationGenomes = keepers.Concat(children);
+
+                generation = _evaluator.GetFitnessResults(nextGenerationGenomes).ToArray();
+
+                _logger.LogGenerationInfo(generation);
+                _logger.LogGenome(generation.First());
             }
 
-            return generation.TakeBest(1).Genomes.First().Genome;
+            return SelectFittest(generation, 1).First().Genome;
+        }
+
+        private IEnumerable<Tuple<IGenomeInfo<T>, IGenomeInfo<T>>> GetPairs(IEnumerable<IGenomeInfo<T>> genomes)
+        {
+            var genomesArr = genomes.ToArray();
+            while (genomesArr.Length > 1)
+            {
+                var pair = genomesArr.Take(2).ToArray();
+                yield return new Tuple<IGenomeInfo<T>, IGenomeInfo<T>>(pair[0], pair[1]);
+
+                genomesArr = genomesArr.Skip(2).ToArray();
+            }
+        }
+
+        private IEnumerable<IGenomeInfo<T>> GetChildren(IEnumerable<IGenomeInfo<T>> genomes, int count, int generationNum)
+        {
+            foreach (var pair in GetPairs(genomes))
+            {
+                var children = CreateChildren(count, pair.Item1, pair.Item2, generationNum);
+                var worthyChildren = SelectFittest(_evaluator.GetFitnessResults(children), 2).ToArray();
+
+                yield return worthyChildren[0];
+                yield return worthyChildren[1];
+            }
+        }
+
+        public IEnumerable<IGenomeInfo<T>> CreateChildren(int count, IGenomeInfo<T> parentA, IGenomeInfo<T> parentB, int generationNum)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var child = _generationFactory.GetNewGenome();
+
+                foreach (var property in _genomeDescription.Properties)
+                {
+                    property.Merge(parentA.Genome, parentB.Genome, child);
+                }
+
+                yield return new GenomeInfo<T>(child, generationNum);
+            }
+        }
+
+        private IEnumerable<IGenomeInfo<T>> MutateGenomes(IEnumerable<IGenomeInfo<T>> genomes)
+        {
+            foreach (var genome in genomes)
+            {
+                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() > 0.95))
+                {
+                    property.Mutate(genome.Genome);
+                }
+
+                yield return genome;
+            }
+        }
+
+        private IEnumerable<IGenomeInfo<T>> SelectFittest(IEnumerable<FitnessResult<T, TScore>> fitnessResults, int count)
+        {
+            return _evaluator.SortDescending(fitnessResults).Take(count).Select(r => r.Genome);
         }
 
         private IEnumerable<IGenomeInfo<T>> CreateGeneration(int count)
@@ -211,5 +248,6 @@ namespace GeneticSolver
             int half = value / 2;
             return half % 2 == 0 ? half : half - 1;
         }
+
     }
 }

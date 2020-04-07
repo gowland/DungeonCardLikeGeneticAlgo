@@ -19,6 +19,11 @@ namespace GeneticAlgo.Values
             return genomes.Select(g => new FitnessResult<Values, int>(g, GetFitness(g.Genome)));
         }
 
+        public IEnumerable<FitnessResult<Values, int>> SortDescending(IEnumerable<FitnessResult<Values, int>> genomes)
+        {
+            return genomes.OrderByDescending(r => r.Fitness);
+        }
+
         private static bool IsPrime(int number)
         {
             if (number <= 1) return false;
