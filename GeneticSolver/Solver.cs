@@ -25,11 +25,11 @@ namespace GeneticSolver
     internal sealed class Generation<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenerationFactory<T> _generationFactory;
-        private readonly IGenomeEvalautor<T, TScore> _evaluator;
+        private readonly IGenomeEvaluator<T, TScore> _evaluator;
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly Random _random = new Random();
 
-        public Generation(IEnumerable<IGenomeInfo<T>> genomes, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T, TScore> evaluator, IGenomeDescription<T> genomeDescription)
+        public Generation(IEnumerable<IGenomeInfo<T>> genomes, IGenerationFactory<T> generationFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
@@ -127,10 +127,10 @@ namespace GeneticSolver
     internal sealed class ScoredGeneration<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenerationFactory<T> _generationFactory;
-        private readonly IGenomeEvalautor<T, TScore> _evaluator;
+        private readonly IGenomeEvaluator<T, TScore> _evaluator;
         private readonly IGenomeDescription<T> _genomeDescription;
 
-        public ScoredGeneration(IEnumerable<FitnessResult<T, TScore>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvalautor<T, TScore> evaluator, IGenomeDescription<T> genomeDescription)
+        public ScoredGeneration(IEnumerable<FitnessResult<T, TScore>> fitnessResults, IGenerationFactory<T> generationFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
@@ -162,11 +162,11 @@ namespace GeneticSolver
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenerationFactory<T> _generationFactory;
-        private readonly IGenomeEvalautor<T, TScore> _evaluator;
+        private readonly IGenomeEvaluator<T, TScore> _evaluator;
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly ISolverLogger<T, TScore> _logger;
 
-        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger)
+        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;

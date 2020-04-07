@@ -5,7 +5,7 @@ using GeneticSolver;
 
 namespace GeneticAlgo.Values
 {
-    public class ValuesGenomeEvaluator : IGenomeEvalautor<Values, int>
+    public class ValuesGenomeEvaluator : IGenomeEvaluator<Values, int>
     {
         public int GetFitness(Values genome)
         {
