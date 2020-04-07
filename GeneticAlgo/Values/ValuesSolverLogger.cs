@@ -17,5 +17,11 @@ namespace GeneticAlgo.Values
             Console.WriteLine($" Average age: {results.Average(r => r.Genome.Generation)}");
             Console.WriteLine($" Average score: {results.Average(r => r.Fitness)}");
         }
+
+        public void LogGenome(FitnessResult<Values, int> result)
+        {
+            var values = result.Genome.Genome;
+            Console.WriteLine($" {result.Fitness} - {values.Sum} = {values.A} + {values.B} + {values.C} + {values.D} + {values.E}");
+        }
     }
 }

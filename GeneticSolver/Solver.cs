@@ -156,6 +156,7 @@ namespace GeneticSolver
     {
         void LogStartGeneration(int generationNumber);
         void LogGenerationInfo(IEnumerable<FitnessResult<T, TScore>> results);
+        void LogGenome(FitnessResult<T, TScore> result);
     }
 
     public class Solver<T, TScore> where TScore : IComparable<TScore>
@@ -181,10 +182,11 @@ namespace GeneticSolver
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
                 _logger.LogStartGeneration(generationNum);
-                _logger.LogGenerationInfo(generation.FitnessResults);
                 var keepers = generation.TakeBest(numberToKeep);
                 var children = keepers.BreedPairs(2, generationNum).Mutate();
                 generation = keepers.Concat(children).Score();
+                _logger.LogGenerationInfo(generation.FitnessResults);
+                _logger.LogGenome(generation.FitnessResults.First());
             }
 
             return generation.TakeBest(1).Genomes.First().Genome;
