@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GeneticSolver
 {
-    public interface IGenomeEvalautor<T>
+    public interface IGenomeEvalautor<T, TScore> where TScore : IComparable<TScore>
     {
-        IEnumerable<FitnessResult<T>> GetFitnessResults(IEnumerable<T> genomes);
+        IEnumerable<FitnessResult<T, TScore>> GetFitnessResults(IEnumerable<T> genomes);
     }
 }

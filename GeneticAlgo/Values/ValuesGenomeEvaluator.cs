@@ -5,7 +5,7 @@ using GeneticSolver;
 
 namespace GeneticAlgo.Values
 {
-    public class ValuesGenomeEvaluator : IGenomeEvalautor<Values>
+    public class ValuesGenomeEvaluator : IGenomeEvalautor<Values, int>
     {
         public int GetFitness(Values genome)
         {
@@ -14,9 +14,9 @@ namespace GeneticAlgo.Values
             return IsPrime(sum) ? sum : sum / 4;
         }
 
-        public IEnumerable<FitnessResult<Values>> GetFitnessResults(IEnumerable<Values> genomes)
+        public IEnumerable<FitnessResult<Values, int>> GetFitnessResults(IEnumerable<Values> genomes)
         {
-            return genomes.Select(g => new FitnessResult<Values>(g, GetFitness(g)));
+            return genomes.Select(g => new FitnessResult<Values, int>(g, GetFitness(g)));
         }
 
         private static bool IsPrime(int number)
