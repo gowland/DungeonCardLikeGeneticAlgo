@@ -141,34 +141,42 @@ namespace GeneticSolver
         }
     }
 
+    public interface ISolverLogger<T, TScore>
+    {
+        void LogStartGeneration(int generationNumber);
+        void LogGenerationInfo(IEnumerable<FitnessResult<T, TScore>> results);
+    }
+
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T, TScore> _evaluator;
         private readonly IGenomeDescription<T> _genomeDescription;
+        private readonly ISolverLogger<T, TScore> _logger;
 
-        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T, TScore> evaluator, IGenomeDescription<T> genomeDescription)
+        public Solver(IGenerationFactory<T> generationFactory, IGenomeEvalautor<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger)
         {
             _generationFactory = generationFactory;
             _evaluator = evaluator;
             _genomeDescription = genomeDescription;
+            _logger = logger;
         }
 
         public T Solve(int count, int iterations)
         {
             int numberToKeep = HalfButEven(count);
-            var generation = new Generation<T, TScore>(CreateGeneration(count), _generationFactory, _evaluator, _genomeDescription);
+            var generation = new Generation<T, TScore>(CreateGeneration(count), _generationFactory, _evaluator, _genomeDescription).Score();
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
-                Console.WriteLine($"Starting generation {generationNum}");
-                var scoredGeneration = generation.Score();
-                var keepers = scoredGeneration.TakeBest(numberToKeep);
+                _logger.LogStartGeneration(generationNum);
+                _logger.LogGenerationInfo(generation.FitnessResults);
+                var keepers = generation.TakeBest(numberToKeep);
                 var children = keepers.BreedPairs(2).Mutate();
-                generation = keepers.Concat(children);
+                generation = keepers.Concat(children).Score();
             }
 
-            return generation.Score().TakeBest(1).Genomes.First();
+            return generation.TakeBest(1).Genomes.First();
         }
 
         private IEnumerable<T> CreateGeneration(int count)
