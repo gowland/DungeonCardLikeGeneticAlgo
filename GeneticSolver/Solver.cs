@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GeneticSolver
 {
-    public class Generation<T>
+    internal sealed class Generation<T>
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
@@ -106,7 +106,7 @@ namespace GeneticSolver
         }
     }
 
-    public class ScoredGeneration<T>
+    internal sealed class ScoredGeneration<T>
     {
         private readonly IGenerationFactory<T> _generationFactory;
         private readonly IGenomeEvalautor<T> _evaluator;
