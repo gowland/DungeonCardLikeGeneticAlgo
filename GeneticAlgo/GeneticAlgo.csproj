@@ -40,11 +40,10 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Values\Values.cs" />
-    <Compile Include="Values\ValuesGenomeDescription.cs" />
-    <Compile Include="Values\ValuesGenomeEvaluator.cs" />
-    <Compile Include="Values\ValuesGenerationFactory.cs" />
-    <Compile Include="Values\ValuesSolverLogger.cs" />
+    <Compile Include="Values\MyThing.cs" />
+    <Compile Include="Values\MyThingGenomeDescription.cs" />
+    <Compile Include="Values\MyThingGenomeEvaluator.cs" />
+    <Compile Include="Values\MyThingSolverLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GeneticSolver\GeneticSolver.csproj">

@@ -2,7 +2,7 @@
 
 namespace GeneticSolver
 {
-    public interface IGenerationFactory<T>
+    public interface IGenomeFactory<T>
     {
         T GetNewGenome();
     }

@@ -2,13 +2,13 @@
 {
     public class FitnessResult<T, TScore>
     {
-        public FitnessResult(IGenomeInfo<T> genome, TScore fitness)
+        public FitnessResult(IGenomeInfo<T> genomeInfo, TScore fitness)
         {
-            Genome = genome;
+            GenomeInfo = genomeInfo;
             Fitness = fitness;
         }
 
-        public IGenomeInfo<T> Genome { get; }
+        public IGenomeInfo<T> GenomeInfo { get; }
         public TScore Fitness { get; }
     }
 }

@@ -5,23 +5,23 @@ using GeneticSolver;
 
 namespace GeneticAlgo.Values
 {
-    public class ValuesGenomeEvaluator : IGenomeEvaluator<Values, int>
+    public class MyThingGenomeEvaluator : IGenomeEvaluator<MyThing, int>
     {
-        public int GetFitness(Values genome)
+        public IEnumerable<FitnessResult<MyThing, int>> GetFitnessResults(IEnumerable<IGenomeInfo<MyThing>> genomes)
         {
-            int sum = genome.Sum;
-
-            return IsPrime(sum) ? sum : sum / 4;
+            return genomes.Select(g => new FitnessResult<MyThing, int>(g, GetFitness(g.Genome)));
         }
 
-        public IEnumerable<FitnessResult<Values, int>> GetFitnessResults(IEnumerable<IGenomeInfo<Values>> genomes)
-        {
-            return genomes.Select(g => new FitnessResult<Values, int>(g, GetFitness(g.Genome)));
-        }
-
-        public IEnumerable<FitnessResult<Values, int>> SortDescending(IEnumerable<FitnessResult<Values, int>> genomes)
+        public IEnumerable<FitnessResult<MyThing, int>> SortDescending(IEnumerable<FitnessResult<MyThing, int>> genomes)
         {
             return genomes.OrderByDescending(r => r.Fitness);
+        }
+
+        private int GetFitness(MyThing thing)
+        {
+            int sum = thing.Sum;
+
+            return IsPrime(sum) ? sum : sum / 4;
         }
 
         private static bool IsPrime(int number)

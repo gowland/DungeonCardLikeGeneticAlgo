@@ -1,6 +1,6 @@
 ﻿namespace GeneticAlgo.Values
 {
-    public class Values
+    public class MyThing
     {
         public int A { get; set; }
         public int B { get; set; }
