@@ -39,6 +39,11 @@ namespace GeneticSolver
                 var children = GetChildren(keepers, 2, generationNum);
                 children = MutateGenomes(children);
 
+                if (_solverParameters.MutateParents)
+                {
+                    keepers = MutateGenomes(keepers).ToArray();
+                }
+
                 var nextGenerationGenomes = keepers.Concat(children);
 
                 generation = _evaluator.GetFitnessResults(nextGenerationGenomes).ToArray();
@@ -52,7 +57,8 @@ namespace GeneticSolver
 
         private IEnumerable<Tuple<IGenomeInfo<T>, IGenomeInfo<T>>> GetPairs(IEnumerable<IGenomeInfo<T>> genomes)
         {
-            var genomesArr = genomes.ToArray();
+            var genomesArr = _solverParameters.RandomizeMating ? genomes.OrderBy(g => _random.NextDouble()).ToArray() : genomes.ToArray();
+
             while (genomesArr.Length > 1)
             {
                 var pair = genomesArr.Take(2).ToArray();

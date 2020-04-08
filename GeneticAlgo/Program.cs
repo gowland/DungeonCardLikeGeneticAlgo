@@ -12,17 +12,17 @@ namespace GeneticAlgo
         {
 //            var solver = new Solver<Values.MyThing, int>(new DefaultGenomeFactory<MyThing>(), new MyThingGenomeEvaluator(), new MyThingGenomeDescription(), new MyThingSolverLogger(), new SolverParameters(1000));
 
-            var coefficientsToMatch = new Coefficients()
+            var coefficientsToMatch = new Coefficients
             {
-                FifthLevel = 10.2,
+                FifthLevel = 0,
                 FourthLevel = 3.9,
                 ThirdLevel = -34.5,
                 SecondLevel = -9.8,
                 FirstLevel = 11.9
             };
-            var pointsToMatch = Enumerable.Range(0,100).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
+            var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), new CoefficientsSolverLogger(), new SolverParameters(1000));
+            var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), new CoefficientsSolverLogger(), new SolverParameters(5000, true, true));
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
@@ -58,14 +58,16 @@ namespace GeneticAlgo
         public class CoefficientsGenomeDescriptions : IGenomeDescription<Coefficients>
         {
             private readonly Random _random = new Random();
+            private double _minChange = -50;
+            private double _maxChange = 50;
 
             public IEnumerable<IGenomeProperty<Coefficients>> Properties => new[]
             {
-                new DoubleGenomeProperty<Coefficients>(g => g.FifthLevel, (g, val) => g.FifthLevel = val, -1000, 1000, -30, 30, _random),
-                new DoubleGenomeProperty<Coefficients>(g => g.FourthLevel, (g, val) => g.FourthLevel = val, -1000, 1000, -30, 30, _random),
-                new DoubleGenomeProperty<Coefficients>(g => g.ThirdLevel, (g, val) => g.ThirdLevel = val, -1000, 1000, -30, 30, _random),
-                new DoubleGenomeProperty<Coefficients>(g => g.SecondLevel, (g, val) => g.SecondLevel = val, -1000, 1000, -30, 30, _random),
-                new DoubleGenomeProperty<Coefficients>(g => g.FirstLevel, (g, val) => g.FirstLevel = val, -1000, 1000, -30, 30, _random),
+                new DoubleGenomeProperty<Coefficients>(g => g.FifthLevel, (g, val) => g.FifthLevel = val, -100, 100, _minChange, _maxChange, _random),
+                new DoubleGenomeProperty<Coefficients>(g => g.FourthLevel, (g, val) => g.FourthLevel = val, -100, 100, _minChange, _maxChange, _random),
+                new DoubleGenomeProperty<Coefficients>(g => g.ThirdLevel, (g, val) => g.ThirdLevel = val, -100, 100, _minChange, _maxChange, _random),
+                new DoubleGenomeProperty<Coefficients>(g => g.SecondLevel, (g, val) => g.SecondLevel = val, -100, 100, _minChange, _maxChange, _random),
+                new DoubleGenomeProperty<Coefficients>(g => g.FirstLevel, (g, val) => g.FirstLevel = val, -100, 100, _minChange, _maxChange, _random),
             };
         }
 
@@ -124,7 +126,7 @@ namespace GeneticAlgo
             public void LogGenome(FitnessResult<Coefficients, double> result)
             {
                 var coefficients = result.GenomeInfo.Genome;
-                Console.WriteLine($" {result.Fitness} - {coefficients.FifthLevel} * x ^ 4 + {coefficients.FourthLevel} * x ^ 3 + {coefficients.ThirdLevel} * x ^ 2 + {coefficients.SecondLevel} * x + {coefficients.FirstLevel}");
+                Console.WriteLine($" {result.Fitness} - ({coefficients.FifthLevel:0.##}) * x ^ 4 + ({coefficients.FourthLevel:0.##}) * x ^ 3 + ({coefficients.ThirdLevel:0.##}) * x ^ 2 + ({coefficients.SecondLevel:0.##}) * x + ({coefficients.FirstLevel:0.##})");
             }
         }
 }

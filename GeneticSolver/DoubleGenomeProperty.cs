@@ -10,10 +10,10 @@ namespace GeneticSolver
         private readonly Action<T, double> _setterAction;
         private readonly double _min;
         private readonly double _max;
-        private readonly int _minChange;
-        private readonly int _maxChange;
+        private readonly double _minChange;
+        private readonly double _maxChange;
 
-        public DoubleGenomeProperty(Func<T, double> getterFunc, Action<T, double> setterAction, double min, double max, int minChange, int maxChange, Random random)
+        public DoubleGenomeProperty(Func<T, double> getterFunc, Action<T, double> setterAction, double min, double max, double minChange, double maxChange, Random random)
         {
             _getterFunc = getterFunc;
             _setterAction = setterAction;
@@ -37,7 +37,7 @@ namespace GeneticSolver
         public void Merge(T parent1, T parent2, T child)
         {
             double parent1Percent = _random.NextDouble();
-            var newValue = (int)(_getterFunc(parent1) * parent1Percent + _getterFunc(parent2) * (1- parent1Percent));
+            double newValue = _getterFunc(parent1) * parent1Percent + _getterFunc(parent2) * (1- parent1Percent);
             _setterAction(child, newValue);
         }
 
