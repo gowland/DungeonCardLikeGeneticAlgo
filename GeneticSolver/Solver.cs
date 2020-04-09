@@ -46,7 +46,7 @@ namespace GeneticSolver
 
                 var nextGenerationGenomes = keepers.Concat(children);
 
-                generation = _evaluator.GetFitnessResults(nextGenerationGenomes).ToArray();
+                generation = _evaluator.SortDescending(_evaluator.GetFitnessResults(nextGenerationGenomes)).ToArray();
 
                 _logger.LogGenerationInfo(generation);
                 _logger.LogGenome(generation.First());
@@ -99,7 +99,7 @@ namespace GeneticSolver
         {
             foreach (var genome in genomes)
             {
-                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() > 0.95))
+                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _solverParameters.PropertyMutationProbability))
                 {
                     property.Mutate(genome.Genome);
                 }

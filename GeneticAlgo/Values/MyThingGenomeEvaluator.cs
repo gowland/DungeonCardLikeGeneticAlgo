@@ -12,7 +12,7 @@ namespace GeneticAlgo.Values
             return genomes.Select(g => new FitnessResult<MyThing, int>(g, GetFitness(g.Genome)));
         }
 
-        public IEnumerable<FitnessResult<MyThing, int>> SortDescending(IEnumerable<FitnessResult<MyThing, int>> genomes)
+        public IOrderedEnumerable<FitnessResult<MyThing, int>> SortDescending(IEnumerable<FitnessResult<MyThing, int>> genomes)
         {
             return genomes.OrderByDescending(r => r.Fitness);
         }

@@ -5,5 +5,6 @@
         int MaxGenerationSize { get; }
         bool RandomizeMating { get; }
         bool MutateParents { get; }
+        double PropertyMutationProbability { get; }
     }
 }

@@ -22,14 +22,14 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), new CoefficientsSolverLogger(), new SolverParameters(5000, true, true));
+            var solverParameters = new SolverParameters(5000, false, false, 0.3);
+            var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), new CoefficientsSolverLogger(), solverParameters);
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
             {
                 var best = solver.Evolve(1000);
 
-//                Console.WriteLine($"Best = {best.Sum}");
                 key = Console.ReadKey();
             }
         }
@@ -58,8 +58,8 @@ namespace GeneticAlgo
         public class CoefficientsGenomeDescriptions : IGenomeDescription<Coefficients>
         {
             private readonly Random _random = new Random();
-            private double _minChange = -50;
-            private double _maxChange = 50;
+            private double _minChange = -5;
+            private double _maxChange = 5;
 
             public IEnumerable<IGenomeProperty<Coefficients>> Properties => new[]
             {
@@ -97,7 +97,7 @@ namespace GeneticAlgo
                 return genomes.Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome)));
             }
 
-            public IEnumerable<FitnessResult<Coefficients, double>> SortDescending(IEnumerable<FitnessResult<Coefficients, double>> genomes)
+            public IOrderedEnumerable<FitnessResult<Coefficients, double>> SortDescending(IEnumerable<FitnessResult<Coefficients, double>> genomes)
             {
                 return genomes.OrderBy(g => g.Fitness);
             }
@@ -105,8 +105,7 @@ namespace GeneticAlgo
             private double GetError(Coefficients coefficients)
             {
                 return _pointsToMatch
-                    .Select(point => point.Y - coefficients.Calc(point.X))
-                    .Average(error => error * error);
+                    .Average(point => Math.Abs(point.Y - coefficients.Calc(point.X))/point.Y);
             }
         }
 
@@ -119,14 +118,14 @@ namespace GeneticAlgo
 
             public void LogGenerationInfo(ICollection<FitnessResult<Coefficients, double>> results)
             {
-                Console.WriteLine($" Average age: {results.Average(r => r.GenomeInfo.Generation)}");
-                Console.WriteLine($" Average score: {results.Average(r => r.Fitness)}");
+                Console.WriteLine($" Average age: {results.Average(r => r.GenomeInfo.Generation):0.00}");
+                Console.WriteLine($" Average score: {results.Average(r => r.Fitness):e2}");
             }
 
             public void LogGenome(FitnessResult<Coefficients, double> result)
             {
                 var coefficients = result.GenomeInfo.Genome;
-                Console.WriteLine($" {result.Fitness} - ({coefficients.FifthLevel:0.##}) * x ^ 4 + ({coefficients.FourthLevel:0.##}) * x ^ 3 + ({coefficients.ThirdLevel:0.##}) * x ^ 2 + ({coefficients.SecondLevel:0.##}) * x + ({coefficients.FirstLevel:0.##})");
+                Console.WriteLine($" {result.Fitness:e2} - ({coefficients.FifthLevel:0.##}) * x ^ 4 + ({coefficients.FourthLevel:0.##}) * x ^ 3 + ({coefficients.ThirdLevel:0.##}) * x ^ 2 + ({coefficients.SecondLevel:0.##}) * x + ({coefficients.FirstLevel:0.##})");
             }
         }
 }
