@@ -97,7 +97,7 @@ namespace GeneticAlgo
                 return genomes.Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome)));
             }
 
-            public IOrderedEnumerable<FitnessResult<Coefficients, double>> SortDescending(IEnumerable<FitnessResult<Coefficients, double>> genomes)
+            public IOrderedEnumerable<FitnessResult<Coefficients, double>> SortByDescendingFitness(IEnumerable<FitnessResult<Coefficients, double>> genomes)
             {
                 return genomes.OrderBy(g => g.Fitness);
             }

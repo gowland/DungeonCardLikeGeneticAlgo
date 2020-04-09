@@ -46,7 +46,7 @@ namespace GeneticSolver
 
                 var nextGenerationGenomes = keepers.Concat(children);
 
-                generation = _evaluator.SortDescending(_evaluator.GetFitnessResults(nextGenerationGenomes)).ToArray();
+                generation = _evaluator.SortByDescendingFitness(_evaluator.GetFitnessResults(nextGenerationGenomes)).ToArray();
 
                 _logger.LogGenerationInfo(generation);
                 _logger.LogGenome(generation.First());
@@ -110,7 +110,7 @@ namespace GeneticSolver
 
         private IEnumerable<IGenomeInfo<T>> SelectFittest(IEnumerable<FitnessResult<T, TScore>> fitnessResults, int count)
         {
-            return _evaluator.SortDescending(fitnessResults).Take(count).Select(r => r.GenomeInfo);
+            return _evaluator.SortByDescendingFitness(fitnessResults).Take(count).Select(r => r.GenomeInfo);
         }
 
         private IEnumerable<IGenomeInfo<T>> CreateGeneration(int count)
