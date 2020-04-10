@@ -7,12 +7,12 @@ namespace GeneticAlgo.Values
 {
     public class MyThingGenomeEvaluator : IGenomeEvaluator<MyThing, int>
     {
-        public IEnumerable<FitnessResult<MyThing, int>> GetFitnessResults(IEnumerable<IGenomeInfo<MyThing>> genomes)
+        public IOrderedEnumerable<FitnessResult<MyThing, int>> GetFitnessResults(IEnumerable<IGenomeInfo<MyThing>> genomes)
         {
-            return genomes.Select(g => new FitnessResult<MyThing, int>(g, GetFitness(g.Genome)));
+            return SortByDescendingFitness(genomes.Select(g => new FitnessResult<MyThing, int>(g, GetFitness(g.Genome))));
         }
 
-        public IOrderedEnumerable<FitnessResult<MyThing, int>> SortByDescendingFitness(IEnumerable<FitnessResult<MyThing, int>> genomes)
+        private IOrderedEnumerable<FitnessResult<MyThing, int>> SortByDescendingFitness(IEnumerable<FitnessResult<MyThing, int>> genomes)
         {
             return genomes.OrderByDescending(r => r.Fitness);
         }

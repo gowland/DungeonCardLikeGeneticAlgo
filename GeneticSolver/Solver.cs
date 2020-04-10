@@ -27,8 +27,8 @@ namespace GeneticSolver
             int numberToKeep = HalfButEven(_solverParameters.MaxGenerationSize);
 
             var generation = _evaluator.GetFitnessResults(
-         originalGeneration?.Select(g => new GenomeInfo<T>(g, 0)) 
-                ?? CreateGeneration(_solverParameters.MaxGenerationSize)).ToArray();
+             originalGeneration?.Select(g => new GenomeInfo<T>(g, 0)) 
+                ?? CreateGeneration(_solverParameters.MaxGenerationSize));
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
@@ -44,12 +44,11 @@ namespace GeneticSolver
                     keepers = MutateGenomes(keepers).ToArray();
                 }
 
-                var nextGenerationGenomes = keepers.Concat(children);
+                var nextGenerationGenomes = keepers.Concat(children).ToArray();
 
-                generation = _evaluator.SortByDescendingFitness(_evaluator.GetFitnessResults(nextGenerationGenomes)).ToArray();
+                generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
 
                 _logger.LogGenerationInfo(generation);
-                _logger.LogGenome(generation.First());
             }
 
             return SelectFittest(generation, 1).First().Genome;
@@ -110,7 +109,7 @@ namespace GeneticSolver
 
         private IEnumerable<IGenomeInfo<T>> SelectFittest(IEnumerable<FitnessResult<T, TScore>> fitnessResults, int count)
         {
-            return _evaluator.SortByDescendingFitness(fitnessResults).Take(count).Select(r => r.GenomeInfo);
+            return fitnessResults.Take(count).Select(r => r.GenomeInfo);
         }
 
         private IEnumerable<IGenomeInfo<T>> CreateGeneration(int count)
