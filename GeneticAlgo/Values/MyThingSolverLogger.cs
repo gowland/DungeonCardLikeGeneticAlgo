@@ -7,7 +7,7 @@ namespace GeneticAlgo.Values
 {
     public class MyThingSolverLogger : ISolverLogger<MyThing, int>
     {
-        public void Start()
+        public void Start(ISolverParameters parameters)
         {
             Console.WriteLine("================ Start ================ ");
         }
@@ -17,7 +17,7 @@ namespace GeneticAlgo.Values
             Console.WriteLine($"------------- generation {generationNumber} -------------");
         }
 
-        public void LogGenerationInfo(IOrderedEnumerable<FitnessResult<MyThing, int>> results)
+        public void LogGenerationInfo(int generationNumber, IOrderedEnumerable<FitnessResult<MyThing, int>> results)
         {
             Console.WriteLine($" Average age: {results.Average(r => r.GenomeInfo.Generation)}");
             Console.WriteLine($" Average score: {results.Average(r => r.Fitness)}");

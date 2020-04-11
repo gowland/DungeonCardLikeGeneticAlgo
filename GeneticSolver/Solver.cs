@@ -48,7 +48,7 @@ namespace GeneticSolver
 
                 generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
 
-                _logger.LogGenerationInfo(generation);
+                _logger.LogGenerationInfo(generationNum, generation);
             }
 
             return SelectFittest(generation, 1).First().Genome;

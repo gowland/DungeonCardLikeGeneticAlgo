@@ -30,7 +30,7 @@ namespace GeneticAlgo
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
             {
-                logger.Start();
+                logger.Start(solverParameters);
                 var best = solver.Evolve(1000);
                 logger.End();
 
@@ -120,9 +120,16 @@ namespace GeneticAlgo
     {
         private StreamWriter logFile;
 
-        public void Start()
+        public void Start(ISolverParameters parameters)
         {
+            var filename = $"log_{DateTime.Now:s}";
             logFile = new StreamWriter("log.csv");
+            logFile.WriteLine($"Generation Size,{parameters.MaxGenerationSize}");
+            logFile.WriteLine($"Mutation Probability,{parameters.PropertyMutationProbability:0.00}");
+            logFile.WriteLine($"Mutate Parents,{(parameters.MutateParents ? "YES" : "NO")}");
+            logFile.WriteLine($"Random Mating,{(parameters.RandomizeMating ? "YES" : "NO")}");
+            logFile.WriteLine();
+            logFile.WriteLine("Generation,Average Age,Top 10 Average Age,Best Age,Average Error,Top 10 Error, Best Error");
         }
 
         public void LogStartGeneration(int generationNumber)
@@ -130,7 +137,7 @@ namespace GeneticAlgo
             Console.WriteLine($"---------- {generationNumber} ---------- ");
         }
 
-        public void LogGenerationInfo(IOrderedEnumerable<FitnessResult<Coefficients, double>> results)
+        public void LogGenerationInfo(int generationNumber, IOrderedEnumerable<FitnessResult<Coefficients, double>> results)
         {
             var resultsArr = results.ToArray();
 
@@ -146,7 +153,7 @@ namespace GeneticAlgo
             Console.WriteLine($" Average score: {averageScoreAllGenomes:e2}");
             LogGenome(topGenome);
 
-            logFile.WriteLine($"{averageAgeAllGenomes:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:0.00},{averageScoreTop10Genomes:0.00},{topGenome.Fitness:0.00}");
+            logFile.WriteLine($"{generationNumber},{averageAgeAllGenomes:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
         }
 
         private void LogGenome(FitnessResult<Coefficients, double> result)
