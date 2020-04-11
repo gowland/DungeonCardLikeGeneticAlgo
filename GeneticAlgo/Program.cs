@@ -23,7 +23,7 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solverParameters = new SolverParameters(5000, false, false, 0.3);
+            var solverParameters = new SolverParameters(5000, true, false, 0.3);
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), logger, solverParameters);
 
@@ -122,8 +122,7 @@ namespace GeneticAlgo
 
         public void Start(ISolverParameters parameters)
         {
-            var filename = $"log_{DateTime.Now:s}";
-            logFile = new StreamWriter("log.csv");
+            logFile = new StreamWriter($"log_{DateTime.Now:yyyy-MM-dd-hh-mm}.csv");
             logFile.WriteLine($"Generation Size,{parameters.MaxGenerationSize}");
             logFile.WriteLine($"Mutation Probability,{parameters.PropertyMutationProbability:0.00}");
             logFile.WriteLine($"Mutate Parents,{(parameters.MutateParents ? "YES" : "NO")}");
