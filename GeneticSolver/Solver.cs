@@ -37,11 +37,12 @@ namespace GeneticSolver
                 var keepers = SelectFittest(generation, numberToKeep).ToArray();
 
                 var children = GetChildren(keepers, 2, generationNum);
-                children = MutateGenomes(children);
+                children = MutateGenomes(children).ToArray();
 
                 if (_solverParameters.MutateParents)
                 {
-                    keepers = MutateGenomes(keepers).ToArray();
+                    // Do not mutate the fittest genome
+                    keepers = keepers.Take(1).Concat(MutateGenomes(keepers.Skip(1))).ToArray();
                 }
 
                 var nextGenerationGenomes = keepers.Concat(children).ToArray();

@@ -23,7 +23,7 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solverParameters = new SolverParameters(5000, true, false, 0.3);
+            var solverParameters = new SolverParameters(5000, false, true, 0.3);
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), logger, solverParameters);
 
@@ -164,6 +164,7 @@ namespace GeneticAlgo
         public void End()
         {
             logFile.Flush();
+            logFile.Close();
             logFile = null;
         }
     }
