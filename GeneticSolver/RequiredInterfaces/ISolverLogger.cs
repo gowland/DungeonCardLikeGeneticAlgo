@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
-namespace GeneticSolver
+namespace GeneticSolver.RequiredInterfaces
 {
     public interface ISolverLogger<T, TScore>
     {

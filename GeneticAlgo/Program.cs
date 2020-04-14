@@ -4,6 +4,10 @@ using System.IO;
 using System.Linq;
 using GeneticAlgo.Values;
 using GeneticSolver;
+using GeneticSolver.Genome;
+using GeneticSolver.GenomeProperty;
+using GeneticSolver.Interfaces;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticAlgo
 {

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using GeneticSolver;
+using GeneticSolver.Interfaces;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticAlgo.Values
 {

@@ -1,4 +1,6 @@
-﻿namespace GeneticSolver
+﻿using GeneticSolver.RequiredInterfaces;
+
+namespace GeneticSolver
 {
     public class SolverParameters : ISolverParameters
     {

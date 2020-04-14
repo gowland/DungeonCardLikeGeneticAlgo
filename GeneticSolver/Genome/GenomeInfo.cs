@@ -1,4 +1,6 @@
-﻿namespace GeneticSolver
+﻿using GeneticSolver.Interfaces;
+
+namespace GeneticSolver.Genome
 {
     class GenomeInfo<T> : IGenomeInfo<T>
     {

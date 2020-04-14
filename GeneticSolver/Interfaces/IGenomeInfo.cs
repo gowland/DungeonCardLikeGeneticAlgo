@@ -1,4 +1,4 @@
-﻿namespace GeneticSolver
+﻿namespace GeneticSolver.Interfaces
 {
     public interface IGenomeInfo<out T>
     {

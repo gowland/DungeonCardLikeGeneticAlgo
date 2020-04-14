@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using GeneticSolver;
+using GeneticSolver.GenomeProperty;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticAlgo.Values
 {
