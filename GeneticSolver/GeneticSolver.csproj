@@ -41,11 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EarlyStoppingConditions\FitnessThresholdReachedEarlyStopCondition.cs" />
+    <Compile Include="EarlyStoppingConditions\ProgressStalledEarlyStoppingCondition.cs" />
     <Compile Include="Genome\DefaultGenomeFactory.cs" />
     <Compile Include="GenomeProperty\DoubleGenomeProperty.cs" />
     <Compile Include="FitnessResult.cs" />
     <Compile Include="Genome\GenomeInfo.cs" />
     <Compile Include="IGenomeDescription.cs" />
+    <Compile Include="RequiredInterfaces\IEarlyStoppingCondition.cs" />
     <Compile Include="RequiredInterfaces\IGenomeEvaluator.cs" />
     <Compile Include="IGenomeFactory.cs" />
     <Compile Include="Interfaces\IGenomeInfo.cs" />

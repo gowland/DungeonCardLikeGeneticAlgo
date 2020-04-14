@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GeneticAlgo.Values;
 using GeneticSolver;
+using GeneticSolver.EarlyStoppingConditions;
 using GeneticSolver.Genome;
 using GeneticSolver.GenomeProperty;
 using GeneticSolver.Interfaces;
@@ -35,7 +36,11 @@ namespace GeneticAlgo
                 new CoefficientsGenomeDescriptions(),
                 logger,
                 solverParameters,
-                new[]{new FitnessThresholdReachedEarlyStopCondition()});
+                new IEarlyStoppingCondition<Coefficients, double>[]
+                {
+                    new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6), 
+                    new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
+                });
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
@@ -48,14 +53,6 @@ namespace GeneticAlgo
             }
         }
 
-    }
-
-    public class FitnessThresholdReachedEarlyStopCondition : IEarlyStoppingCondition<Coefficients, double>
-    {
-        public bool Match(int generationNumber, IOrderedEnumerable<FitnessResult<Coefficients, double>> generation)
-        {
-            return generation.First().Fitness < 1e-4;
-        }
     }
 
     public class Coefficients

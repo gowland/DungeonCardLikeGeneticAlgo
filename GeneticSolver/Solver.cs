@@ -7,11 +7,6 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
-    public interface IEarlyStoppingCondition<T, TScore>
-    {
-        bool Match(int generationNumber, IOrderedEnumerable<FitnessResult<T, TScore>> generation);
-    }
-
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenomeFactory<T> _genomeFactory;
