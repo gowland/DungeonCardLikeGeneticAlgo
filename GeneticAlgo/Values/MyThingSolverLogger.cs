@@ -18,12 +18,6 @@ namespace GeneticAlgo.Values
             Console.WriteLine($"------------- generation {generationNumber} -------------");
         }
 
-        public void LogGenerationInfo(int generationNumber, IOrderedEnumerable<FitnessResult<MyThing, int>> results)
-        {
-            Console.WriteLine($" Average age: {results.Average(r => r.GenomeInfo.Generation)}");
-            Console.WriteLine($" Average score: {results.Average(r => r.Fitness)}");
-        }
-
         public void LogGenome(FitnessResult<MyThing, int> result)
         {
             var thing = result.GenomeInfo.Genome;
@@ -33,6 +27,12 @@ namespace GeneticAlgo.Values
         public void End()
         {
             Console.WriteLine("================ Done ================ ");
+        }
+
+        public void LogGenerationInfo(GenerationResult<MyThing, int> generationResult)
+        {
+            Console.WriteLine($" Average generation: {generationResult.AverageGenomeGeneration}");
+            Console.WriteLine($" Average fitness: {generationResult.OrderedGenomes.Average(r => r.Fitness)}");
         }
     }
 }

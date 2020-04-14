@@ -7,6 +7,22 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
+    public class GenerationResult <T, TScore>
+    {
+        public GenerationResult(int generationNumber, IOrderedEnumerable<FitnessResult<T, TScore>> orderedGenomes)
+        {
+            GenerationNumber = generationNumber;
+            OrderedGenomes = orderedGenomes;
+            FittestGenome = orderedGenomes.First();
+            AverageGenomeGeneration = orderedGenomes.Average(g => g.GenomeInfo.Generation);
+        }
+
+        public int GenerationNumber { get; }
+        public IOrderedEnumerable<FitnessResult<T, TScore>> OrderedGenomes { get; }
+        public FitnessResult<T, TScore> FittestGenome { get; }
+        public double AverageGenomeGeneration { get; }
+    }
+
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenomeFactory<T> _genomeFactory;
@@ -27,9 +43,11 @@ namespace GeneticSolver
             _earlyStoppingConditions = earlyStoppingConditions;
         }
 
-        public T Evolve(int iterations, IEnumerable<T> originalGeneration = null)
+        public GenerationResult<T, TScore> Evolve(int iterations, IEnumerable<T> originalGeneration = null)
         {
             int numberToKeep = HalfButEven(_solverParameters.MaxGenerationSize);
+
+            GenerationResult<T, TScore> generationResult = null;
 
             var generation = _evaluator.GetFitnessResults(
              originalGeneration?.Select(g => new GenomeInfo<T>(g, 0)) 
@@ -54,16 +72,18 @@ namespace GeneticSolver
 
                 generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
 
-                _logger.LogGenerationInfo(generationNum, generation);
+                generationResult = new GenerationResult<T, TScore>(generationNum, generation);
+
+                _logger.LogGenerationInfo(generationResult);
 
                 if (_earlyStoppingConditions.Any(condition =>
-                    condition.Match(generationNum, generation)))
+                    condition.Match(generationResult)))
                 {
-                    return SelectFittest(generation, 1).First().Genome;
+                    return generationResult;
                 }
             }
 
-            return SelectFittest(generation, 1).First().Genome;
+            return generationResult;
         }
 
         private IEnumerable<Tuple<IGenomeInfo<T>, IGenomeInfo<T>>> GetPairs(IEnumerable<IGenomeInfo<T>> genomes)

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using GeneticSolver.RequiredInterfaces;
+﻿using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.EarlyStoppingConditions
 {
@@ -16,13 +15,13 @@ namespace GeneticSolver.EarlyStoppingConditions
             _averageGenomeMaxAgePercentage = averageGenomeMaxAgePercentage;
         }
 
-        public bool Match(int generationNumber, IOrderedEnumerable<FitnessResult<T, TScore>> generation)
+        public bool Match(GenerationResult<T, TScore> generationResult)
         {
-            int mostFitGenomeGeneration = generation.First().GenomeInfo.Generation;
-            double averageGenomeGeneration = generation.Average(g => g.GenomeInfo.Generation);
+            int mostFitGenomeGeneration = generationResult.FittestGenome.GenomeInfo.Generation;
+            double averageGenomeGeneration = generationResult.AverageGenomeGeneration;
 
-            return generationNumber > _minGenerationsToTakeEffect 
-                   && (mostFitGenomeGeneration / (double)generationNumber < _mostFitGenomeMaxAgePercentage || averageGenomeGeneration / generationNumber < _averageGenomeMaxAgePercentage);
+            return generationResult.GenerationNumber > _minGenerationsToTakeEffect 
+                   && (mostFitGenomeGeneration / (double)generationResult.GenerationNumber < _mostFitGenomeMaxAgePercentage || averageGenomeGeneration / generationResult.GenerationNumber < _averageGenomeMaxAgePercentage);
         }
     }
 }

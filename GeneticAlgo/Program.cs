@@ -46,7 +46,7 @@ namespace GeneticAlgo
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
             {
                 logger.Start(solverParameters);
-                var best = solver.Evolve(1000);
+                var best = solver.Evolve(10);
                 logger.End();
 
                 key = Console.ReadKey();
@@ -169,6 +169,19 @@ namespace GeneticAlgo
             logFile.WriteLine($"{generationNumber},{averageAgeAllGenomes:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
         }
 
+        public void LogGenerationInfo(GenerationResult<Coefficients, double> generationResult)
+        {
+            Console.WriteLine($" Average generation: {generationResult.AverageGenomeGeneration:0.00}");
+            Console.WriteLine($" Average fitness: {generationResult.OrderedGenomes.Average(r => r.Fitness):e2}");
+            LogGenome(generationResult.FittestGenome);
+
+            FitnessResult<Coefficients, double> topGenome = generationResult.FittestGenome;
+            double averageAgeTop10Genomes = generationResult.OrderedGenomes.Take(10).Average(r => r.GenomeInfo.Generation);
+            var averageScoreAllGenomes = generationResult.OrderedGenomes.Average(r => r.Fitness);
+            var averageScoreTop10Genomes = generationResult.OrderedGenomes.Take(10).Average(r => r.Fitness);
+            logFile.WriteLine($"{generationResult.GenerationNumber},{generationResult.AverageGenomeGeneration:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
+        }
+
         private void LogGenome(FitnessResult<Coefficients, double> result)
         {
             var coefficients = result.GenomeInfo.Genome;
@@ -177,6 +190,7 @@ namespace GeneticAlgo
 
         public void End()
         {
+            Console.WriteLine("Fin");
             logFile.Flush();
             logFile.Close();
             logFile = null;
