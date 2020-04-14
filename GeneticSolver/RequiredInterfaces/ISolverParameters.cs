@@ -1,4 +1,6 @@
-﻿namespace GeneticSolver.RequiredInterfaces
+﻿using System.Collections.Generic;
+
+namespace GeneticSolver.RequiredInterfaces
 {
     public interface ISolverParameters
     {

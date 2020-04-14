@@ -7,6 +7,11 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
+    public interface IEarlyStoppingCondition<T, TScore>
+    {
+        bool Match(int generationNumber, IOrderedEnumerable<FitnessResult<T, TScore>> generation);
+    }
+
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenomeFactory<T> _genomeFactory;
@@ -14,15 +19,17 @@ namespace GeneticSolver
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly ISolverLogger<T, TScore> _logger;
         private readonly ISolverParameters _solverParameters;
+        private readonly IEnumerable<IEarlyStoppingCondition<T, TScore>> _earlyStoppingConditions;
         private readonly Random _random = new Random();
 
-        public Solver(IGenomeFactory<T> genomeFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger, ISolverParameters solverParameters)
+        public Solver(IGenomeFactory<T> genomeFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger, ISolverParameters solverParameters, IEnumerable<IEarlyStoppingCondition<T, TScore>> earlyStoppingConditions)
         {
             _genomeFactory = genomeFactory;
             _evaluator = evaluator;
             _genomeDescription = genomeDescription;
             _logger = logger;
             _solverParameters = solverParameters;
+            _earlyStoppingConditions = earlyStoppingConditions;
         }
 
         public T Evolve(int iterations, IEnumerable<T> originalGeneration = null)
@@ -53,6 +60,12 @@ namespace GeneticSolver
                 generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
 
                 _logger.LogGenerationInfo(generationNum, generation);
+
+                if (_earlyStoppingConditions.Any(condition =>
+                    condition.Match(generationNum, generation)))
+                {
+                    return SelectFittest(generation, 1).First().Genome;
+                }
             }
 
             return SelectFittest(generation, 1).First().Genome;

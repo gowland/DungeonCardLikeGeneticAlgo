@@ -29,7 +29,13 @@ namespace GeneticAlgo
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
             var solverParameters = new SolverParameters(5000, false, true, 0.3);
             var logger = new CoefficientsSolverLogger();
-            var solver = new Solver<Coefficients, double>(new DefaultGenomeFactory<Coefficients>(), evaluator, new CoefficientsGenomeDescriptions(), logger, solverParameters);
+            var solver = new Solver<Coefficients, double>(
+                new DefaultGenomeFactory<Coefficients>(),
+                evaluator,
+                new CoefficientsGenomeDescriptions(),
+                logger,
+                solverParameters,
+                new[]{new FitnessThresholdReachedEarlyStopCondition()});
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
@@ -44,6 +50,13 @@ namespace GeneticAlgo
 
     }
 
+    public class FitnessThresholdReachedEarlyStopCondition : IEarlyStoppingCondition<Coefficients, double>
+    {
+        public bool Match(int generationNumber, IOrderedEnumerable<FitnessResult<Coefficients, double>> generation)
+        {
+            return generation.First().Fitness < 1e-4;
+        }
+    }
 
     public class Coefficients
     {
