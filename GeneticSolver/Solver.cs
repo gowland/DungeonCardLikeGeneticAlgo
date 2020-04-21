@@ -1,9 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeneticSolver.Genome;
+using GeneticSolver.Interfaces;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
+    public class GenerationResult <T, TScore>
+    {
+        public GenerationResult(int generationNumber, IOrderedEnumerable<FitnessResult<T, TScore>> orderedGenomes)
+        {
+            GenerationNumber = generationNumber;
+            OrderedGenomes = orderedGenomes;
+            FittestGenome = orderedGenomes.First();
+            AverageGenomeGeneration = orderedGenomes.Average(g => g.GenomeInfo.Generation);
+        }
+
+        public int GenerationNumber { get; }
+        public IOrderedEnumerable<FitnessResult<T, TScore>> OrderedGenomes { get; }
+        public FitnessResult<T, TScore> FittestGenome { get; }
+        public double AverageGenomeGeneration { get; }
+    }
+
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenomeFactory<T> _genomeFactory;
@@ -11,20 +30,24 @@ namespace GeneticSolver
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly ISolverLogger<T, TScore> _logger;
         private readonly ISolverParameters _solverParameters;
+        private readonly IEnumerable<IEarlyStoppingCondition<T, TScore>> _earlyStoppingConditions;
         private readonly Random _random = new Random();
 
-        public Solver(IGenomeFactory<T> genomeFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger, ISolverParameters solverParameters)
+        public Solver(IGenomeFactory<T> genomeFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger, ISolverParameters solverParameters, IEnumerable<IEarlyStoppingCondition<T, TScore>> earlyStoppingConditions)
         {
             _genomeFactory = genomeFactory;
             _evaluator = evaluator;
             _genomeDescription = genomeDescription;
             _logger = logger;
             _solverParameters = solverParameters;
+            _earlyStoppingConditions = earlyStoppingConditions;
         }
 
-        public T Evolve(int iterations, IEnumerable<T> originalGeneration = null)
+        public GenerationResult<T, TScore> Evolve(int iterations, IEnumerable<T> originalGeneration = null)
         {
             int numberToKeep = HalfButEven(_solverParameters.MaxGenerationSize);
+
+            GenerationResult<T, TScore> generationResult = null;
 
             var generation = _evaluator.GetFitnessResults(
              originalGeneration?.Select(g => new GenomeInfo<T>(g, 0)) 
@@ -49,10 +72,18 @@ namespace GeneticSolver
 
                 generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
 
-                _logger.LogGenerationInfo(generationNum, generation);
+                generationResult = new GenerationResult<T, TScore>(generationNum, generation);
+
+                _logger.LogGenerationInfo(generationResult);
+
+                if (_earlyStoppingConditions.Any(condition =>
+                    condition.Match(generationResult)))
+                {
+                    return generationResult;
+                }
             }
 
-            return SelectFittest(generation, 1).First().Genome;
+            return generationResult;
         }
 
         private IEnumerable<Tuple<IGenomeInfo<T>, IGenomeInfo<T>>> GetPairs(IEnumerable<IGenomeInfo<T>> genomes)

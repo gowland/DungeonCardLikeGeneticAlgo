@@ -1,4 +1,6 @@
-﻿namespace GeneticSolver
+﻿using GeneticSolver.Interfaces;
+
+namespace GeneticSolver
 {
     public class FitnessResult<T, TScore>
     {

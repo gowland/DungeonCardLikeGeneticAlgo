@@ -1,6 +1,7 @@
 ﻿using System;
+using GeneticSolver.RequiredInterfaces;
 
-namespace GeneticSolver
+namespace GeneticSolver.GenomeProperty
 {
     public class DoubleGenomeProperty<T> : IGenomeProperty<T>
     {

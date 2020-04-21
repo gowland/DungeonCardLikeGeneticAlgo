@@ -41,18 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DefaultGenomeFactory.cs" />
-    <Compile Include="DoubleGenomeProperty.cs" />
+    <Compile Include="EarlyStoppingConditions\FitnessThresholdReachedEarlyStopCondition.cs" />
+    <Compile Include="EarlyStoppingConditions\ProgressStalledEarlyStoppingCondition.cs" />
+    <Compile Include="Genome\DefaultGenomeFactory.cs" />
+    <Compile Include="GenomeProperty\DoubleGenomeProperty.cs" />
     <Compile Include="FitnessResult.cs" />
-    <Compile Include="GenomeInfo.cs" />
+    <Compile Include="Genome\GenomeInfo.cs" />
     <Compile Include="IGenomeDescription.cs" />
-    <Compile Include="IGenomeEvaluator.cs" />
+    <Compile Include="RequiredInterfaces\IEarlyStoppingCondition.cs" />
+    <Compile Include="RequiredInterfaces\IGenomeEvaluator.cs" />
     <Compile Include="IGenomeFactory.cs" />
-    <Compile Include="IGenomeInfo.cs" />
-    <Compile Include="IGenomeProperty.cs" />
-    <Compile Include="IntegerGenomeProperty.cs" />
-    <Compile Include="ISolverLogger.cs" />
-    <Compile Include="ISolverParameters.cs" />
+    <Compile Include="Interfaces\IGenomeInfo.cs" />
+    <Compile Include="RequiredInterfaces\IGenomeProperty.cs" />
+    <Compile Include="GenomeProperty\IntegerGenomeProperty.cs" />
+    <Compile Include="RequiredInterfaces\ISolverLogger.cs" />
+    <Compile Include="RequiredInterfaces\ISolverParameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Solver.cs" />
     <Compile Include="SolverParameters.cs" />
