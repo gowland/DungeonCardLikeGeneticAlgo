@@ -34,7 +34,7 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solverParameters = new SolverParameters(5000, false, false, 0.3, new HaremBreedingStrategy());
+            var solverParameters = new SolverParameters(5000, false, 0.3, new HaremBreedingStrategy());
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(
                 new DefaultGenomeFactory<Coefficients>(),
@@ -146,7 +146,6 @@ namespace GeneticAlgo
             logFile.WriteLine($"Generation Size,{parameters.MaxGenerationSize}");
             logFile.WriteLine($"Mutation Probability,{parameters.PropertyMutationProbability:0.00}");
             logFile.WriteLine($"Mutate Parents,{(parameters.MutateParents ? "YES" : "NO")}");
-            logFile.WriteLine($"Random Mating,{(parameters.RandomizeMating ? "YES" : "NO")}");
             logFile.WriteLine();
             logFile.WriteLine("Generation,Average Age,Top 10 Average Age,Best Age,Average Error,Top 10 Error, Best Error");
         }
