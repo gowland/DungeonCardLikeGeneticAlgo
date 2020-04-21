@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GeneticSolver.Interfaces;
 
 namespace GeneticSolver.RequiredInterfaces
 {
@@ -8,5 +9,6 @@ namespace GeneticSolver.RequiredInterfaces
         bool RandomizeMating { get; }
         bool MutateParents { get; }
         double PropertyMutationProbability { get; }
+        IBreadingStrategy BreadingStrategy { get; }
     }
 }

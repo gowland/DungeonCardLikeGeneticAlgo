@@ -41,13 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BreedingStrategies\HaremBreedingStrategy.cs" />
+    <Compile Include="BreedingStrategies\RandomBreedingStrategy.cs" />
+    <Compile Include="BreedingStrategies\RotatingBreedingStrategy.cs" />
+    <Compile Include="BreedingStrategies\StratifiedBreedingStrategy.cs" />
     <Compile Include="EarlyStoppingConditions\FitnessThresholdReachedEarlyStopCondition.cs" />
     <Compile Include="EarlyStoppingConditions\ProgressStalledEarlyStoppingCondition.cs" />
+    <Compile Include="GenerationResult.cs" />
     <Compile Include="Genome\DefaultGenomeFactory.cs" />
     <Compile Include="GenomeProperty\DoubleGenomeProperty.cs" />
     <Compile Include="FitnessResult.cs" />
     <Compile Include="Genome\GenomeInfo.cs" />
     <Compile Include="IGenomeDescription.cs" />
+    <Compile Include="Interfaces\IBreadingStrategy.cs" />
     <Compile Include="RequiredInterfaces\IEarlyStoppingCondition.cs" />
     <Compile Include="RequiredInterfaces\IGenomeEvaluator.cs" />
     <Compile Include="IGenomeFactory.cs" />

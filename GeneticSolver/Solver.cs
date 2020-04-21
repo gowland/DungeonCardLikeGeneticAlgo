@@ -1,28 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using GeneticSolver.Genome;
 using GeneticSolver.Interfaces;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
-    public class GenerationResult <T, TScore>
-    {
-        public GenerationResult(int generationNumber, IOrderedEnumerable<FitnessResult<T, TScore>> orderedGenomes)
-        {
-            GenerationNumber = generationNumber;
-            OrderedGenomes = orderedGenomes;
-            FittestGenome = orderedGenomes.First();
-            AverageGenomeGeneration = orderedGenomes.Average(g => g.GenomeInfo.Generation);
-        }
-
-        public int GenerationNumber { get; }
-        public IOrderedEnumerable<FitnessResult<T, TScore>> OrderedGenomes { get; }
-        public FitnessResult<T, TScore> FittestGenome { get; }
-        public double AverageGenomeGeneration { get; }
-    }
-
     public class Solver<T, TScore> where TScore : IComparable<TScore>
     {
         private readonly IGenomeFactory<T> _genomeFactory;
@@ -50,22 +35,22 @@ namespace GeneticSolver
             GenerationResult<T, TScore> generationResult = null;
 
             var generation = _evaluator.GetFitnessResults(
-             originalGeneration?.Select(g => new GenomeInfo<T>(g, 0)) 
+             originalGeneration?.Select(g => new GenomeInfo<T>(g, 0))
                 ?? CreateGeneration(_solverParameters.MaxGenerationSize));
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
                 _logger.LogStartGeneration(generationNum);
 
-                var keepers = SelectFittest(generation, numberToKeep).ToArray();
+                IOrderedEnumerable<IGenomeInfo<T>> keepers = SelectFittest(generation, numberToKeep);
 
-                var children = GetChildren(keepers, 2, generationNum);
-                children = MutateGenomes(children).ToArray();
+                var children = GetChildren(keepers, 2, generationNum).ToArray();
+                children.ToList().ForEach(MutateGenome);
 
                 if (_solverParameters.MutateParents)
                 {
                     // Do not mutate the fittest genome
-                    keepers = keepers.Take(1).Concat(MutateGenomes(keepers.Skip(1))).ToArray();
+                    keepers.Skip(1).ToList().ForEach(MutateGenome);
                 }
 
                 var nextGenerationGenomes = keepers.Concat(children).ToArray();
@@ -86,22 +71,9 @@ namespace GeneticSolver
             return generationResult;
         }
 
-        private IEnumerable<Tuple<IGenomeInfo<T>, IGenomeInfo<T>>> GetPairs(IEnumerable<IGenomeInfo<T>> genomes)
+        private IEnumerable<IGenomeInfo<T>> GetChildren(IOrderedEnumerable<IGenomeInfo<T>> genomes, int count, int generationNum)
         {
-            var genomesArr = _solverParameters.RandomizeMating ? genomes.OrderBy(g => _random.NextDouble()).ToArray() : genomes.ToArray();
-
-            while (genomesArr.Length > 1)
-            {
-                var pair = genomesArr.Take(2).ToArray();
-                yield return new Tuple<IGenomeInfo<T>, IGenomeInfo<T>>(pair[0], pair[1]);
-
-                genomesArr = genomesArr.Skip(2).ToArray();
-            }
-        }
-
-        private IEnumerable<IGenomeInfo<T>> GetChildren(IEnumerable<IGenomeInfo<T>> genomes, int count, int generationNum)
-        {
-            foreach (var pair in GetPairs(genomes))
+            foreach (var pair in _solverParameters.BreadingStrategy.GetPairs(genomes))
             {
                 var children = CreateChildren(count, pair.Item1, pair.Item2, generationNum);
                 var worthyChildren = SelectFittest(_evaluator.GetFitnessResults(children), 2).ToArray();
@@ -130,16 +102,22 @@ namespace GeneticSolver
         {
             foreach (var genome in genomes)
             {
-                foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _solverParameters.PropertyMutationProbability))
-                {
-                    property.Mutate(genome.Genome);
-                }
+                MutateGenome(genome);
 
                 yield return genome;
             }
         }
 
-        private IEnumerable<IGenomeInfo<T>> SelectFittest(IEnumerable<FitnessResult<T, TScore>> fitnessResults, int count)
+        private void MutateGenome(IGenomeInfo<T> genome)
+        {
+            foreach (var property in _genomeDescription.Properties.Where(p =>
+                _random.NextDouble() < _solverParameters.PropertyMutationProbability))
+            {
+                property.Mutate(genome.Genome);
+            }
+        }
+
+        private IOrderedEnumerable<IGenomeInfo<T>> SelectFittest(IOrderedEnumerable<FitnessResult<T, TScore>> fitnessResults, int count)
         {
             return fitnessResults.Take(count).Select(r => r.GenomeInfo);
         }
@@ -164,5 +142,20 @@ namespace GeneticSolver
             return half % 2 == 0 ? half : half - 1;
         }
 
+    }
+
+    public static class OrderedEnumerableExtensions
+    {
+        public static IOrderedEnumerable<T> Take<T>(this IOrderedEnumerable<T> items, int numToTake)
+        {
+            int count = 0;
+            return Enumerable.Take(items, numToTake).OrderBy(_ => count++);
+        }
+
+        public static IOrderedEnumerable<U> Select<T, U>(this IOrderedEnumerable<T> items, Func<T, U> func)
+        {
+            int count = 0;
+            return Enumerable.Select(items, func).OrderBy(_ => count++);
+        }
     }
 }

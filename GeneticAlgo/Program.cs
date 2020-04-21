@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GeneticAlgo.Values;
 using GeneticSolver;
+using GeneticSolver.BreedingStrategies;
 using GeneticSolver.EarlyStoppingConditions;
 using GeneticSolver.Genome;
 using GeneticSolver.GenomeProperty;
@@ -12,6 +13,11 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticAlgo
 {
+    /*
+     * Things to try:
+     * - Breeding strategies as opposed to pairing strategies (eg. allow swapping of genomes instead of only averaging)
+     * - Slowing mutation rate as accuracy increases
+     */
     internal class Program
     {
         public static void Main(string[] args)
@@ -28,7 +34,7 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solverParameters = new SolverParameters(5000, false, true, 0.3);
+            var solverParameters = new SolverParameters(5000, false, false, 0.3, new HaremBreedingStrategy());
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(
                 new DefaultGenomeFactory<Coefficients>(),
@@ -38,7 +44,7 @@ namespace GeneticAlgo
                 solverParameters,
                 new IEarlyStoppingCondition<Coefficients, double>[]
                 {
-                    new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6), 
+                    new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
                     new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
                 });
 
@@ -46,7 +52,7 @@ namespace GeneticAlgo
             while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
             {
                 logger.Start(solverParameters);
-                var best = solver.Evolve(10);
+                var best = solver.Evolve(1000);
                 logger.End();
 
                 key = Console.ReadKey();
