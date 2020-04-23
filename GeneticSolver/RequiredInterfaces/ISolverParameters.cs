@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using GeneticSolver.Interfaces;
 
 namespace GeneticSolver.RequiredInterfaces
 {
     public interface ISolverParameters
     {
-        int MaxGenerationSize { get; }
-        bool RandomizeMating { get; }
+        int MaxEliteSize { get; }
+        int InitialGenerationSize { get; }
         bool MutateParents { get; }
         double PropertyMutationProbability { get; }
+        IBreadingStrategy BreadingStrategy { get; }
     }
 }
