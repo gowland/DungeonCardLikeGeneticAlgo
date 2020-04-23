@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using GeneticSolver.Genome;
 using GeneticSolver.Interfaces;
 using GeneticSolver.RequiredInterfaces;
@@ -30,19 +29,17 @@ namespace GeneticSolver
 
         public GenerationResult<T, TScore> Evolve(int iterations, IEnumerable<T> originalGeneration = null)
         {
-            int numberToKeep = HalfButEven(_solverParameters.MaxGenerationSize);
-
             GenerationResult<T, TScore> generationResult = null;
 
             var generation = _evaluator.GetFitnessResults(
              originalGeneration?.Select(g => new GenomeInfo<T>(g, 0))
-                ?? CreateGeneration(_solverParameters.MaxGenerationSize));
+                ?? CreateGeneration(_solverParameters.InitialGenerationSize));
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
                 _logger.LogStartGeneration(generationNum);
 
-                IOrderedEnumerable<IGenomeInfo<T>> keepers = SelectFittest(generation, numberToKeep);
+                IOrderedEnumerable<IGenomeInfo<T>> keepers = SelectFittest(generation, _solverParameters.MaxEliteSize);
 
                 var children = GetChildren(keepers, 2, generationNum).ToArray();
                 children.ToList().ForEach(MutateGenome);
@@ -98,16 +95,6 @@ namespace GeneticSolver
             }
         }
 
-        private IEnumerable<IGenomeInfo<T>> MutateGenomes(IEnumerable<IGenomeInfo<T>> genomes)
-        {
-            foreach (var genome in genomes)
-            {
-                MutateGenome(genome);
-
-                yield return genome;
-            }
-        }
-
         private void MutateGenome(IGenomeInfo<T> genome)
         {
             foreach (var property in _genomeDescription.Properties.Where(p =>
@@ -135,13 +122,6 @@ namespace GeneticSolver
                 yield return new GenomeInfo<T>(genome, 0);
             }
         }
-
-        private int HalfButEven(int value)
-        {
-            int half = value / 2;
-            return half % 2 == 0 ? half : half - 1;
-        }
-
     }
 
     public static class OrderedEnumerableExtensions

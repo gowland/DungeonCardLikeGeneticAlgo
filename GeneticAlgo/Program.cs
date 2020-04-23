@@ -15,8 +15,12 @@ namespace GeneticAlgo
 {
     /*
      * Things to try:
-     * - Breeding strategies as opposed to pairing strategies (eg. allow swapping of genomes instead of only averaging)
      * - Slowing mutation rate as accuracy increases
+     * - Distribute mutations closer to center of range
+     * - try some ideas from: https://www.mathworks.com/help/gads/how-the-genetic-algorithm-works.html
+     *   - instead of breeding fittest, duplicate then mutate fittest (mutation vs crossover)
+     * - dump final generation at finish
+     * - log early end
      */
     internal class Program
     {
@@ -34,7 +38,7 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solverParameters = new SolverParameters(5000, false, 0.3, new HaremBreedingStrategy());
+            var solverParameters = new SolverParameters(5000, 10000, false, 0.3, new HaremBreedingStrategy());
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(
                 new DefaultGenomeFactory<Coefficients>(),
@@ -143,7 +147,7 @@ namespace GeneticAlgo
         public void Start(ISolverParameters parameters)
         {
             logFile = new StreamWriter($"log_{DateTime.Now:yyyy-MM-dd-hh-mm}.csv");
-            logFile.WriteLine($"Generation Size,{parameters.MaxGenerationSize}");
+            logFile.WriteLine($"Max Elite Size,{parameters.MaxEliteSize}");
             logFile.WriteLine($"Mutation Probability,{parameters.PropertyMutationProbability:0.00}");
             logFile.WriteLine($"Mutate Parents,{(parameters.MutateParents ? "YES" : "NO")}");
             logFile.WriteLine();

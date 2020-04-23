@@ -6,15 +6,18 @@ namespace GeneticSolver
 {
     public class SolverParameters : ISolverParameters
     {
-        public SolverParameters(int maxGenerationSize, bool mutateParents, double propertyMutationProbability, IBreadingStrategy breadingStrategy)
+        public SolverParameters(int maxEliteSize, int initialGenerationSize, bool mutateParents,
+            double propertyMutationProbability, IBreadingStrategy breadingStrategy)
         {
-            MaxGenerationSize = maxGenerationSize;
+            MaxEliteSize = maxEliteSize;
             MutateParents = mutateParents;
             PropertyMutationProbability = propertyMutationProbability;
             BreadingStrategy = breadingStrategy;
+            InitialGenerationSize = initialGenerationSize;
         }
 
-        public int MaxGenerationSize { get; }
+        public int MaxEliteSize { get; }
+        public int InitialGenerationSize { get; }
         public bool MutateParents { get; }
         public double PropertyMutationProbability { get; }
         public IBreadingStrategy BreadingStrategy { get; }
