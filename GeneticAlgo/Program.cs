@@ -13,15 +13,6 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticAlgo
 {
-    /*
-     * Things to try:
-     * - Slowing mutation rate as accuracy increases
-     * - Distribute mutations closer to center of range
-     * - try some ideas from: https://www.mathworks.com/help/gads/how-the-genetic-algorithm-works.html
-     *   - instead of breeding fittest, duplicate then mutate fittest (mutation vs crossover)
-     * - dump final generation at finish
-     * - log early end
-     */
     internal class Program
     {
         public static void Main(string[] args)
@@ -38,7 +29,13 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var solverParameters = new SolverParameters(5000, 10000, false, 0.3, new HaremBreedingStrategy());
+            var solverParameters = new SolverParameters(
+                5000,
+                10000,
+                false,
+                0.3,
+                new HaremBreedingStrategy());
+//                 new RotatingBreedingStrategy(new IBreadingStrategy[]{new HaremBreedingStrategy(), new RandomBreedingStrategy(), new StratifiedBreedingStrategy(), }));
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(
                 new DefaultGenomeFactory<Coefficients>(),
@@ -53,10 +50,12 @@ namespace GeneticAlgo
                 });
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
-            while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
+            for (int i = 0; i < 10; i++)
+//            while (key.Key != ConsoleKey.X && key.Key != ConsoleKey.Q && key.Key != ConsoleKey.Escape)
             {
                 logger.Start(solverParameters);
                 var best = solver.Evolve(1000);
+                logger.LogGeneration(best);
                 logger.End();
 
                 key = Console.ReadKey();
@@ -203,6 +202,16 @@ namespace GeneticAlgo
             logFile.Flush();
             logFile.Close();
             logFile = null;
+        }
+
+        public void LogGeneration(GenerationResult<Coefficients, double> best)
+        {
+            logFile.WriteLine();
+            foreach (var fitnessResult in best.OrderedGenomes)
+            {
+                Coefficients genome = fitnessResult.GenomeInfo.Genome;
+                logFile.WriteLine($"{fitnessResult.Fitness:e2},{fitnessResult.GenomeInfo.Generation},{genome.FirstLevel:0.0000},{genome.SecondLevel:0.0000},{genome.ThirdLevel:0.0000},{genome.FourthLevel:0.0000},{genome.FifthLevel:0.0000}");
+            }
         }
     }
 }

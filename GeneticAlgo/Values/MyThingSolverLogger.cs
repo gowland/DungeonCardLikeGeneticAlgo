@@ -24,6 +24,10 @@ namespace GeneticAlgo.Values
             Console.WriteLine($" {result.Fitness} - {thing.Sum} = {thing.A} + {thing.B} + {thing.C} + {thing.D} + {thing.E}");
         }
 
+        public void LogGeneration(GenerationResult<MyThing, int> generation)
+        {
+        }
+
         public void End()
         {
             Console.WriteLine("================ Done ================ ");
