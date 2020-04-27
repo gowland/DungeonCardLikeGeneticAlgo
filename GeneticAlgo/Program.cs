@@ -50,7 +50,7 @@ namespace GeneticAlgo
                 {
                     new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
                     new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
-                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-4, 10), 
+                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-6, 10), 
                 });
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
