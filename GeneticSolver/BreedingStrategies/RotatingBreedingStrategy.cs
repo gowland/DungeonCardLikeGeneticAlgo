@@ -5,12 +5,12 @@ using GeneticSolver.Interfaces;
 
 namespace GeneticSolver.BreedingStrategies
 {
-    public class RotatingBreedingStrategy : IBreadingStrategy
+    public class RotatingBreedingStrategy : IPairingStrategy
     {
-        private readonly IBreadingStrategy[] _strategies;
+        private readonly IPairingStrategy[] _strategies;
         private int _currentStrategy;
 
-        public RotatingBreedingStrategy(IEnumerable<IBreadingStrategy> strategies)
+        public RotatingBreedingStrategy(IEnumerable<IPairingStrategy> strategies)
         {
             _strategies = strategies.ToArray();
             _currentStrategy = 0;

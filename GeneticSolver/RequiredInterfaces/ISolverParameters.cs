@@ -9,6 +9,6 @@ namespace GeneticSolver.RequiredInterfaces
         int InitialGenerationSize { get; }
         bool MutateParents { get; }
         double PropertyMutationProbability { get; }
-        IBreadingStrategy BreadingStrategy { get; }
+        IPairingStrategy PairingStrategy { get; }
     }
 }

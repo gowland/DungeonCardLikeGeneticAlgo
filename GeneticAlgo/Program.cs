@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using GeneticAlgo.Values;
 using GeneticSolver;
 using GeneticSolver.BreedingStrategies;
@@ -35,18 +36,25 @@ namespace GeneticAlgo
                 false,
                 0.3,
                 new HaremBreedingStrategy());
-//                 new RotatingBreedingStrategy(new IBreadingStrategy[]{new HaremBreedingStrategy(), new RandomBreedingStrategy(), new StratifiedBreedingStrategy(), }));
+//                 new RotatingBreedingStrategy(new IPairingStrategy[]{new HaremBreedingStrategy(), new RandomBreedingStrategy(), new StratifiedBreedingStrategy(), }));
+            var genomeDescriptions = new CoefficientsGenomeDescriptions();
+            var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability);
             var logger = new CoefficientsSolverLogger();
+            var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients>();
             var solver = new Solver<Coefficients, double>(
-                new DefaultGenomeFactory<Coefficients>(),
+                defaultGenomeFactory,
                 evaluator,
-                new CoefficientsGenomeDescriptions(),
+                genomeDescriptions,
                 logger,
                 solverParameters,
                 new IEarlyStoppingCondition<Coefficients, double>[]
                 {
                     new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
                     new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
+                },
+                new IGenomeReproductionStrategy<Coefficients>[]
+                {
+                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy() , defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
                 });
 
             ConsoleKeyInfo key = new ConsoleKeyInfo(' ', ConsoleKey.A, false, false, false);
@@ -58,13 +66,13 @@ namespace GeneticAlgo
                 logger.LogGeneration(best);
                 logger.End();
 
-                key = Console.ReadKey();
+//                key = Console.ReadKey();
             }
         }
 
     }
 
-    public class Coefficients
+    public class Coefficients : ICloneable
     {
         public double FifthLevel { get; set; }
         public double FourthLevel { get; set; }
@@ -79,6 +87,18 @@ namespace GeneticAlgo
                    + ThirdLevel * Math.Pow(x, 2)
                    + SecondLevel * Math.Pow(x, 1)
                    + FirstLevel;
+        }
+
+        public object Clone()
+        {
+            return new Coefficients
+            {
+                FirstLevel = FirstLevel,
+                SecondLevel = SecondLevel,
+                ThirdLevel = ThirdLevel,
+                FourthLevel = FourthLevel,
+                FifthLevel = FifthLevel
+            };
         }
     }
 
@@ -124,6 +144,11 @@ namespace GeneticAlgo
             return SortByDescendingFitness(genomes.Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome))));
         }
 
+        public IOrderedEnumerable<Coefficients> GetFitnessResults(IEnumerable<Coefficients> genomes)
+        {
+            return genomes.OrderBy(GetError);
+        }
+
         private IOrderedEnumerable<FitnessResult<Coefficients, double>> SortByDescendingFitness(IEnumerable<FitnessResult<Coefficients, double>> genomes)
         {
             return genomes.OrderBy(g => g.Fitness);
@@ -141,16 +166,16 @@ namespace GeneticAlgo
 
     public class CoefficientsSolverLogger : ISolverLogger<Coefficients, double>
     {
-        private StreamWriter logFile;
+        private StreamWriter _logFile;
 
         public void Start(ISolverParameters parameters)
         {
-            logFile = new StreamWriter($"log_{DateTime.Now:yyyy-MM-dd-hh-mm}.csv");
-            logFile.WriteLine($"Max Elite Size,{parameters.MaxEliteSize}");
-            logFile.WriteLine($"Mutation Probability,{parameters.PropertyMutationProbability:0.00}");
-            logFile.WriteLine($"Mutate Parents,{(parameters.MutateParents ? "YES" : "NO")}");
-            logFile.WriteLine();
-            logFile.WriteLine("Generation,Average Age,Top 10 Average Age,Best Age,Average Error,Top 10 Error, Best Error");
+            _logFile = new StreamWriter($"log_{DateTime.Now:yyyy-MM-dd-hh-mm}.csv");
+            _logFile.WriteLine($"Max Elite Size,{parameters.MaxEliteSize}");
+            _logFile.WriteLine($"Mutation Probability,{parameters.PropertyMutationProbability:0.00}");
+            _logFile.WriteLine($"Mutate Parents,{(parameters.MutateParents ? "YES" : "NO")}");
+            _logFile.WriteLine();
+            _logFile.WriteLine("Generation,Average Age,Top 10 Average Age,Best Age,Average Error,Top 10 Error, Best Error");
         }
 
         public void LogStartGeneration(int generationNumber)
@@ -174,7 +199,7 @@ namespace GeneticAlgo
             Console.WriteLine($" Average score: {averageScoreAllGenomes:e2}");
             LogGenome(topGenome);
 
-            logFile.WriteLine($"{generationNumber},{averageAgeAllGenomes:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
+            _logFile.WriteLine($"{generationNumber},{averageAgeAllGenomes:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
         }
 
         public void LogGenerationInfo(GenerationResult<Coefficients, double> generationResult)
@@ -187,7 +212,7 @@ namespace GeneticAlgo
             double averageAgeTop10Genomes = generationResult.OrderedGenomes.Take(10).Average(r => r.GenomeInfo.Generation);
             var averageScoreAllGenomes = generationResult.OrderedGenomes.Average(r => r.Fitness);
             var averageScoreTop10Genomes = generationResult.OrderedGenomes.Take(10).Average(r => r.Fitness);
-            logFile.WriteLine($"{generationResult.GenerationNumber},{generationResult.AverageGenomeGeneration:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
+            _logFile.WriteLine($"{generationResult.GenerationNumber},{generationResult.AverageGenomeGeneration:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
         }
 
         private void LogGenome(FitnessResult<Coefficients, double> result)
@@ -199,18 +224,18 @@ namespace GeneticAlgo
         public void End()
         {
             Console.WriteLine("Fin");
-            logFile.Flush();
-            logFile.Close();
-            logFile = null;
+            _logFile.Flush();
+            _logFile.Close();
+            _logFile = null;
         }
 
         public void LogGeneration(GenerationResult<Coefficients, double> best)
         {
-            logFile.WriteLine();
+            _logFile.WriteLine();
             foreach (var fitnessResult in best.OrderedGenomes)
             {
                 Coefficients genome = fitnessResult.GenomeInfo.Genome;
-                logFile.WriteLine($"{fitnessResult.Fitness:e2},{fitnessResult.GenomeInfo.Generation},{genome.FirstLevel:0.0000},{genome.SecondLevel:0.0000},{genome.ThirdLevel:0.0000},{genome.FourthLevel:0.0000},{genome.FifthLevel:0.0000}");
+                _logFile.WriteLine($"{fitnessResult.Fitness:e2},{fitnessResult.GenomeInfo.Generation},{genome.FirstLevel:0.0000},{genome.SecondLevel:0.0000},{genome.ThirdLevel:0.0000},{genome.FourthLevel:0.0000},{genome.FifthLevel:0.0000}");
             }
         }
     }

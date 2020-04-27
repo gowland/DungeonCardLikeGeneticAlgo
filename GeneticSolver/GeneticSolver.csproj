@@ -53,7 +53,7 @@
     <Compile Include="FitnessResult.cs" />
     <Compile Include="Genome\GenomeInfo.cs" />
     <Compile Include="IGenomeDescription.cs" />
-    <Compile Include="Interfaces\IBreadingStrategy.cs" />
+    <Compile Include="Interfaces\IPairingStrategy.cs" />
     <Compile Include="RequiredInterfaces\IEarlyStoppingCondition.cs" />
     <Compile Include="RequiredInterfaces\IGenomeEvaluator.cs" />
     <Compile Include="IGenomeFactory.cs" />

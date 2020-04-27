@@ -7,7 +7,133 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
-    public class Solver<T, TScore> where TScore : IComparable<TScore>
+    public interface IMutator<in T>
+    {
+        void Mutate(T genome);
+    }
+
+    public class GenomeMutator<T> : IMutator<T>
+    {
+        private readonly IGenomeDescription<T> _genomeDescription;
+        private readonly double _mutationProbability;
+        private readonly Random _random;
+
+        public GenomeMutator(IGenomeDescription<T> genomeDescription, double mutationProbability, Random random = null)
+        {
+            _genomeDescription = genomeDescription;
+            _mutationProbability = mutationProbability;
+            _random = random ?? new Random();
+        }
+
+        public void Mutate(T genome)
+        {
+            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _mutationProbability))
+            {
+                property.Mutate(genome);
+            }
+        }
+    }
+
+    public interface IGenomeReproductionStrategy<T>
+    {
+        IEnumerable<T> ProduceOffspring(IEnumerable<T> parents);
+    }
+
+    public class AsexualGenomeReproductionStrategy<T> : IGenomeReproductionStrategy<T>
+        where T : class, ICloneable 
+    {
+        private readonly IMutator<T> _mutator;
+
+        public AsexualGenomeReproductionStrategy(IMutator<T> mutator)
+        {
+            _mutator = mutator;
+        }
+
+        public IEnumerable<T> ProduceOffspring(IEnumerable<T> parents)
+        {
+            var nextGen = parents
+                .Select(genome => genome.Clone() as T)
+                .ToList();
+
+            nextGen.ForEach(_mutator.Mutate);
+
+            return nextGen;
+        }
+    }
+
+    public interface IPairingStrategy<T>
+    {
+        IEnumerable<Tuple<T, T>> GetPairs(IEnumerable<T> items);
+    }
+
+    public class SexualGenomeReproductionStrategy<T, TScore> : IGenomeReproductionStrategy<T>
+        where T : class, ICloneable 
+        where TScore : IComparable<TScore>
+    {
+        private readonly IMutator<T> _mutator;
+        private readonly IPairingStrategy _pairingStrategy;
+        private readonly IGenomeFactory<T> _genomeFactory;
+        private readonly IGenomeDescription<T> _genomeDescription;
+        private readonly IGenomeEvaluator<T, TScore> _genomeEvaluator;
+        private readonly int _childrenToCreate;
+        private readonly int _childrenToKeepPerPair;
+
+        public SexualGenomeReproductionStrategy(
+            IMutator<T> mutator,
+            IPairingStrategy pairingStrategy,
+            IGenomeFactory<T> genomeFactory,
+            IGenomeDescription<T> genomeDescription,
+            IGenomeEvaluator<T, TScore> genomeEvaluator,
+            int childrenToCreate,
+            int childrenToKeepPerPair)
+        {
+            _mutator = mutator;
+            _pairingStrategy = pairingStrategy;
+            _genomeFactory = genomeFactory;
+            _genomeDescription = genomeDescription;
+            _genomeEvaluator = genomeEvaluator;
+            _childrenToCreate = childrenToCreate;
+            _childrenToKeepPerPair = childrenToKeepPerPair;
+        }
+
+        public IEnumerable<T> ProduceOffspring(IEnumerable<T> parents)
+        {
+            var nextGen = _pairingStrategy.GetPairs(parents)
+                .Select(pair => CreateChildren(pair.Item1, pair.Item2))
+                .SelectMany(TakeFittest)
+                .ToList();
+
+            nextGen.ForEach(_mutator.Mutate);
+
+            return nextGen;
+        }
+
+        private IEnumerable<T> CreateChildren(T parentA, T parentB)
+        {
+            for (int i = 0; i < _childrenToCreate; i++)
+            {
+                var child = _genomeFactory.GetNewGenome();
+
+                foreach (var property in _genomeDescription.Properties)
+                {
+                    property.Merge(parentA, parentB, child);
+                }
+
+                yield return child;
+            }
+        }
+
+        private IEnumerable<T> TakeFittest(IEnumerable<T> genomes)
+        {
+            return _genomeEvaluator
+                .GetFitnessResults(genomes)
+                .Take(_childrenToKeepPerPair);
+        }
+    }
+
+    public class Solver<T, TScore> 
+        where T : ICloneable
+        where TScore : IComparable<TScore>
     {
         private readonly IGenomeFactory<T> _genomeFactory;
         private readonly IGenomeEvaluator<T, TScore> _evaluator;
@@ -15,9 +141,15 @@ namespace GeneticSolver
         private readonly ISolverLogger<T, TScore> _logger;
         private readonly ISolverParameters _solverParameters;
         private readonly IEnumerable<IEarlyStoppingCondition<T, TScore>> _earlyStoppingConditions;
+        private readonly IEnumerable<IGenomeReproductionStrategy<T>> _genomeReproductionStrategies;
         private readonly Random _random = new Random();
 
-        public Solver(IGenomeFactory<T> genomeFactory, IGenomeEvaluator<T, TScore> evaluator, IGenomeDescription<T> genomeDescription, ISolverLogger<T, TScore> logger, ISolverParameters solverParameters, IEnumerable<IEarlyStoppingCondition<T, TScore>> earlyStoppingConditions)
+        public Solver(IGenomeFactory<T> genomeFactory,
+            IGenomeEvaluator<T, TScore> evaluator,
+            IGenomeDescription<T> genomeDescription, 
+            ISolverLogger<T, TScore> logger, ISolverParameters solverParameters, 
+            IEnumerable<IEarlyStoppingCondition<T, TScore>> earlyStoppingConditions,
+            IEnumerable<IGenomeReproductionStrategy<T>> genomeReproductionStrategies)
         {
             _genomeFactory = genomeFactory;
             _evaluator = evaluator;
@@ -25,6 +157,7 @@ namespace GeneticSolver
             _logger = logger;
             _solverParameters = solverParameters;
             _earlyStoppingConditions = earlyStoppingConditions;
+            _genomeReproductionStrategies = genomeReproductionStrategies;
         }
 
         public GenerationResult<T, TScore> Evolve(int iterations, IEnumerable<T> originalGeneration = null)
@@ -39,18 +172,25 @@ namespace GeneticSolver
             {
                 _logger.LogStartGeneration(generationNum);
 
-                IOrderedEnumerable<IGenomeInfo<T>> keepers = SelectFittest(generation, _solverParameters.MaxEliteSize);
+                IOrderedEnumerable<IGenomeInfo<T>> elite = SelectFittest(generation, _solverParameters.MaxEliteSize);
 
-                var children = GetChildren(keepers, 2, generationNum).ToArray();
+/*
+                var children = GetChildren(elite, 2, generationNum).ToArray();
                 children.ToList().ForEach(MutateGenome);
+*/
+                var num = generationNum;
+                var children = _genomeReproductionStrategies
+                    .SelectMany(reproductionStrategy =>
+                        reproductionStrategy.ProduceOffspring(elite.Select(g => g.Genome)))
+                    .Select(g => new GenomeInfo<T>(g, num));
 
                 if (_solverParameters.MutateParents)
                 {
                     // Do not mutate the fittest genome
-                    keepers.Skip(1).ToList().ForEach(MutateGenome);
+                    elite.Skip(1).ToList().ForEach(MutateGenome);
                 }
 
-                var nextGenerationGenomes = keepers.Concat(children).ToArray();
+                var nextGenerationGenomes = elite.Concat(children).ToArray();
 
                 generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
 
@@ -66,33 +206,6 @@ namespace GeneticSolver
             }
 
             return generationResult;
-        }
-
-        private IEnumerable<IGenomeInfo<T>> GetChildren(IOrderedEnumerable<IGenomeInfo<T>> genomes, int count, int generationNum)
-        {
-            foreach (var pair in _solverParameters.BreadingStrategy.GetPairs(genomes))
-            {
-                var children = CreateChildren(count, pair.Item1, pair.Item2, generationNum);
-                var worthyChildren = SelectFittest(_evaluator.GetFitnessResults(children), 2).ToArray();
-
-                yield return worthyChildren[0];
-                yield return worthyChildren[1];
-            }
-        }
-
-        public IEnumerable<IGenomeInfo<T>> CreateChildren(int count, IGenomeInfo<T> parentA, IGenomeInfo<T> parentB, int generationNum)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                var child = _genomeFactory.GetNewGenome();
-
-                foreach (var property in _genomeDescription.Properties)
-                {
-                    property.Merge(parentA.Genome, parentB.Genome, child);
-                }
-
-                yield return new GenomeInfo<T>(child, generationNum);
-            }
         }
 
         private void MutateGenome(IGenomeInfo<T> genome)

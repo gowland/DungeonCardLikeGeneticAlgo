@@ -5,7 +5,7 @@ using GeneticSolver.Interfaces;
 
 namespace GeneticSolver.BreedingStrategies
 {
-    public class StratifiedBreedingStrategy : IBreadingStrategy
+    public class StratifiedBreedingStrategy : IPairingStrategy
     {
         public IEnumerable<Tuple<T,T>> GetPairs<T>(IOrderedEnumerable<T> genomes)
         {
