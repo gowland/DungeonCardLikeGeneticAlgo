@@ -11,6 +11,7 @@ using GeneticSolver.EarlyStoppingConditions;
 using GeneticSolver.Genome;
 using GeneticSolver.GenomeProperty;
 using GeneticSolver.Interfaces;
+using GeneticSolver.ReproductionStrategies;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticAlgo
@@ -32,15 +33,12 @@ namespace GeneticAlgo
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
             var genomeDescriptions = new CoefficientsGenomeDescriptions();
-            var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients>();
+            var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
                 5000,
-                10000,
-                false,
-                0.3,
-                new HaremBreedingStrategy());
-//                 new RotatingBreedingStrategy(new IPairingStrategy[]{new HaremBreedingStrategy(), new RandomBreedingStrategy(), new StratifiedBreedingStrategy(), }));
+                100000,
+                0.3);
 
             var tasks = new Task[10];
             for (int i = 0; i < 10; i++)
@@ -62,7 +60,6 @@ namespace GeneticAlgo
             var solver = new Solver<Coefficients, double>(
                 defaultGenomeFactory,
                 evaluator,
-                genomeDescriptions,
                 logger,
                 solverParameters,
                 new IEarlyStoppingCondition<Coefficients, double>[]
@@ -75,6 +72,7 @@ namespace GeneticAlgo
                 {
                     new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+                    // TODO: add others
                 });
 
             logger.Start();
