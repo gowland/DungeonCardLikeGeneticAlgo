@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using GeneticAlgo.Values;
 using GeneticSolver;
 using GeneticSolver.BreedingStrategies;
@@ -41,34 +42,45 @@ namespace GeneticAlgo
                 new HaremBreedingStrategy());
 //                 new RotatingBreedingStrategy(new IPairingStrategy[]{new HaremBreedingStrategy(), new RandomBreedingStrategy(), new StratifiedBreedingStrategy(), }));
 
+            var tasks = new Task[10];
             for (int i = 0; i < 10; i++)
             {
-                var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability);
-                var logger = new CoefficientsSolverLogger();
-                var solver = new Solver<Coefficients, double>(
-                    defaultGenomeFactory,
-                    evaluator,
-                    genomeDescriptions,
-                    logger,
-                    solverParameters,
-                    new IEarlyStoppingCondition<Coefficients, double>[]
-                    {
-                        new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
-                        new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
-                        new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-6, 10), 
-                    },
-                    new IGenomeReproductionStrategy<Coefficients>[]
-                    {
-                        new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy() , defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-                    });
-
-                logger.Start();
-                var best = solver.Evolve(1000);
-                logger.LogGeneration(best);
-                logger.End();
+                tasks[i] = Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator));
             }
+
+            Task.WaitAll(tasks);
+
+            Console.WriteLine("Finished");
         }
 
+        private static void LaunchEvolutionRun(CoefficientsGenomeDescriptions genomeDescriptions,
+            SolverParameters solverParameters, DefaultGenomeFactory<Coefficients> defaultGenomeFactory, CoefficientsGenomeEvaluator evaluator)
+        {
+            var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability);
+            var logger = new CoefficientsSolverLogger();
+            var solver = new Solver<Coefficients, double>(
+                defaultGenomeFactory,
+                evaluator,
+                genomeDescriptions,
+                logger,
+                solverParameters,
+                new IEarlyStoppingCondition<Coefficients, double>[]
+                {
+                    new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
+                    new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
+                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-6, 10),
+                },
+                new IGenomeReproductionStrategy<Coefficients>[]
+                {
+                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
+                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+                });
+
+            logger.Start();
+            var best = solver.Evolve(1000);
+            logger.LogGeneration(best);
+            logger.End();
+        }
     }
 
     public class Coefficients : ICloneable
