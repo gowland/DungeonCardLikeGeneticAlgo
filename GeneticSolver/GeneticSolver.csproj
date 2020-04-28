@@ -45,6 +45,7 @@
     <Compile Include="BreedingStrategies\RandomBreedingStrategy.cs" />
     <Compile Include="BreedingStrategies\RotatingBreedingStrategy.cs" />
     <Compile Include="BreedingStrategies\StratifiedBreedingStrategy.cs" />
+    <Compile Include="EarlyStoppingConditions\FitnessNotImprovingEarlyStoppingCondition.cs" />
     <Compile Include="EarlyStoppingConditions\FitnessThresholdReachedEarlyStopCondition.cs" />
     <Compile Include="EarlyStoppingConditions\ProgressStalledEarlyStoppingCondition.cs" />
     <Compile Include="GenerationResult.cs" />
