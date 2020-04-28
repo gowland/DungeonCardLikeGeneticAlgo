@@ -51,6 +51,7 @@ namespace GeneticAlgo
             Task.WaitAll(tasks);
 
             Console.WriteLine("Finished");
+            Console.ReadKey();
         }
 
         private static void LaunchEvolutionRun(CoefficientsGenomeDescriptions genomeDescriptions,
@@ -68,7 +69,7 @@ namespace GeneticAlgo
                 {
                     new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
                     new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
-                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-6, 10),
+                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-7, 10),
                 },
                 new IGenomeReproductionStrategy<Coefficients>[]
                 {
@@ -152,7 +153,7 @@ namespace GeneticAlgo
 
         public IOrderedEnumerable<FitnessResult<Coefficients, double>> GetFitnessResults(IEnumerable<IGenomeInfo<Coefficients>> genomes)
         {
-            return SortByDescendingFitness(genomes.Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome))));
+            return SortByDescendingFitness(genomes.AsParallel().Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome))));
         }
 
         public IOrderedEnumerable<Coefficients> GetFitnessResults(IEnumerable<Coefficients> genomes)
@@ -202,7 +203,7 @@ namespace GeneticAlgo
             double averageAgeTop10Genomes = generationResult.OrderedGenomes.Take(10).Average(r => r.GenomeInfo.Generation);
             var averageScoreAllGenomes = generationResult.OrderedGenomes.Average(r => r.Fitness);
             var averageScoreTop10Genomes = generationResult.OrderedGenomes.Take(10).Average(r => r.Fitness);
-            _logFile.WriteLine($"{generationResult.GenerationNumber},{generationResult.AverageGenomeGeneration:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
+            _logFile.WriteLine($"{_loggerId},{generationResult.GenerationNumber},{generationResult.AverageGenomeGeneration:0.00},{averageAgeTop10Genomes:0.00},{topGenome.GenomeInfo.Generation:0},{averageScoreAllGenomes:e2},{averageScoreTop10Genomes:e2},{topGenome.Fitness:e2}");
             _logFile.Flush();
         }
 
