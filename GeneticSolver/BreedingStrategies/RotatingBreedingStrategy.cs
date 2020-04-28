@@ -16,7 +16,7 @@ namespace GeneticSolver.BreedingStrategies
             _currentStrategy = 0;
         }
 
-        public IEnumerable<Tuple<T,T>> GetPairs<T>(IOrderedEnumerable<T> genomes)
+        public IEnumerable<Tuple<T,T>> GetPairs<T>(IEnumerable<T> genomes)
         {
             var pairs = _strategies[_currentStrategy].GetPairs(genomes);
             _currentStrategy = (_currentStrategy + 1) % _strategies.Length;

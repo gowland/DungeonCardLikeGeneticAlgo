@@ -8,7 +8,7 @@ namespace GeneticAlgo.Values
 {
     public class MyThingSolverLogger : ISolverLogger<MyThing, int>
     {
-        public void Start(ISolverParameters parameters)
+        public void Start()
         {
             Console.WriteLine("================ Start ================ ");
         }

@@ -2,7 +2,7 @@
 {
     public interface ISolverLogger<T, TScore>
     {
-        void Start(ISolverParameters parameters);
+        void Start();
         void LogStartGeneration(int generationNumber);
         void LogGenerationInfo(GenerationResult<T, TScore> generationResult);
         void LogGeneration(GenerationResult<T, TScore> generation);

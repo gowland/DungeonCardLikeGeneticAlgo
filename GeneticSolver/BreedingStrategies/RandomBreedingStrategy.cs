@@ -8,7 +8,7 @@ namespace GeneticSolver.BreedingStrategies
     public class RandomBreedingStrategy : IPairingStrategy
     {
         private readonly Random _random = new Random();
-        public IEnumerable<Tuple<T,T>> GetPairs<T>(IOrderedEnumerable<T> genomes)
+        public IEnumerable<Tuple<T,T>> GetPairs<T>(IEnumerable<T> genomes)
         {
             var genomesArr = genomes.OrderBy(g => _random.NextDouble()).ToArray();
 
