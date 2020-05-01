@@ -37,7 +37,7 @@ namespace GeneticAlgo
 
             var solverParameters = new SolverParameters(
                 5000,
-                100000,
+                10000,
                 0.3);
 
             var tasks = new Task[10];
@@ -72,7 +72,7 @@ namespace GeneticAlgo
                 {
                     new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-                    // TODO: add others
+                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
                 });
 
             logger.Start();
@@ -182,7 +182,7 @@ namespace GeneticAlgo
         public void Start()
         {
             _logFile = new StreamWriter($"log_{_loggerId}.csv");
-            _logFile.WriteLine("Generation,Average Age,Top 10 Average Age,Best Age,Average Error,Top 10 Error, Best Error");
+            _logFile.WriteLine("Run ID,Generation,Average Age,Top 10 Average Age,Best Age,Average Error,Top 10 Error, Best Error");
             Console.WriteLine($"{_loggerId} Start: {DateTime.Now:g}");
         }
 
