@@ -55,7 +55,7 @@ namespace GeneticAlgo
         private static void LaunchEvolutionRun(CoefficientsGenomeDescriptions genomeDescriptions,
             SolverParameters solverParameters, DefaultGenomeFactory<Coefficients> defaultGenomeFactory, CoefficientsGenomeEvaluator evaluator)
         {
-            var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability);
+            var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability, new UnWeightedRandom());
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(
                 defaultGenomeFactory,
@@ -66,13 +66,13 @@ namespace GeneticAlgo
                 {
                     new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
                     new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
-                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-7, 10),
+                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-7, 100),
                 },
                 new IGenomeReproductionStrategy<Coefficients>[]
                 {
                     new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
+//                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
                 });
 
             logger.Start();

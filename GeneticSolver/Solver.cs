@@ -8,25 +8,63 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
-    public class GenomeMutator<T> : IMutator<T>
+    public interface IRandom
     {
-        private readonly IGenomeDescription<T> _genomeDescription;
-        private readonly double _mutationProbability;
-        private readonly Random _random;
+        double NextDouble();
+        double NextDouble(double minX, double maxX);
+    }
 
-        public GenomeMutator(IGenomeDescription<T> genomeDescription, double mutationProbability, Random random = null)
+    public class UnWeightedRandom : IRandom
+    {
+        private readonly Random _rand = new Random();
+
+        public double NextDouble()
         {
-            _genomeDescription = genomeDescription;
-            _mutationProbability = mutationProbability;
-            _random = random ?? new Random();
+            return _rand.NextDouble();
         }
 
-        public void Mutate(T genome)
+        public double NextDouble(double minX, double maxX)
         {
-            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _mutationProbability))
+            return minX + NextDouble() * (maxX - minX);
+        }
+    }
+
+    public class BellWeightedRandom : IRandom
+    {
+        private readonly Random _rand = new Random();
+        private const double Mean = 0.5;
+        private readonly Func<double, double, double> _genericBellFunc = (x, stdDev) => (1 / (stdDev * Math.Sqrt(2 * Math.PI))) * Math.Pow(Math.E, (x - Mean) * (x - Mean) / (2 * stdDev * stdDev));
+        private readonly Func<double, double> _specificBellFunc;
+        private readonly double _maxY;
+
+        public BellWeightedRandom(double stdDev)
+        {
+            _specificBellFunc = x => _genericBellFunc(x, stdDev);
+            _maxY = _specificBellFunc(Mean);
+        }
+
+        public double NextDouble()
+        {
+            while (true)
             {
-                property.Mutate(genome);
+                var x = _rand.NextDouble();
+                var y = _rand.NextDouble() * _maxY;
+                if (IsUnderCurve(x, y, _specificBellFunc))
+    
+                {
+                    return x;
+                }
             }
+        }
+
+        public double NextDouble(double minX, double maxX)
+        {
+            return minX + NextDouble() * (maxX - minX);
+        }
+
+        private bool IsUnderCurve(double x, double y, Func<double, double> func)
+        {
+            return y <= func(x);
         }
     }
 
