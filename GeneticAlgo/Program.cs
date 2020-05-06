@@ -36,17 +36,18 @@ namespace GeneticAlgo
             var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
-                5000,
-                10000,
+                10,
+                20,
                 0.3);
 
-            var tasks = new Task[10];
-            for (int i = 0; i < 10; i++)
+//            var tasks = new List<Task>();
+            for (int i = 0; i < 3; i++)
             {
-                tasks[i] = Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator));
+//                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
+                LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator);
             }
 
-            Task.WaitAll(tasks);
+//            Task.WaitAll(tasks.ToArray());
 
             Console.WriteLine("Finished");
             Console.ReadKey();
@@ -66,7 +67,7 @@ namespace GeneticAlgo
                 {
                     new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
                     new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
-                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-7, 100),
+                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-6, 100),
                 },
                 new IGenomeReproductionStrategy<Coefficients>[]
                 {
@@ -151,7 +152,7 @@ namespace GeneticAlgo
 
         public IOrderedEnumerable<FitnessResult<Coefficients, double>> GetFitnessResults(IEnumerable<IGenomeInfo<Coefficients>> genomes)
         {
-            return SortByDescendingFitness(genomes.AsParallel().Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome))));
+            return SortByDescendingFitness(genomes/*.AsParallel()*/.Select(genome => new FitnessResult<Coefficients, double>(genome, GetError(genome.Genome))));
         }
 
         public IOrderedEnumerable<Coefficients> GetFitnessResults(IEnumerable<Coefficients> genomes)
@@ -191,7 +192,7 @@ namespace GeneticAlgo
 //            Console.WriteLine($"---------- {generationNumber} ---------- ");
         }
 
-        public void LogGenerationInfo(GenerationResult<Coefficients, double> generationResult)
+        public void LogGenerationInfo(IGenerationResult<Coefficients, double> generationResult)
         {
 //            Console.WriteLine($" Average generation: {generationResult.AverageGenomeGeneration:0.00}");
 //            Console.WriteLine($" Average fitness: {generationResult.OrderedGenomes.Average(r => r.Fitness):e2}");
@@ -207,8 +208,8 @@ namespace GeneticAlgo
 
         private void LogGenome(FitnessResult<Coefficients, double> result)
         {
-//            var coefficients = result.GenomeInfo.Genome;
-//            Console.WriteLine($" {result.GenomeInfo.Generation}, {result.Fitness:e2} - ({coefficients.FifthLevel:0.##}) * x ^ 4 + ({coefficients.FourthLevel:0.##}) * x ^ 3 + ({coefficients.ThirdLevel:0.##}) * x ^ 2 + ({coefficients.SecondLevel:0.##}) * x + ({coefficients.FirstLevel:0.##})");
+            var coefficients = result.GenomeInfo.Genome;
+            Console.WriteLine($" {result.GenomeInfo.Generation}, {result.Fitness:e2} - ({coefficients.FifthLevel:0.##}) * x ^ 4 + ({coefficients.FourthLevel:0.##}) * x ^ 3 + ({coefficients.ThirdLevel:0.##}) * x ^ 2 + ({coefficients.SecondLevel:0.##}) * x + ({coefficients.FirstLevel:0.##})");
         }
 
         public void End()
@@ -219,11 +220,11 @@ namespace GeneticAlgo
             _logFile = null;
         }
 
-        public void LogGeneration(GenerationResult<Coefficients, double> best)
+        public void LogGeneration(IGenerationResult<Coefficients, double> generationResult)
         {
-            using (var generationFile = new StreamWriter($"generation_{_loggerId}.csv"))
+            using (var generationFile = new StreamWriter($"generation_{generationResult.GenerationNumber}_{_loggerId}.csv"))
             {
-                foreach (var fitnessResult in best.OrderedGenomes)
+                foreach (var fitnessResult in generationResult.OrderedGenomes)
                 {
                     Coefficients genome = fitnessResult.GenomeInfo.Genome;
                     generationFile.WriteLine($"{fitnessResult.Fitness:e2},{fitnessResult.GenomeInfo.Generation},{genome.FifthLevel:0.0000},{genome.FourthLevel:0.0000},{genome.ThirdLevel:0.0000},{genome.SecondLevel:0.0000},{genome.FirstLevel:0.0000}");

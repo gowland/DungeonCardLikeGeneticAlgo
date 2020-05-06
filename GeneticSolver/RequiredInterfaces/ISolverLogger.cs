@@ -4,8 +4,8 @@
     {
         void Start();
         void LogStartGeneration(int generationNumber);
-        void LogGenerationInfo(GenerationResult<T, TScore> generationResult);
-        void LogGeneration(GenerationResult<T, TScore> generation);
+        void LogGenerationInfo(IGenerationResult<T, TScore> generationResult);
+        void LogGeneration(IGenerationResult<T, TScore> generation);
         void End();
     }
 }

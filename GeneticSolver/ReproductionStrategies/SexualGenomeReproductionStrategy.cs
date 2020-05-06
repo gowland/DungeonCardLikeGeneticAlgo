@@ -39,7 +39,7 @@ namespace GeneticSolver.ReproductionStrategies
         public IEnumerable<T> ProduceOffspring(IEnumerable<T> parents)
         {
             var nextGen = _pairingStrategy.GetPairs(parents)
-                .AsParallel()
+//                .AsParallel()
                 .Select(pair => CreateChildren(pair.Item1, pair.Item2))
                 .SelectMany(TakeFittest)
                 .ToList();

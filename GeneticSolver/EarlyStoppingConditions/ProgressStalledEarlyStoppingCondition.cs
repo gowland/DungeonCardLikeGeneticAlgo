@@ -15,7 +15,7 @@ namespace GeneticSolver.EarlyStoppingConditions
             _averageGenomeMaxAgePercentage = averageGenomeMaxAgePercentage;
         }
 
-        public bool Match(GenerationResult<T, TScore> generationResult)
+        public bool Match(IGenerationResult<T, TScore> generationResult)
         {
             int mostFitGenomeGeneration = generationResult.FittestGenome.GenomeInfo.Generation;
             double averageGenomeGeneration = generationResult.AverageGenomeGeneration;

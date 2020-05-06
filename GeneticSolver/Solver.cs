@@ -68,6 +68,19 @@ namespace GeneticSolver
         }
     }
 
+    class ScoredGeneration<T, TScore>
+        where TScore : IComparable<TScore>
+    {
+        public ScoredGeneration(IEnumerable<IGenomeInfo<T>> genomes, IGenomeEvaluator<T, TScore> evaluator)
+        {
+            IOrderedEnumerable<FitnessResult<T, TScore>> orderedFitnessResults = evaluator.GetFitnessResults(genomes);
+            OrderedFitnessResults = orderedFitnessResults.ToArray();
+        }
+
+        public IEnumerable<IGenomeInfo<T>> OrderedGenomes => OrderedFitnessResults.Select(f => f.GenomeInfo);
+        public IEnumerable<FitnessResult<T, TScore>> OrderedFitnessResults { get; }
+    }
+
     public class Solver<T, TScore> 
         where T : ICloneable
         where TScore : IComparable<TScore>
@@ -78,7 +91,6 @@ namespace GeneticSolver
         private readonly ISolverParameters _solverParameters;
         private readonly IEnumerable<IEarlyStoppingCondition<T, TScore>> _earlyStoppingConditions;
         private readonly IEnumerable<IGenomeReproductionStrategy<T>> _genomeReproductionStrategies;
-        private readonly Random _random = new Random();
 
         public Solver(IGenomeFactory<T> genomeFactory,
             IGenomeEvaluator<T, TScore> evaluator, 
@@ -94,19 +106,20 @@ namespace GeneticSolver
             _genomeReproductionStrategies = genomeReproductionStrategies;
         }
 
-        public GenerationResult<T, TScore> Evolve(int iterations, IEnumerable<T> originalGeneration = null)
+        public IGenerationResult<T, TScore> Evolve(int iterations, IEnumerable<T> originalGeneration = null)
         {
             GenerationResult<T, TScore> generationResult = null;
 
-            var generation = _evaluator.GetFitnessResults(
-             originalGeneration?.Select(g => new GenomeInfo<T>(g, 0))
-                ?? CreateGeneration(_solverParameters.InitialGenerationSize));
+            var originalGenomes = originalGeneration ?? _genomeFactory.GetNewGenomes(_solverParameters.InitialGenerationSize);
+            var scoredGeneration = new ScoredGeneration<T, TScore>(originalGenomes.Select(g => new GenomeInfo<T>(g, 0)), _evaluator);
+
 
             for (int generationNum = 0; generationNum < iterations; generationNum++)
             {
                 _logger.LogStartGeneration(generationNum);
 
-                IOrderedEnumerable<IGenomeInfo<T>> elite = SelectFittest(generation, _solverParameters.MaxEliteSize);
+                IEnumerable<IGenomeInfo<T>> elite = scoredGeneration.OrderedGenomes.Take(_solverParameters.MaxEliteSize);
+
 
                 var num = generationNum;
                 var children = _genomeReproductionStrategies
@@ -116,14 +129,13 @@ namespace GeneticSolver
 
                 var nextGenerationGenomes = elite.Concat(children).ToArray();
 
-                generation = _evaluator.GetFitnessResults(nextGenerationGenomes);
+                scoredGeneration = new ScoredGeneration<T, TScore>(nextGenerationGenomes, _evaluator);
 
-                generationResult = new GenerationResult<T, TScore>(generationNum, generation);
+                generationResult = new GenerationResult<T, TScore>(generationNum, scoredGeneration);
 
                 _logger.LogGenerationInfo(generationResult);
 
-                if (_earlyStoppingConditions.Any(condition =>
-                    condition.Match(generationResult)))
+                if (IsEarlyStopConditionHit(generationResult))
                 {
                     return generationResult;
                 }
@@ -132,16 +144,10 @@ namespace GeneticSolver
             return generationResult;
         }
 
-        private IOrderedEnumerable<IGenomeInfo<T>> SelectFittest(IOrderedEnumerable<FitnessResult<T, TScore>> fitnessResults, int count)
+        private bool IsEarlyStopConditionHit(GenerationResult<T, TScore> generationResult)
         {
-            return fitnessResults.Take(count).Select(r => r.GenomeInfo);
-        }
-
-        private IEnumerable<IGenomeInfo<T>> CreateGeneration(int count)
-        {
-            return ParallelEnumerable
-                .Range(1, count)
-                .Select(_ => new GenomeInfo<T>(_genomeFactory.GetNewGenome(), 0));
+            return _earlyStoppingConditions.Any(condition =>
+                condition.Match(generationResult));
         }
     }
 }
