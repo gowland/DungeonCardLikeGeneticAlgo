@@ -36,8 +36,8 @@ namespace GeneticAlgo
             var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
-                10,
-                20,
+                1000,
+                2000,
                 0.3);
 
 //            var tasks = new List<Task>();
@@ -49,14 +49,48 @@ namespace GeneticAlgo
 
 //            Task.WaitAll(tasks.ToArray());
 
+//            TestBellCurve();
             Console.WriteLine("Finished");
             Console.ReadKey();
+        }
+
+        private static void TestBellCurve()
+        {
+            var r = new BellWeightedRandom(0.1);
+            var d = new Dictionary<double, int>()
+            {
+                [0.1] = 0,
+                [0.2] = 0,
+                [0.3] = 0,
+                [0.4] = 0,
+                [0.5] = 0,
+                [0.6] = 0,
+                [0.7] = 0,
+                [0.8] = 0,
+                [0.9] = 0,
+                [1.0] = 0,
+            };
+
+            for (int i = 0; i < 100; i++)
+            {
+                var nextDouble = r.NextDouble();
+//                Console.WriteLine(nextDouble);
+
+                double bucket = d.Keys.First(key => nextDouble < key);
+                d[bucket]++;
+            }
+
+            foreach (var pair in d)
+            {
+                Console.WriteLine($"{pair.Key:0.00} -> {pair.Value}");
+            }
         }
 
         private static void LaunchEvolutionRun(CoefficientsGenomeDescriptions genomeDescriptions,
             SolverParameters solverParameters, DefaultGenomeFactory<Coefficients> defaultGenomeFactory, CoefficientsGenomeEvaluator evaluator)
         {
-            var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability, new UnWeightedRandom());
+//            var mutator = new GenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability, new UnWeightedRandom());
+            var mutator = new BellWeightedGenomeMutator<Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability);
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients, double>(
                 defaultGenomeFactory,
@@ -75,6 +109,7 @@ namespace GeneticAlgo
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
 //                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
                 });
+            solver.NewGeneration += (s, e) => mutator.CycleStdDev();
 
             logger.Start();
             var best = solver.Evolve(1000);
@@ -115,9 +150,9 @@ namespace GeneticAlgo
 
     public class CoefficientsGenomeDescriptions : IGenomeDescription<Coefficients>
     {
-        private readonly Random _random = new Random();
-        private double _minChange = -5;
-        private double _maxChange = 5;
+        private readonly IRandom _random = new UnWeightedRandom();
+        private double _minChange = -30;
+        private double _maxChange = 30;
 
         public IEnumerable<IGenomeProperty<Coefficients>> Properties => new[]
         {

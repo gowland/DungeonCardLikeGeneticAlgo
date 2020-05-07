@@ -30,6 +30,11 @@ namespace GeneticSolver.GenomeProperty
             _setterAction(genome, AlterNumber(_getterFunc(genome)));
         }
 
+        public void Mutate(T genome, IRandom random)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SetRandom(T genome)
         {
             _setterAction(genome, _random.Next(_min, _max + 1));

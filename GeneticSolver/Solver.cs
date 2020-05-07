@@ -33,14 +33,21 @@ namespace GeneticSolver
     {
         private readonly Random _rand = new Random();
         private const double Mean = 0.5;
-        private readonly Func<double, double, double> _genericBellFunc = (x, stdDev) => (1 / (stdDev * Math.Sqrt(2 * Math.PI))) * Math.Pow(Math.E, (x - Mean) * (x - Mean) / (2 * stdDev * stdDev));
+        private readonly Func<double, double, double> _genericBellFunc = (x, stdDev) => 1/((1 / (stdDev * Math.Sqrt(2 * Math.PI))) * Math.Pow(Math.E, (x - Mean) * (x - Mean) / (2 * stdDev * stdDev)));
         private readonly Func<double, double> _specificBellFunc;
-        private readonly double _maxY;
+        private readonly double _maxYOfBellCurve;
 
         public BellWeightedRandom(double stdDev)
         {
             _specificBellFunc = x => _genericBellFunc(x, stdDev);
-            _maxY = _specificBellFunc(Mean);
+            _maxYOfBellCurve = _specificBellFunc(Mean);
+/*
+            Console.WriteLine($"max of bell = {_maxYOfBellCurve}");
+            for (double x = 0.0; x < 1; x+=0.01)
+            {
+                Console.WriteLine($"{x},{_specificBellFunc(x)}");
+            }
+*/
         }
 
         public double NextDouble()
@@ -48,7 +55,10 @@ namespace GeneticSolver
             while (true)
             {
                 var x = _rand.NextDouble();
-                var y = _rand.NextDouble() * _maxY;
+                var y = _rand.NextDouble() * _maxYOfBellCurve;
+
+//                Console.WriteLine($"x = {x}, y = {y}, isUnder = {IsUnderCurve(x,y,_specificBellFunc)}");
+
                 if (IsUnderCurve(x, y, _specificBellFunc))
     
                 {
@@ -92,6 +102,8 @@ namespace GeneticSolver
         private readonly IEnumerable<IEarlyStoppingCondition<T, TScore>> _earlyStoppingConditions;
         private readonly IEnumerable<IGenomeReproductionStrategy<T>> _genomeReproductionStrategies;
 
+        public event EventHandler<int> NewGeneration;
+
         public Solver(IGenomeFactory<T> genomeFactory,
             IGenomeEvaluator<T, TScore> evaluator, 
             ISolverLogger<T, TScore> logger, ISolverParameters solverParameters, 
@@ -133,6 +145,7 @@ namespace GeneticSolver
 
                 generationResult = new GenerationResult<T, TScore>(generationNum, scoredGeneration);
 
+                OnNewGeneration(generationNum);
                 _logger.LogGenerationInfo(generationResult);
 
                 if (IsEarlyStopConditionHit(generationResult))
@@ -148,6 +161,11 @@ namespace GeneticSolver
         {
             return _earlyStoppingConditions.Any(condition =>
                 condition.Match(generationResult));
+        }
+
+        protected virtual void OnNewGeneration(int e)
+        {
+            NewGeneration?.Invoke(this, e);
         }
     }
 }

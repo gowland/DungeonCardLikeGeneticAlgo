@@ -5,7 +5,7 @@ namespace GeneticSolver.GenomeProperty
 {
     public class DoubleGenomeProperty<T> : IGenomeProperty<T>
     {
-        private readonly Random _random;
+        private readonly IRandom _random;
 
         private readonly Func<T, double> _getterFunc;
         private readonly Action<T, double> _setterAction;
@@ -14,7 +14,7 @@ namespace GeneticSolver.GenomeProperty
         private readonly double _minChange;
         private readonly double _maxChange;
 
-        public DoubleGenomeProperty(Func<T, double> getterFunc, Action<T, double> setterAction, double min, double max, double minChange, double maxChange, Random random)
+        public DoubleGenomeProperty(Func<T, double> getterFunc, Action<T, double> setterAction, double min, double max, double minChange, double maxChange, IRandom random)
         {
             _getterFunc = getterFunc;
             _setterAction = setterAction;
@@ -27,7 +27,12 @@ namespace GeneticSolver.GenomeProperty
 
         public void Mutate(T genome)
         {
-            _setterAction(genome, AlterNumber(_getterFunc(genome)));
+            _setterAction(genome, AlterNumber(_getterFunc(genome), _random));
+        }
+
+        public void Mutate(T genome, IRandom random)
+        {
+            _setterAction(genome, AlterNumber(_getterFunc(genome), random));
         }
 
         public void SetRandom(T genome)
@@ -42,9 +47,9 @@ namespace GeneticSolver.GenomeProperty
             _setterAction(child, newValue);
         }
 
-        private double AlterNumber(double originalValue)
+        private double AlterNumber(double originalValue, IRandom random)
         {
-            double newValue = originalValue + GetRandomDouble(_minChange, _maxChange);
+            double newValue = originalValue + random.NextDouble(_minChange, _maxChange);
             if (newValue < _min) newValue = _min;
             if (newValue > _max) newValue = _max;
             return newValue;
