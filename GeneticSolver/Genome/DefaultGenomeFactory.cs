@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace GeneticSolver.Genome
 {
@@ -25,9 +24,10 @@ namespace GeneticSolver.Genome
 
         public IEnumerable<T> GetNewGenomes(int count)
         {
-            return ParallelEnumerable
-                .Range(1, count)
-                .Select(_ => GetNewGenome());
+            for (int i = 0; i < count; i++)
+            {
+                yield return GetNewGenome();
+            }
         }
     }
 }

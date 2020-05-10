@@ -41,7 +41,7 @@ namespace GeneticAlgo
                 0.3);
 
 //            var tasks = new List<Task>();
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 10; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
                 LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator);
@@ -100,13 +100,15 @@ namespace GeneticAlgo
                 new IEarlyStoppingCondition<Coefficients, double>[]
                 {
                     new FitnessThresholdReachedEarlyStopCondition<Coefficients, double>(fitness => fitness < 1e-6),
-                    new ProgressStalledEarlyStoppingCondition<Coefficients, double>(100, 0.5, 0.8),
-                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-6, 100),
+                    new ProgressStalledEarlyStoppingCondition<Coefficients, double>(10, 0.5, 0.8),
+                    new FitnessNotImprovingEarlyStoppingCondition<Coefficients>(1e-7, 10),
                 },
                 new IGenomeReproductionStrategy<Coefficients>[]
                 {
                     new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+//                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new StratifiedBreedingStrategy(), 
+//                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
 //                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
                 });
             solver.NewGeneration += (s, e) => mutator.CycleStdDev();
@@ -178,7 +180,7 @@ namespace GeneticAlgo
 
     public class CoefficientsGenomeEvaluator : IGenomeEvaluator<Coefficients, double>
     {
-        private readonly ICollection<Point> _pointsToMatch;
+        private readonly IReadOnlyCollection<Point> _pointsToMatch;
 
         public CoefficientsGenomeEvaluator(IEnumerable<Point> pointsToMatch)
         {
