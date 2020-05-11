@@ -5,7 +5,7 @@ namespace GeneticSolver.GenomeProperty
 {
     public class IntegerGenomeProperty<T> : IGenomeProperty<T>
     {
-        private readonly Random _random;
+        private readonly System.Random _random;
 
         private readonly Func<T, int> _getterFunc;
         private readonly Action<T, int> _setterAction;
@@ -14,7 +14,7 @@ namespace GeneticSolver.GenomeProperty
         private readonly int _minChange;
         private readonly int _maxChange;
 
-        public IntegerGenomeProperty(Func<T, int> getterFunc, Action<T, int> setterAction, int min, int max, int minChange, int maxChange, Random random)
+        public IntegerGenomeProperty(Func<T, int> getterFunc, Action<T, int> setterAction, int min, int max, int minChange, int maxChange, System.Random random)
         {
             _getterFunc = getterFunc;
             _setterAction = setterAction;
