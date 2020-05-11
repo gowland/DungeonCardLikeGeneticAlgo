@@ -2,8 +2,9 @@
 
 namespace GeneticSolver
 {
-    public interface IGenomeFactory<T>
+    public interface IGenomeFactory<out T>
     {
         T GetNewGenome();
+        IEnumerable<T> GetNewGenomes(int count);
     }
 }

@@ -8,7 +8,7 @@ namespace GeneticAlgo.Values
 {
     public class MyThingSolverLogger : ISolverLogger<MyThing, int>
     {
-        public void Start(ISolverParameters parameters)
+        public void Start()
         {
             Console.WriteLine("================ Start ================ ");
         }
@@ -24,12 +24,16 @@ namespace GeneticAlgo.Values
             Console.WriteLine($" {result.Fitness} - {thing.Sum} = {thing.A} + {thing.B} + {thing.C} + {thing.D} + {thing.E}");
         }
 
+        public void LogGeneration(IGenerationResult<MyThing, int> generation)
+        {
+        }
+
         public void End()
         {
             Console.WriteLine("================ Done ================ ");
         }
 
-        public void LogGenerationInfo(GenerationResult<MyThing, int> generationResult)
+        public void LogGenerationInfo(IGenerationResult<MyThing, int> generationResult)
         {
             Console.WriteLine($" Average generation: {generationResult.AverageGenomeGeneration}");
             Console.WriteLine($" Average fitness: {generationResult.OrderedGenomes.Average(r => r.Fitness)}");

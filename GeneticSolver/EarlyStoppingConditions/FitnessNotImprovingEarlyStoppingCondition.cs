@@ -16,7 +16,7 @@ namespace GeneticSolver.EarlyStoppingConditions
             _numGenerations = numGenerations;
             _previousGenerationFitnesses = new Queue<double>();
         }
-        public bool Match(GenerationResult<T, double> generationResult)
+        public bool Match(IGenerationResult<T, double> generationResult)
         {
             double currentGenerationFitness = generationResult.FittestGenome.Fitness;
             _previousGenerationFitnesses.Enqueue(currentGenerationFitness);

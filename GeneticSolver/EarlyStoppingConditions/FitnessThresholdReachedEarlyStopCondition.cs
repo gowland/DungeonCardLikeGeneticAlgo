@@ -13,7 +13,7 @@ namespace GeneticSolver.EarlyStoppingConditions
             _fitnessScoreConditionFunc = fitnessScoreConditionFunc;
         }
 
-        public bool Match(GenerationResult<T, TScore> generationResult)
+        public bool Match(IGenerationResult<T, TScore> generationResult)
         {
             return _fitnessScoreConditionFunc(generationResult.FittestGenome.Fitness);
         }

@@ -41,10 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BreedingStrategies\HaremBreedingStrategy.cs" />
-    <Compile Include="BreedingStrategies\RandomBreedingStrategy.cs" />
-    <Compile Include="BreedingStrategies\RotatingBreedingStrategy.cs" />
-    <Compile Include="BreedingStrategies\StratifiedBreedingStrategy.cs" />
+    <Compile Include="GenomeMutator.cs" />
+    <Compile Include="OrderedEnumerableExtensions.cs" />
+    <Compile Include="PairingStrategies\HaremBreedingStrategy.cs" />
+    <Compile Include="PairingStrategies\RandomBreedingStrategy.cs" />
+    <Compile Include="PairingStrategies\RotatingBreedingStrategy.cs" />
+    <Compile Include="PairingStrategies\StratifiedBreedingStrategy.cs" />
     <Compile Include="EarlyStoppingConditions\FitnessNotImprovingEarlyStoppingCondition.cs" />
     <Compile Include="EarlyStoppingConditions\FitnessThresholdReachedEarlyStopCondition.cs" />
     <Compile Include="EarlyStoppingConditions\ProgressStalledEarlyStoppingCondition.cs" />
@@ -54,16 +56,25 @@
     <Compile Include="FitnessResult.cs" />
     <Compile Include="Genome\GenomeInfo.cs" />
     <Compile Include="IGenomeDescription.cs" />
-    <Compile Include="Interfaces\IBreadingStrategy.cs" />
+    <Compile Include="Interfaces\IPairingStrategy.cs" />
+    <Compile Include="Random\BellWeightedRandom.cs" />
+    <Compile Include="Random\UnWeightedRandom.cs" />
+    <Compile Include="ReproductionStrategies\AsexualGenomeReproductionStrategy.cs" />
+    <Compile Include="ReproductionStrategies\SexualGenomeReproductionStrategy.cs" />
     <Compile Include="RequiredInterfaces\IEarlyStoppingCondition.cs" />
     <Compile Include="RequiredInterfaces\IGenomeEvaluator.cs" />
     <Compile Include="IGenomeFactory.cs" />
     <Compile Include="Interfaces\IGenomeInfo.cs" />
     <Compile Include="RequiredInterfaces\IGenomeProperty.cs" />
     <Compile Include="GenomeProperty\IntegerGenomeProperty.cs" />
+    <Compile Include="RequiredInterfaces\IGenomeReproductionStrategy.cs" />
+    <Compile Include="RequiredInterfaces\IMutator.cs" />
+    <Compile Include="RequiredInterfaces\IPairingStrategy.cs" />
+    <Compile Include="RequiredInterfaces\IRandom.cs" />
     <Compile Include="RequiredInterfaces\ISolverLogger.cs" />
     <Compile Include="RequiredInterfaces\ISolverParameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScoredGeneration.cs" />
     <Compile Include="Solver.cs" />
     <Compile Include="SolverParameters.cs" />
   </ItemGroup>

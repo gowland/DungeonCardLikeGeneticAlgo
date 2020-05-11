@@ -38,6 +38,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Coefficients\Coefficients.cs" />
+    <Compile Include="Coefficients\CoefficientsGenomeDescriptions.cs" />
+    <Compile Include="Coefficients\CoefficientsGenomeEvaluator.cs" />
+    <Compile Include="Coefficients\CoefficientsSolverLogger.cs" />
+    <Compile Include="Coefficients\Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Values\MyThing.cs" />

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using GeneticSolver.Interfaces;
 
-namespace GeneticSolver.BreedingStrategies
+namespace GeneticSolver.PairingStrategies
 {
-    public class RandomBreedingStrategy : IBreadingStrategy
+    public class RandomBreedingStrategy : IPairingStrategy
     {
-        private readonly Random _random = new Random();
-        public IEnumerable<Tuple<T,T>> GetPairs<T>(IOrderedEnumerable<T> genomes)
+        private readonly System.Random _random = new System.Random();
+        public IEnumerable<Tuple<T,T>> GetPairs<T>(IEnumerable<T> genomes)
         {
             var genomesArr = genomes.OrderBy(g => _random.NextDouble()).ToArray();
 

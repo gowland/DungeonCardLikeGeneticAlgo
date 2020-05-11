@@ -4,6 +4,6 @@ namespace GeneticSolver.RequiredInterfaces
 {
     public interface IEarlyStoppingCondition<T, TScore>
     {
-        bool Match(GenerationResult<T, TScore> generationResult);
+        bool Match(IGenerationResult<T, TScore> generationResult);
     }
 }
