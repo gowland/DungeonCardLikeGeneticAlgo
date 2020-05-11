@@ -105,9 +105,11 @@ namespace GeneticAlgo
                 },
                 new IGenomeReproductionStrategy<Coefficients>[]
                 {
-                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
+//                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
+//                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new StratifiedBreedingStrategy(), 
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-//                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new StratifiedBreedingStrategy(), 
+//                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new RandomBreedingStrategy(), 
 //                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
 //                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
                 });

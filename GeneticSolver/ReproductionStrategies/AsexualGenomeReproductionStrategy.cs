@@ -19,9 +19,13 @@ namespace GeneticSolver.ReproductionStrategies
         public IEnumerable<T> ProduceOffspring(IEnumerable<T> parents)
         {
             var nextGen = parents
-                .Select(genome => genome.Clone() as T);
+                .Select(genome => genome.Clone() as T)
+                .ToArray();
 
-            Parallel.ForEach(nextGen, _mutator.Mutate);
+            foreach (var genome in nextGen)
+            {
+                _mutator.Mutate(genome);
+            }
 
             return nextGen;
         }
