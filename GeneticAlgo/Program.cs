@@ -6,6 +6,7 @@ using GeneticSolver;
 using GeneticSolver.BreedingStrategies;
 using GeneticSolver.EarlyStoppingConditions;
 using GeneticSolver.Genome;
+using GeneticSolver.PairingStrategies;
 using GeneticSolver.Random;
 using GeneticSolver.ReproductionStrategies;
 using GeneticSolver.RequiredInterfaces;
@@ -100,13 +101,13 @@ namespace GeneticAlgo
                 },
                 new IGenomeReproductionStrategy<Coefficients.Coefficients>[]
                 {
-//                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new HaremBreedingStrategy(),
+//                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new HaremBreedingStrategy(),
 //                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
                     new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new StratifiedBreedingStrategy(), 
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-//                    new SexualGenomeReproductionStrategy<Coefficients, double>(mutator, new RandomBreedingStrategy(), 
-//                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-//                    new AsexualGenomeReproductionStrategy<Coefficients>(mutator), 
+                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new RandomBreedingStrategy(), 
+                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+//                    new AsexualGenomeReproductionStrategy<Coefficients.Coefficients>(mutator), 
                 });
             solver.NewGeneration += (s, e) => mutator.CycleStdDev();
 

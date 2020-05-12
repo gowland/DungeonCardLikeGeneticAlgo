@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticAlgo", "GeneticAlgo\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticSolver", "GeneticSolver\GeneticSolver.csproj", "{613107F7-1D9F-457F-B32B-9555BD220622}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCardsGeneticAlgo", "DungeonCardsGeneticAlgo\DungeonCardsGeneticAlgo.csproj", "{6D074FFA-2707-4372-8A5D-C365B646572D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCore", "DungeonCardsCore\GameCore.csproj", "{90AF7A07-9002-4900-A38F-5DD2066EAC4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D074FFA-2707-4372-8A5D-C365B646572D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D074FFA-2707-4372-8A5D-C365B646572D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D074FFA-2707-4372-8A5D-C365B646572D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D074FFA-2707-4372-8A5D-C365B646572D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
