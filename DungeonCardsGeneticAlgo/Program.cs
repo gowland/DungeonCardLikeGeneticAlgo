@@ -52,16 +52,16 @@ namespace DungeonCardsGeneticAlgo
                 solverParameters,
                 new IEarlyStoppingCondition<GameAgentMultipliers, double>[]
                 {
-                    new GeneticSolver.EarlyStoppingConditions.FitnessThresholdReachedEarlyStopCondition<GameAgentMultipliers, double>(fitness => fitness < 1e-6),
+                    // new GeneticSolver.EarlyStoppingConditions.FitnessThresholdReachedEarlyStopCondition<GameAgentMultipliers, double>(fitness => fitness < 1e-6),
                     new GeneticSolver.EarlyStoppingConditions.ProgressStalledEarlyStoppingCondition<GameAgentMultipliers, double>(10, 0.5, 0.8),
-                    new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentMultipliers>(1e-7, 10),
+                    new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentMultipliers>(1, 100),
                 },
                 new IGenomeReproductionStrategy<GameAgentMultipliers>[]
                 {
                     new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-                    new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
-                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+                    // new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
+                        // defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
                 });
             solver.NewGeneration += (s, e) => mutator.CycleStdDev();
 
@@ -84,7 +84,7 @@ namespace DungeonCardsGeneticAlgo
         public DirectionResult GetDirectionFromAlgo(Board board)
         {
             // Thread.Sleep(5000); // Allow humans to watch
-            var moves = board.GetLegalMoves();
+            var moves = board.GetCurrentLegalMoves();
 
             var scoredMoves = moves.Select(pair => new { Direction = pair.Key, Score = GetScore(board, pair.Value) });
 

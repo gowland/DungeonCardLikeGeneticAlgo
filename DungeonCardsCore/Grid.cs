@@ -81,5 +81,16 @@ namespace Game
                 position = nextCoordinate;
             } while (inBounds);
         }
+
+        public IEnumerable<Coordinates> GetAllPositions()
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    yield return new Coordinates(x,y);
+                }
+            }
+        }
     }
 }

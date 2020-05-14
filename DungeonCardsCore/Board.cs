@@ -16,11 +16,13 @@ namespace Game
         private readonly IMovementResultGenerator<ICard<CardType>> _movementResultGenerator;
         private readonly Hero _hero = new Hero();
         private Coordinates _playerCoordinates = new Coordinates(1, 1);
+        private readonly IDictionary<Coordinates, IDictionary<Direction, Slot<ICard<CardType>>>> _legalMovesCache;
 
         public Board(int width, int height, IMovementResultGenerator<ICard<CardType>> movementResultGenerator)
         {
             _movementResultGenerator = movementResultGenerator;
             _grid = new Grid<Slot<ICard<CardType>>>(width, height, Enumerable.Range(0, width * height).Select(_ => new Slot<ICard<CardType>>()));
+            _legalMovesCache = GetLegalMovesCache();
         }
 
         public ISlot<ICard<CardType>> this[int x, int y] => _grid[x, y];
@@ -33,13 +35,25 @@ namespace Game
 
         public int HeroHealth => this[_playerCoordinates].Card.Value;
 
-        public IDictionary<Direction, Slot<ICard<CardType>>> GetLegalMoves()
+        public IDictionary<Direction, Slot<ICard<CardType>>> GetCurrentLegalMoves()
+        {
+            return _legalMovesCache[_playerCoordinates];
+        }
+
+        private IDictionary<Coordinates, IDictionary<Direction, Slot<ICard<CardType>>>> GetLegalMovesCache()
+        {
+            return _grid.GetAllPositions()
+                .ToDictionary(coords => coords, GetLegalMovesForPosition);
+        }
+
+        private IDictionary<Direction, Slot<ICard<CardType>>> GetLegalMovesForPosition(Coordinates coordinates)
         {
             var directions = new []{Direction.Left, Direction.Up, Direction.Right, Direction.Down};
-            var directionSlots = directions.Select( dir => new { Direction = dir, Slot = GetSlot(_playerCoordinates.Get(dir)) });
-            return directionSlots
+            var directionSlots = directions
+                .Select(dir => new {Direction = dir, Slot = GetSlot(coordinates.Get(dir))})
                 .Where(dir => dir.Slot != null)
                 .ToDictionary(dir => dir.Direction, dir => dir.Slot);
+            return directionSlots;
         }
 
         public void TakeAction(Direction direction)
