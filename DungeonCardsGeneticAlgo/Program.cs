@@ -21,7 +21,7 @@ namespace DungeonCardsGeneticAlgo
             var genomeDescriptions = new GameAgentMultipliersDescription();
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
 
-            var solverParameters = new GeneticSolver.SolverParameters(
+            var solverParameters = new SolverParameters(
                 100,
                 200,
                 0.3);
@@ -81,27 +81,27 @@ namespace DungeonCardsGeneticAlgo
             _multipliers = multipliers;
         }
 
-        public Game.DirectionResult GetDirectionFromAlgo(Game.Board board)
+        public DirectionResult GetDirectionFromAlgo(Board board)
         {
             // Thread.Sleep(5000); // Allow humans to watch
             var moves = board.GetLegalMoves();
 
             var scoredMoves = moves.Select(pair => new { Direction = pair.Key, Score = GetScore(board, pair.Value) });
 
-            return new Game.DirectionResult(scoredMoves.OrderByDescending(move => move.Score).First().Direction);
+            return new DirectionResult(scoredMoves.OrderByDescending(move => move.Score).First().Direction);
         }
 
-        private double GetScore(Game.Board board, Game.Slot<Game.ICard<Game.CardType>> slot)
+        private double GetScore(Board board, ISlot<ICard<CardType>> slot)
         {
             var card = slot.Card;
             SquareDesc squareDesc = board.Desc();
             switch (card.Type)
             {
-                case Game.CardType.Monster:
+                case CardType.Monster:
                     return ScoreMonsterCard(board.Weapon, card.Value, board.HeroHealth, squareDesc);
-                case Game.CardType.Weapon:
+                case CardType.Weapon:
                     return ScoreWeaponCard(board.Weapon, card.Value, squareDesc);
-                case Game.CardType.Gold:
+                case CardType.Gold:
                     return ScoreGoldCard(card.Value, squareDesc);
                 default:
                     throw new ArgumentOutOfRangeException();
