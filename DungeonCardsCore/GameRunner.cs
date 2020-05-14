@@ -22,7 +22,7 @@ namespace Game
                 // Checking hero's health
                 if (board.HeroHealth <= 0)
                 {
-                    Console.WriteLine("Game Over! You suck :-)");
+                    // Console.WriteLine("Game Over! You suck :-)");
                     return board.Gold;
                 }
 

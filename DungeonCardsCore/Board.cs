@@ -4,6 +4,12 @@ using System.Linq;
 
 namespace Game
 {
+    public enum SquareDesc
+    {
+        Center = 0,
+        Edge,
+        Corner,
+    }
     public class Board
     {
         private readonly Grid<Slot<ICard<CardType>>> _grid;
@@ -143,6 +149,21 @@ namespace Game
 
                 currentSlot.Card = GameBuilder.GetRandomStartCard();
             }
+        }
+
+        public SquareDesc Desc()
+        {
+            if (_playerCoordinates.X == 0 || _playerCoordinates.X == 2)
+            {
+                if (_playerCoordinates.Y == 0 || _playerCoordinates.Y == 2)
+                {
+                    return SquareDesc.Corner;
+                }
+
+                return SquareDesc.Edge;
+            }
+
+            return SquareDesc.Center;
         }
 
         public Slot<ICard<CardType>> GetSlot(Coordinates coordinates)

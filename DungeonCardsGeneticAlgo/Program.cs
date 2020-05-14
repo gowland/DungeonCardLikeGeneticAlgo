@@ -4,8 +4,11 @@ using System.Linq;
 using GeneticSolver;
 using System.Text;
 using System.Threading.Tasks;
+using Game;
 using GeneticSolver.BreedingStrategies;
+using GeneticSolver.GenomeProperty;
 using GeneticSolver.Interfaces;
+using GeneticSolver.Random;
 using GeneticSolver.RequiredInterfaces;
 
 namespace DungeonCardsGeneticAlgo
@@ -19,12 +22,12 @@ namespace DungeonCardsGeneticAlgo
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
 
             var solverParameters = new GeneticSolver.SolverParameters(
-                1000,
-                2000,
+                100,
+                200,
                 0.3);
 
 //            var tasks = new List<Task>();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
                 LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator);
@@ -38,22 +41,22 @@ namespace DungeonCardsGeneticAlgo
         }
 
         private static void LaunchEvolutionRun(GameAgentMultipliersDescription genomeDescriptions,
-            GeneticSolver.SolverParameters solverParameters, GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers> defaultGenomeFactory, GameAgentEvaluator evaluator)
+            SolverParameters solverParameters, GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers> defaultGenomeFactory, GameAgentEvaluator evaluator)
         {
             var mutator = new BellWeightedGenomeMutator<GameAgentMultipliers>(genomeDescriptions, solverParameters.PropertyMutationProbability);
             var logger = new GameAgentSolverLogger();
-            var solver = new GeneticSolver.Solver<GameAgentMultipliers, double>(
+            var solver = new Solver<GameAgentMultipliers, double>(
                 defaultGenomeFactory,
                 evaluator,
                 logger,
                 solverParameters,
-                new GeneticSolver.RequiredInterfaces.IEarlyStoppingCondition<GameAgentMultipliers, double>[]
+                new IEarlyStoppingCondition<GameAgentMultipliers, double>[]
                 {
                     new GeneticSolver.EarlyStoppingConditions.FitnessThresholdReachedEarlyStopCondition<GameAgentMultipliers, double>(fitness => fitness < 1e-6),
                     new GeneticSolver.EarlyStoppingConditions.ProgressStalledEarlyStoppingCondition<GameAgentMultipliers, double>(10, 0.5, 0.8),
                     new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentMultipliers>(1e-7, 10),
                 },
-                new GeneticSolver.RequiredInterfaces.IGenomeReproductionStrategy<GameAgentMultipliers>[]
+                new IGenomeReproductionStrategy<GameAgentMultipliers>[]
                 {
                     new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
@@ -91,138 +94,190 @@ namespace DungeonCardsGeneticAlgo
         private double GetScore(Game.Board board, Game.Slot<Game.ICard<Game.CardType>> slot)
         {
             var card = slot.Card;
+            SquareDesc squareDesc = board.Desc();
             switch (card.Type)
             {
                 case Game.CardType.Monster:
-                    return ScoreMonsterCard(board.Weapon, card.Value, board.HeroHealth);
+                    return ScoreMonsterCard(board.Weapon, card.Value, board.HeroHealth, squareDesc);
                 case Game.CardType.Weapon:
-                    return ScoreWeaponCard(board.Weapon, card.Value);
+                    return ScoreWeaponCard(board.Weapon, card.Value, squareDesc);
                 case Game.CardType.Gold:
-                    return ScoreGoldCard(card.Value);
+                    return ScoreGoldCard(card.Value, squareDesc);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private double ScoreGoldCard(int goldScore)
+        private double ScoreGoldCard(int goldScore, SquareDesc squareDesc)
         {
-            return _multipliers.GoldScoreMultiplier * goldScore;
+            return _multipliers.GoldScoreMultiplier[(int)squareDesc] * goldScore;
         }
 
-        private double ScoreWeaponCard(int heroWeapon, int weaponValue)
+        private double ScoreWeaponCard(int heroWeapon, int weaponValue, SquareDesc squareDesc)
         {
             return heroWeapon > 0
-                ? ScoreWeaponCardWhenPossessingWeapon(heroWeapon, weaponValue)
-                : ScoreWeaponCardWhenNotPossessingWeapon(weaponValue);
+                ? _multipliers.WeaponWhenPossessingWeaponScoreMultiplier[(int)squareDesc] * ScoreWeaponCardWhenPossessingWeapon(heroWeapon, weaponValue)
+                : _multipliers.WeaponWhenPossessingNotWeaponScoreMultiplier[(int)squareDesc] * ScoreWeaponCardWhenNotPossessingWeapon(weaponValue);
         }
 
         private double ScoreWeaponCardWhenNotPossessingWeapon(int weaponValue)
         {
-            return _multipliers.WeaponWhenPossessingNotWeaponScoreMultiplier * weaponValue;
+            return weaponValue;
         }
 
         private double ScoreWeaponCardWhenPossessingWeapon(int heroWeapon, int cardWeapon)
         {
-            return _multipliers.WeaponWhenPossessingWeaponScoreMultiplier * (heroWeapon - cardWeapon);
+            return (heroWeapon - cardWeapon);
         }
 
-        private double ScoreMonsterCard(int heroWeapon, int monsterHealth, int heroHealth)
+        private double ScoreMonsterCard(int heroWeapon, int monsterHealth, int heroHealth, SquareDesc squareDesc)
         {
             if (heroWeapon > 0)
             {
-                return ScoreMonsterWhenPossessingWeapon(heroWeapon, monsterHealth);
+                return _multipliers.MonsterWhenPossessingWeaponScoreMultiplier[(int)squareDesc] * ScoreMonsterWhenPossessingWeapon(heroWeapon, monsterHealth);
             }
             else if (monsterHealth > heroHealth)
             {
-                return ScoreMonsterWhenNotPossessingWeaponAndHeroHealthIsGreater();
+                return ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(heroHealth, monsterHealth);
             }
             else
             {
-                return ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(heroHealth, monsterHealth);
+                return _multipliers.MonsterWhenNotPossessingWeaponScoreMultiplier[(int)squareDesc] * ScoreMonsterWhenNotPossessingWeaponAndHeroHealthIsGreater(heroHealth, monsterHealth);
             }
         }
 
         private double ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(int heroHealth, int monsterHealth)
         {
-            return _multipliers.MonsterWhenNotPossessingWeaponScoreMultiplier * (heroHealth - monsterHealth);
+            return int.MinValue;
         }
 
-        private double ScoreMonsterWhenNotPossessingWeaponAndHeroHealthIsGreater()
+        private double ScoreMonsterWhenNotPossessingWeaponAndHeroHealthIsGreater(int heroHealth, int monsterHealth)
         {
-            return int.MinValue;
+            return (heroHealth - monsterHealth);
         }
 
         private double ScoreMonsterWhenPossessingWeapon(int heroWeapon, int monsterHealth)
         {
-            return _multipliers.MonsterWhenPossessingWeaponScoreMultiplier * (monsterHealth - heroWeapon);
+            return (monsterHealth - heroWeapon);
         }
     }
 
     public class GameAgentMultipliers : ICloneable
     {
-        public double GoldScoreMultiplier { get; set; }
-        public double MonsterWhenPossessingWeaponScoreMultiplier { get; set; }
-        public double MonsterWhenNotPossessingWeaponScoreMultiplier { get; set; }
-        public double WeaponWhenPossessingWeaponScoreMultiplier { get; set; }
-        public double WeaponWhenPossessingNotWeaponScoreMultiplier { get; set; }
+        public GameAgentMultipliers()
+        {
+                GoldScoreMultiplier = new double[3];
+                MonsterWhenPossessingWeaponScoreMultiplier = new double[3];
+                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3];
+                WeaponWhenPossessingWeaponScoreMultiplier = new double[3];
+                WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3];
+        }
+        public double[] GoldScoreMultiplier { get; set; }
+        public double[] MonsterWhenPossessingWeaponScoreMultiplier { get; set; }
+        public double[] MonsterWhenNotPossessingWeaponScoreMultiplier { get; set; }
+        public double[] WeaponWhenPossessingWeaponScoreMultiplier { get; set; }
+        public double[] WeaponWhenPossessingNotWeaponScoreMultiplier { get; set; }
         public object Clone()
         {
-            var clone = new GameAgentMultipliers()
-            {
-                GoldScoreMultiplier = GoldScoreMultiplier,
-                MonsterWhenPossessingWeaponScoreMultiplier = MonsterWhenPossessingWeaponScoreMultiplier,
-                MonsterWhenNotPossessingWeaponScoreMultiplier = MonsterWhenNotPossessingWeaponScoreMultiplier,
-                WeaponWhenPossessingWeaponScoreMultiplier = WeaponWhenPossessingWeaponScoreMultiplier,
-                WeaponWhenPossessingNotWeaponScoreMultiplier = WeaponWhenPossessingNotWeaponScoreMultiplier,
-            };
+            var clone = new GameAgentMultipliers();
+
+            GoldScoreMultiplier.CopyTo(clone.GoldScoreMultiplier,0);
+            MonsterWhenPossessingWeaponScoreMultiplier.CopyTo(clone.MonsterWhenPossessingWeaponScoreMultiplier, 0);
+            MonsterWhenNotPossessingWeaponScoreMultiplier.CopyTo(clone.MonsterWhenNotPossessingWeaponScoreMultiplier, 0);
+            WeaponWhenPossessingWeaponScoreMultiplier.CopyTo(clone.WeaponWhenPossessingWeaponScoreMultiplier, 0);
+            WeaponWhenPossessingNotWeaponScoreMultiplier.CopyTo(clone.WeaponWhenPossessingNotWeaponScoreMultiplier, 0);
 
             return clone;
         }
     }
 
-    public class GameAgentMultipliersDescription : GeneticSolver.IGenomeDescription<GameAgentMultipliers>
+    public class GameAgentMultipliersDescription : IGenomeDescription<GameAgentMultipliers>
     {
-        public IEnumerable<IGenomeProperty<GameAgentMultipliers>> Properties { get; }
+        private readonly IRandom _random = new UnWeightedRandom();
+        private readonly double _minChange = -5;
+        private readonly double _maxChange = 5;
+        public IEnumerable<IGenomeProperty<GameAgentMultipliers>> Properties => new[]
+        {
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.GoldScoreMultiplier[0], (g, val) => g.GoldScoreMultiplier[0] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.GoldScoreMultiplier[1], (g, val) => g.GoldScoreMultiplier[1] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.GoldScoreMultiplier[2], (g, val) => g.GoldScoreMultiplier[2] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.MonsterWhenPossessingWeaponScoreMultiplier[0], (g, val) => g.MonsterWhenPossessingWeaponScoreMultiplier[0] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.MonsterWhenPossessingWeaponScoreMultiplier[1], (g, val) => g.MonsterWhenPossessingWeaponScoreMultiplier[1] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.MonsterWhenPossessingWeaponScoreMultiplier[2], (g, val) => g.MonsterWhenPossessingWeaponScoreMultiplier[2] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.MonsterWhenNotPossessingWeaponScoreMultiplier[0], (g, val) => g.MonsterWhenNotPossessingWeaponScoreMultiplier[0] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.MonsterWhenNotPossessingWeaponScoreMultiplier[1], (g, val) => g.MonsterWhenNotPossessingWeaponScoreMultiplier[1] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.MonsterWhenNotPossessingWeaponScoreMultiplier[2], (g, val) => g.MonsterWhenNotPossessingWeaponScoreMultiplier[2] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.WeaponWhenPossessingWeaponScoreMultiplier[0], (g, val) => g.WeaponWhenPossessingWeaponScoreMultiplier[0] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.WeaponWhenPossessingWeaponScoreMultiplier[1], (g, val) => g.WeaponWhenPossessingWeaponScoreMultiplier[1] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.WeaponWhenPossessingWeaponScoreMultiplier[2], (g, val) => g.WeaponWhenPossessingWeaponScoreMultiplier[2] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.WeaponWhenPossessingNotWeaponScoreMultiplier[0], (g, val) => g.WeaponWhenPossessingNotWeaponScoreMultiplier[0] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.WeaponWhenPossessingNotWeaponScoreMultiplier[1], (g, val) => g.WeaponWhenPossessingNotWeaponScoreMultiplier[1] = val, -100, 100, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentMultipliers>(g => g.WeaponWhenPossessingNotWeaponScoreMultiplier[2], (g, val) => g.WeaponWhenPossessingNotWeaponScoreMultiplier[2] = val, -100, 100, _minChange, _maxChange, _random),
+        };
     }
 
-    public class GameAgentEvaluator : GeneticSolver.RequiredInterfaces.IGenomeEvaluator<GameAgentMultipliers, double>
+    public class GameAgentEvaluator : IGenomeEvaluator<GameAgentMultipliers, double>
     {
         public IOrderedEnumerable<FitnessResult<GameAgentMultipliers, double>> GetFitnessResults(IEnumerable<IGenomeInfo<GameAgentMultipliers>> genomes)
         {
-            throw new NotImplementedException();
+            return genomes.Select(genome => new FitnessResult<GameAgentMultipliers, double>(genome, GetFitness(genome.Genome)))
+                .OrderByDescending(r => r.Fitness);
         }
 
         public IOrderedEnumerable<GameAgentMultipliers> GetFitnessResults(IEnumerable<GameAgentMultipliers> genomes)
         {
-            throw new NotImplementedException();
+            return genomes.OrderByDescending(GetFitness);
+        }
+
+        private double GetFitness(GameAgentMultipliers genome)
+        {
+            return Enumerable.Range(1, 10).Select(_ => DoOneRun(genome)).Average();
+        }
+
+        private int DoOneRun(GameAgentMultipliers multipliers)
+        {
+            Board board = GameBuilder.GetRandomStartBoard();
+            var gameAgent = new GameAgent(multipliers);
+            var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => {});
+            return gameRunner.RunGame(board);
         }
     }
 
-    public class GameAgentSolverLogger : GeneticSolver.RequiredInterfaces.ISolverLogger<GameAgentMultipliers, double>
+    public class GameAgentSolverLogger : ISolverLogger<GameAgentMultipliers, double>
     {
+        private readonly Guid _runId;
+
+        public GameAgentSolverLogger()
+        {
+            _runId = Guid.NewGuid();
+        }
         public void Start()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Starting {_runId}");
         }
 
         public void LogStartGeneration(int generationNumber)
         {
-            throw new NotImplementedException();
         }
 
         public void LogGenerationInfo(IGenerationResult<GameAgentMultipliers, double> generationResult)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{_runId},{generationResult.GenerationNumber},{generationResult.FittestGenome.Fitness}");
         }
 
         public void LogGeneration(IGenerationResult<GameAgentMultipliers, double> generation)
         {
-            throw new NotImplementedException();
+            var best = generation.FittestGenome.GenomeInfo.Genome;
+            Console.WriteLine($"Gold multipliers              {string.Join(", ", best.GoldScoreMultiplier.Select(d => $"{d:0.0000}"))}");
+            Console.WriteLine($"Monster w/ weapon multipliers {string.Join(", ", best.MonsterWhenPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
+            Console.WriteLine($"Monster no weapon multipliers {string.Join(", ", best.MonsterWhenNotPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
+            Console.WriteLine($"Weapon w/ weapon multipliers  {string.Join(", ", best.WeaponWhenPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
+            Console.WriteLine($"Weapon no weapon multipliers  {string.Join(", ", best.WeaponWhenPossessingNotWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
         }
 
         public void End()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Fin {_runId}");
         }
     }
 }
