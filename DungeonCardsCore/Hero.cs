@@ -5,6 +5,12 @@
         public int Weapon { get; private set; }
         public int Gold { get; private set; }
 
+        public void Reset()
+        {
+            Weapon = 0;
+            Gold = 0;
+        }
+
         public void AddGold(int goldAmount)
         {
             if (goldAmount < 1)

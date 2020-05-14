@@ -86,6 +86,14 @@ namespace DungeonCardsGeneticAlgo
             // Thread.Sleep(5000); // Allow humans to watch
             var moves = board.GetCurrentLegalMoves();
 
+            foreach (var legalMoves in moves)
+            {
+                if (legalMoves.Value.Card.Type == CardType.Player)
+                {
+                    throw new InvalidOperationException("Whaaaa?!?");
+                }
+            }
+
             var scoredMoves = moves.Select(pair => new { Direction = pair.Key, Score = GetScore(board, pair.Value) });
 
             return new DirectionResult(scoredMoves.OrderByDescending(move => move.Score).First().Direction);
@@ -218,6 +226,8 @@ namespace DungeonCardsGeneticAlgo
 
     public class GameAgentEvaluator : IGenomeEvaluator<GameAgentMultipliers, double>
     {
+        private readonly Board _board = GameBuilder.GetRandomStartBoard();
+
         public IOrderedEnumerable<FitnessResult<GameAgentMultipliers, double>> GetFitnessResults(IEnumerable<IGenomeInfo<GameAgentMultipliers>> genomes)
         {
             return genomes.Select(genome => new FitnessResult<GameAgentMultipliers, double>(genome, GetFitness(genome.Genome)))
@@ -236,10 +246,10 @@ namespace DungeonCardsGeneticAlgo
 
         private int DoOneRun(GameAgentMultipliers multipliers)
         {
-            Board board = GameBuilder.GetRandomStartBoard();
+            GameBuilder.RandomizeBoardToStart(_board);
             var gameAgent = new GameAgent(multipliers);
             var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => {});
-            return gameRunner.RunGame(board);
+            return gameRunner.RunGame(_board);
         }
     }
 

@@ -35,6 +35,20 @@ namespace Game
 
         public int HeroHealth => this[_playerCoordinates].Card.Value;
 
+        public void ResetBoard(Func<ICard<CardType>> getCardFunc, ICard<CardType> playerCard)
+        {
+            _playerCoordinates = new Coordinates(1, 1);
+            _hero.Reset();
+
+            foreach (Coordinates coordinates in _grid.GetAllPositions())
+            {
+                _grid[coordinates].Card = coordinates.Equals(_playerCoordinates)
+                    ? playerCard
+                    : getCardFunc.Invoke();
+            }
+
+        }
+
         public IDictionary<Direction, Slot<ICard<CardType>>> GetCurrentLegalMoves()
         {
             return _legalMovesCache[_playerCoordinates];
@@ -48,7 +62,7 @@ namespace Game
 
         private IDictionary<Direction, Slot<ICard<CardType>>> GetLegalMovesForPosition(Coordinates coordinates)
         {
-            var directions = new []{Direction.Left, Direction.Up, Direction.Right, Direction.Down};
+            var directions = Enum.GetValues(typeof(Direction)).Cast<Direction>();
             var directionSlots = directions
                 .Select(dir => new {Direction = dir, Slot = GetSlot(coordinates.Get(dir))})
                 .Where(dir => dir.Slot != null)

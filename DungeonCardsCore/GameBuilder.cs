@@ -7,6 +7,7 @@ namespace Game
         private static readonly Random Randomizer = new Random(DateTime.Now.Millisecond);
         private static readonly CardType[] LegalRandomStartCardTypes = {CardType.Monster, CardType.Weapon};
         private static readonly CardType[] LegalRandomRewardCardTypes = {CardType.Gold};
+        private static readonly MovementResultGenerator MovementResultGenerator = new MovementResultGenerator();
         private const int MinStartCardValue = 1;
         private const int MaxStartCardValue = 8;
         private const int MinRewardCardValue = 1;
@@ -21,28 +22,24 @@ namespace Game
         {
             return new Card<CardType>(LegalRandomRewardCardTypes[Randomizer.Next(0, LegalRandomRewardCardTypes.Length)] , Randomizer.Next(MinRewardCardValue, MaxRewardCardValue));
         }
-        public static ICard<CardType> GetDefaultPlayerCard()
+
+        private static ICard<CardType> GetDefaultPlayerCard()
         {
             return new Card<CardType>(CardType.Player, 10);
         }
 
         public static Board GetRandomStartBoard()
         {
-            var board = new Board(3, 3, new MovementResultGenerator());
+            var board = new Board(3, 3, MovementResultGenerator);
 
-            board[1, 1].Card = GetDefaultPlayerCard();
-            for (int x = 0; x < 3; x++)
-            {
-                for (int y = 0; y < 3; y++)
-                {
-                    if (x != 1 || y != 1)
-                    {
-                        board[x, y].Card = GetRandomStartCard();
-                    }
-                }
-            }
+            board.ResetBoard(GetRandomStartCard, GetDefaultPlayerCard());
 
             return board;
+        }
+
+        public static void RandomizeBoardToStart(Board board)
+        {
+            board.ResetBoard(GetRandomStartCard, GetDefaultPlayerCard());
         }
     }
 }
