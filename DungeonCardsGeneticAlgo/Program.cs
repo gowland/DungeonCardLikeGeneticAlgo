@@ -17,13 +17,15 @@ namespace DungeonCardsGeneticAlgo
     {
         static void Main(string[] args)
         {
-            var evaluator = new GameAgentEvaluator();
+            var maxEliteSize = 1000;
+            var cache = new FitnessCache<GameAgentMultipliers, double>(400*maxEliteSize); // TODO: need to clear on repeated runs
+            var evaluator = new GameAgentEvaluator(cache);
             var genomeDescriptions = new GameAgentMultipliersDescription();
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
-                1000,
-                2000,
+                maxEliteSize,
+                2*maxEliteSize,
                 0.3);
 
 //            var tasks = new List<Task>();
@@ -216,9 +218,57 @@ namespace DungeonCardsGeneticAlgo
         };
     }
 
+    public class FitnessCache<T, TScore>
+    {
+        private readonly int _cacheSize;
+        private readonly IDictionary<T, TScore> _cache;
+        private readonly IDictionary<T, DateTime> _access;
+
+        public FitnessCache(int cacheSize)
+        {
+            _cacheSize = cacheSize;
+            _cache = new Dictionary<T, TScore>(cacheSize);
+            _access = new Dictionary<T, DateTime>(2*cacheSize);
+        }
+
+        public bool TryGetFitness(T genome, out TScore fitness)
+        {
+            _access[genome] = DateTime.Now;
+            var cachedFitness = _cache.TryGetValue(genome, out fitness);
+            if (_access.Count == 2 * _cacheSize)
+            {
+                Purge();
+            }
+
+            return cachedFitness;
+        }
+
+        private void Purge()
+        {
+            var oldAccesses = _access.OrderBy(a => a.Value).Take(_cacheSize).Select(a => a.Key).ToArray();
+            foreach (var key in oldAccesses)
+            {
+                _access.Remove(key);
+                _cache.Remove(key);
+            }
+        }
+
+        public void Cache(T genome, TScore fitness)
+        {
+            _access[genome] = DateTime.Now;
+            _cache[genome] = fitness;
+        }
+    }
+
     public class GameAgentEvaluator : IGenomeEvaluator<GameAgentMultipliers, double>
     {
+        private readonly FitnessCache<GameAgentMultipliers, double> _fitnessCache;
         private readonly Board _board = GameBuilder.GetRandomStartBoard();
+
+        public GameAgentEvaluator(FitnessCache<GameAgentMultipliers, double> fitnessCache)
+        {
+            _fitnessCache = fitnessCache;
+        }
 
         public IOrderedEnumerable<FitnessResult<GameAgentMultipliers, double>> GetFitnessResults(IEnumerable<IGenomeInfo<GameAgentMultipliers>> genomes)
         {
@@ -233,11 +283,20 @@ namespace DungeonCardsGeneticAlgo
 
         private double GetFitness(GameAgentMultipliers genome)
         {
-            return Enumerable.Range(1, 100)
+            if (_fitnessCache.TryGetFitness(genome, out double cachedFitness))
+            {
+                return cachedFitness;
+            }
+
+            var fitness = Enumerable.Range(1, 1000)
                 .Select(_ => DoOneRun(genome))
                 .OrderBy(v => v)
-                .Skip(10).Take(80)
+                .Skip(100).Take(800)
                 .Average();
+
+            _fitnessCache.Cache(genome, fitness);
+
+            return fitness;
         }
 
         private int DoOneRun(GameAgentMultipliers multipliers)
