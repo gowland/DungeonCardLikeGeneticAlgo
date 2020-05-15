@@ -22,8 +22,8 @@ namespace DungeonCardsGeneticAlgo
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
-                100,
-                200,
+                1000,
+                2000,
                 0.3);
 
 //            var tasks = new List<Task>();
@@ -85,14 +85,6 @@ namespace DungeonCardsGeneticAlgo
         {
             // Thread.Sleep(5000); // Allow humans to watch
             var moves = board.GetCurrentLegalMoves();
-
-            foreach (var legalMoves in moves)
-            {
-                if (legalMoves.Value.Card.Type == CardType.Player)
-                {
-                    throw new InvalidOperationException("Whaaaa?!?");
-                }
-            }
 
             var scoredMoves = moves.Select(pair => new { Direction = pair.Key, Score = GetScore(board, pair.Value) });
 
@@ -241,7 +233,11 @@ namespace DungeonCardsGeneticAlgo
 
         private double GetFitness(GameAgentMultipliers genome)
         {
-            return Enumerable.Range(1, 10).Select(_ => DoOneRun(genome)).Average();
+            return Enumerable.Range(1, 100)
+                .Select(_ => DoOneRun(genome))
+                .OrderBy(v => v)
+                .Skip(10).Take(80)
+                .Average();
         }
 
         private int DoOneRun(GameAgentMultipliers multipliers)
