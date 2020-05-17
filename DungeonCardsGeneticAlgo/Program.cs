@@ -68,7 +68,7 @@ namespace DungeonCardsGeneticAlgo
             solver.NewGeneration += (s, e) => mutator.CycleStdDev();
 
             logger.Start();
-            var best = solver.Evolve(1000);
+            var best = solver.Evolve(100);
             logger.LogGeneration(best);
             logger.End();
         }

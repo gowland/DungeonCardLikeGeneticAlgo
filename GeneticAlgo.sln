@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCardsGeneticAlgo", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCore", "DungeonCardsCore\GameCore.csproj", "{90AF7A07-9002-4900-A38F-5DD2066EAC4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCardsWatcher", "DungeonCardsWatcher\DungeonCardsWatcher.csproj", "{A300C17D-0352-4CD6-AB95-533146E9EF76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90AF7A07-9002-4900-A38F-5DD2066EAC4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
