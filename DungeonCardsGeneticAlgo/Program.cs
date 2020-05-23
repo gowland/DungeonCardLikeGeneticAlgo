@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using GeneticSolver;
@@ -61,14 +62,14 @@ namespace DungeonCardsGeneticAlgo
                 new IGenomeReproductionStrategy<GameAgentMultipliers>[]
                 {
                     new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
-                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+                        defaultGenomeFactory, genomeDescriptions, evaluator, 20, 2),
                     // new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
                         // defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
                 });
             solver.NewGeneration += (s, e) => mutator.CycleStdDev();
 
             logger.Start();
-            var best = solver.Evolve(100);
+            var best = solver.Evolve(30);
             logger.LogGeneration(best);
             logger.End();
         }
@@ -221,42 +222,60 @@ namespace DungeonCardsGeneticAlgo
     public class FitnessCache<T, TScore>
     {
         private readonly int _cacheSize;
-        private readonly IDictionary<T, TScore> _cache;
-        private readonly IDictionary<T, DateTime> _access;
+        private readonly IDictionary<T, CacheItem> _items;
 
-        public FitnessCache(int cacheSize)
+        private struct CacheItem
         {
-            _cacheSize = cacheSize;
-            _cache = new Dictionary<T, TScore>(cacheSize);
-            _access = new Dictionary<T, DateTime>(2*cacheSize);
+            public CacheItem(TScore value)
+            {
+                CachedValue = value;
+                LastAccess = DateTime.Now;
+            }
+            public TScore CachedValue { get; }
+            public DateTime LastAccess { get; private set; }
+
+            public void UpdateAccess()
+            {
+                LastAccess = DateTime.Now;
+            }
         }
 
-        public bool TryGetFitness(T genome, out TScore fitness)
+        public FitnessCache(int minItemsToKeep)
         {
-            _access[genome] = DateTime.Now;
-            var cachedFitness = _cache.TryGetValue(genome, out fitness);
-            if (_access.Count == 2 * _cacheSize)
+            _cacheSize = minItemsToKeep * 2;
+            _items = new Dictionary<T, CacheItem>(_cacheSize);
+        }
+
+        public bool TryGetFitness(T key, out TScore value)
+        {
+            if (_items.TryGetValue(key, out CacheItem cacheItem))
             {
-                Purge();
+                cacheItem.UpdateAccess();
+                value = cacheItem.CachedValue;
+                return true;
             }
 
-            return cachedFitness;
+            value = default;
+            return false;
         }
 
         private void Purge()
         {
-            var oldAccesses = _access.OrderBy(a => a.Value).Take(_cacheSize).Select(a => a.Key).ToArray();
+            var oldAccesses = _items.OrderBy(a => a.Value.LastAccess).Take(_cacheSize/2).Select(a => a.Key).ToArray();
             foreach (var key in oldAccesses)
             {
-                _access.Remove(key);
-                _cache.Remove(key);
+                _items.Remove(key);
             }
         }
 
-        public void Cache(T genome, TScore fitness)
+        public void Cache(T key, TScore value)
         {
-            _access[genome] = DateTime.Now;
-            _cache[genome] = fitness;
+            _items[key] = new CacheItem(value);
+
+            if (_items.Count >= _cacheSize)
+            {
+                Purge();
+            }
         }
     }
 
