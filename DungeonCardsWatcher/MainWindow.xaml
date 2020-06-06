@@ -4,13 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DungeonCardsWatcher"
+        xmlns:mvvm="clr-namespace:DungeonCardsWatcher.Mvvm"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance  IsDesignTimeCreatable=False, Type={x:Type local:MainWindowViewModel}}"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <ItemsControl>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!--
+        <ItemsControl Grid.Row="0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Grid.Column="3">
+                    <UniformGrid Columns="3">
                         <ContentPresenter/>
                     </UniformGrid>
                 </ItemsPanelTemplate>
@@ -27,9 +36,23 @@
                 </ItemContainerTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Gold"/>
-            <TextBlock Text="99"/>
+        -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Health: "/>
+                <TextBlock Text="{Binding Health, Mode=OneWay}"/>
+            </StackPanel>
+            <Rectangle Fill="Chocolate" Width="3" Height="20" Margin="10,0"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Weapon: "/>
+                <TextBlock Text="{Binding Weapon, Mode=OneWay}"/>
+            </StackPanel>
+            <Rectangle Fill="Chocolate" Width="3" Height="20" Margin="10,0"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Gold: "/>
+                <TextBlock Text="{Binding Gold, Mode=OneWay}"/>
+            </StackPanel>
         </StackPanel>
+        <Button Grid.Row="2" Visibility="{Binding IsRunningGame, Converter={mvvm:BoolToVisibleOrCollapsed Invert=True}, Mode=OneWay}" Command="{Binding DoRun}" Content="Do a Run"/>
     </Grid>
 </Window>

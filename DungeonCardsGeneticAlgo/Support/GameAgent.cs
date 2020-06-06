@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Game;
 
 namespace DungeonCardsGeneticAlgo.Support
@@ -15,7 +16,6 @@ namespace DungeonCardsGeneticAlgo.Support
 
         public DirectionResult GetDirectionFromAlgo(Board board)
         {
-            // Thread.Sleep(5000); // Allow humans to watch
             var moves = board.GetCurrentLegalMoves();
 
             var scoredMoves = moves.Select(pair => new { Direction = pair.Key, Score = GetScore(board, pair.Value) });
@@ -80,7 +80,7 @@ namespace DungeonCardsGeneticAlgo.Support
 
         private double ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(int heroHealth, int monsterHealth)
         {
-            return int.MinValue;
+            return -100;
         }
 
         private double ScoreMonsterWhenNotPossessingWeaponAndHeroHealthIsGreater(int heroHealth, int monsterHealth)

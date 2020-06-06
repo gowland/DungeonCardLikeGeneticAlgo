@@ -64,6 +64,9 @@
         </Compile>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Mvvm\BoolToVisibleOrCollapsed.cs" />
+        <Compile Include="Mvvm\Command.cs" />
+        <Compile Include="Mvvm\NotifyPropertyChangedBase.cs" />
         <Compile Include="Properties\AssemblyInfo.cs">
             <SubType>Code</SubType>
         </Compile>
