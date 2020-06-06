@@ -1,4 +1,10 @@
-﻿namespace DungeonCardsWatcher
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using DungeonCardsGeneticAlgo;
+using Game;
+
+namespace DungeonCardsWatcher
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -9,6 +15,44 @@
         {
             InitializeComponent();
         }
+    }
+
+    public class MainWindowViewModel
+    {
+        private IReadOnlyCollection<Slot> _slots;
+        private readonly IList<Slot> _slotList = new List<Slot>();
+        private readonly Board _board = GameBuilder.GetRandomStartBoard();
+
+        public MainWindowViewModel()
+        {
+            _slots = new ReadOnlyObservableCollection<Slot>(new ObservableCollection<Slot>(_slotList));
+        }
+
+        public ICommand DoRun { get; } = new Command();
+        public int Health { get; set; }
+        public int Gold { get; set; }
+
+        private int DoOneRun(GameAgentMultipliers multipliers)
+        {
+            GameBuilder.RandomizeBoardToStart(_board);
+            var gameAgent = new GameAgent(multipliers);
+            var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => {});
+            return gameRunner.RunGame(_board);
+        }
+    }
+
+    public class Slot
+    {
+        public CardType Type { get; set; }
+        public int Value { get; set; }
+    }
+
+    public enum CardType
+    {
+        Hero,
+        Monster,
+        Weapon,
+        Gold
     }
 }
 
