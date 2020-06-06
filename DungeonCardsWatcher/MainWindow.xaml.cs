@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using DungeonCardsGeneticAlgo;
 using DungeonCardsGeneticAlgo.Support;
 using DungeonCardsWatcher.Mvvm;
@@ -29,6 +31,7 @@ namespace DungeonCardsWatcher
         private readonly IList<Slot> _slotList = new List<Slot>();
         private readonly Board _board = GameBuilder.GetRandomStartBoard();
         private bool _isRunningGame;
+        private readonly Dispatcher _mainWindowDispatcher;
 
         public MainWindowViewModel()
         {
@@ -41,7 +44,8 @@ namespace DungeonCardsWatcher
                 WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-24.2076, -27.1800, -52.8834},
                 WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3]{57.8609, 47.2535, 35.5468},
             };
-            DoRun = new Command(_ => DoOneRun(multipliers), _ =>true);
+            DoRun = new Command(async _ => await DoOneRun(multipliers), _ =>true);
+            _mainWindowDispatcher = Application.Current.MainWindow.Dispatcher;
         }
 
         public ICommand DoRun { get; }
@@ -55,27 +59,27 @@ namespace DungeonCardsWatcher
             set => SetProperty(ref _isRunningGame, value);
         }
 
-        private int DoOneRun(GameAgentMultipliers multipliers)
+        private async Task DoOneRun(GameAgentMultipliers multipliers)
+        {
+            IsRunningGame = true;
+
+            await Task.Run(()=> LongRunningTask(multipliers));
+
+            IsRunningGame = false;
+        }
+
+        private int LongRunningTask(GameAgentMultipliers multipliers)
         {
             GameBuilder.RandomizeBoardToStart(_board);
             UpdateBoard(this, EventArgs.Empty);
             var gameAgent = new GameAgent(multipliers);
-            var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => {});
-            IsRunningGame = true;
-            int? runResult = null;
-
-            var dispatcher = Application.Current.MainWindow.Dispatcher;
-            dispatcher.BeginInvoke(new Action(() =>
-            {
-                gameRunner.StateChanged += UpdateBoard;
-                gameRunner.DirectionChosen += ShowDirection;
-                runResult = gameRunner.RunGame(_board);
-                gameRunner.StateChanged -= UpdateBoard;
-                gameRunner.DirectionChosen -= ShowDirection;
-            }));
-
-            IsRunningGame = false;
-            return runResult ?? 0;
+            var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => { });
+            gameRunner.StateChanged += UpdateBoard;
+            gameRunner.DirectionChosen += ShowDirection;
+            int runResult = gameRunner.RunGame(_board);
+            gameRunner.StateChanged -= UpdateBoard;
+            gameRunner.DirectionChosen -= ShowDirection;
+            return runResult;
         }
 
         private void ShowDirection(object sender, Direction direction)
@@ -86,9 +90,12 @@ namespace DungeonCardsWatcher
 
         private void UpdateBoard(object sender, EventArgs args)
         {
-            OnPropertyChanged(nameof(Health));
-            OnPropertyChanged(nameof(Weapon));
-            OnPropertyChanged(nameof(Gold));
+            _mainWindowDispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                OnPropertyChanged(nameof(Health));
+                OnPropertyChanged(nameof(Weapon));
+                OnPropertyChanged(nameof(Gold));
+            }));
             Thread.Sleep(1000);
         }
     }
@@ -106,5 +113,6 @@ namespace DungeonCardsWatcher
         Weapon,
         Gold
     }
+
 }
 
