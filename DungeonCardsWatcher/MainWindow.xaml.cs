@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using DungeonCardsGeneticAlgo;
+using DungeonCardsGeneticAlgo.Support;
 using Game;
 
 namespace DungeonCardsWatcher

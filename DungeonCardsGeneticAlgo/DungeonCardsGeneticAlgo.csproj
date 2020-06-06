@@ -43,8 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MathExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Support\FitnessCache.cs" />
+    <Compile Include="Support\GameAgent.cs" />
+    <Compile Include="Support\GameAgentEvaluator.cs" />
+    <Compile Include="Support\GameAgentMultipliers.cs" />
+    <Compile Include="Support\GameAgentMultipliersDescription.cs" />
+    <Compile Include="Support\GameAgentSolverLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
