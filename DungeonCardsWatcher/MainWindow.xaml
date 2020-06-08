@@ -1,0 +1,146 @@
+﻿<Window x:Class="DungeonCardsWatcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DungeonCardsWatcher"
+        xmlns:mvvm="clr-namespace:DungeonCardsWatcher.Mvvm"
+        xmlns:game="clr-namespace:Game;assembly=Game"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance  IsDesignTimeCreatable=False, Type={x:Type local:MainWindowViewModel}}"
+        Title="MainWindow" Height="700" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ItemsControl Grid.Row="0"
+                      ItemsSource="{Binding Slots}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="3"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:ViewSlot}">
+                    <Border x:Name="cardBorder" Margin="10" Padding="10" BorderBrush="Green" BorderThickness="2">
+                        <Grid Height="200" Width="100">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Viewbox Height="100" Width="100">
+                                    <Image x:Name="cardImage" Source="pack://application:,,,/Resources/monster.png"></Image>
+                                </Viewbox>
+                                <StackPanel x:Name="weaponStatPanel" Orientation="Horizontal" Visibility="Collapsed">
+                                    <TextBlock>Weapon: </TextBlock>
+                                    <TextBlock Text="{Binding DataContext.Weapon, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock>Health: </TextBlock>
+                                    <TextBlock Text="{Binding Value}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <Polygon x:Name="rightArrow"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right"
+                                     Visibility="Hidden"
+                                     Margin="-5,0,0,0"
+                                     Points="0,0 16,10, 0,20"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <Polygon x:Name="leftArrow"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Left"
+                                     Visibility="Hidden"
+                                     Margin="0,0,-5,0"
+                                     Points="16,0 0,10, 16,20"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <Polygon x:Name="topArrow"
+                                     VerticalAlignment="Top"
+                                     HorizontalAlignment="Center"
+                                     Visibility="Hidden"
+                                     Margin="0,0,0,-5"
+                                     Points="0,16 10,0, 20,16"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <Polygon x:Name="bottomArrow"
+                                     VerticalAlignment="Bottom"
+                                     HorizontalAlignment="Center"
+                                     Visibility="Hidden"
+                                     Margin="0,0,0,-5"
+                                     Points="0,0 10,16, 20,0"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                        </Grid>
+                    </Border>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}">
+                            <Setter Property="BorderBrush" Value="Red" TargetName="cardBorder"/>
+                            <Setter Property="BorderThickness" Value="5" TargetName="cardBorder"/>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/hero.png" TargetName="cardImage"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="weaponStatPanel"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="leftArrow"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="rightArrow"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="topArrow"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="bottomArrow"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Gold}">
+                            <Setter Property="BorderBrush" Value="Yellow" TargetName="cardBorder"/>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/gold.png" TargetName="cardImage"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Weapon}">
+                            <Setter Property="BorderBrush" Value="Blue" TargetName="cardBorder"/>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/sword.png" TargetName="cardImage"/>
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Up}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="leftArrow"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Down}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="rightArrow"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Left}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="topArrow"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Right}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="bottomArrow"/>
+                        </MultiDataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Health: "/>
+                <TextBlock Text="{Binding Health, Mode=OneWay}"/>
+            </StackPanel>
+            <Rectangle Fill="Chocolate" Width="3" Height="20" Margin="10,0"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Weapon: "/>
+                <TextBlock Text="{Binding Weapon, Mode=OneWay}"/>
+            </StackPanel>
+            <Rectangle Fill="Chocolate" Width="3" Height="20" Margin="10,0"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Gold: "/>
+                <TextBlock Text="{Binding Gold, Mode=OneWay}"/>
+            </StackPanel>
+        </StackPanel>
+        <Button Grid.Row="2" Visibility="{Binding IsRunningGame, Converter={mvvm:BoolToVisibleOrCollapsed Invert=True}, Mode=OneWay}" Command="{Binding DoRun}" Content="Do a Run"/>
+    </Grid>
+</Window>

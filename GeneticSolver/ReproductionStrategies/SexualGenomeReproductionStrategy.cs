@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeneticSolver.Genome;
 using GeneticSolver.Interfaces;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.ReproductionStrategies
 {
     public class SexualGenomeReproductionStrategy<T, TScore> : IGenomeReproductionStrategy<T>
-        where T : class, ICloneable 
+        where T : class, ICloneable
         where TScore : IComparable<TScore>
     {
         private readonly IMutator<T> _mutator;
@@ -44,8 +45,6 @@ namespace GeneticSolver.ReproductionStrategies
                 .SelectMany(TakeFittest)
                 .ToList();
 
-            nextGen.ForEach(_mutator.Mutate);
-
             return nextGen;
         }
 
@@ -59,6 +58,8 @@ namespace GeneticSolver.ReproductionStrategies
                 {
                     property.Merge(parentA, parentB, child);
                 }
+
+                _mutator.Mutate(child);
 
                 yield return child;
             }

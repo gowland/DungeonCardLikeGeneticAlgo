@@ -10,35 +10,47 @@ namespace Game
         Edge,
         Corner,
     }
+
+    public class DungeonCardSlot : Slot<ICard<CardType>>
+    {
+        public SquareDesc Description { get; set; }
+    }
+
     public class Board
     {
-        private readonly Grid<Slot<ICard<CardType>>> _grid;
+        private readonly Grid<DungeonCardSlot> _grid;
         private readonly IMovementResultGenerator<ICard<CardType>> _movementResultGenerator;
         private readonly Hero _hero = new Hero();
         private Coordinates _playerCoordinates = new Coordinates(1, 1);
+        private ICard<CardType> _heroCard;
         private readonly IDictionary<Coordinates, IDictionary<Direction, Slot<ICard<CardType>>>> _legalMovesCache;
 
         public Board(int width, int height, IMovementResultGenerator<ICard<CardType>> movementResultGenerator)
         {
             _movementResultGenerator = movementResultGenerator;
-            _grid = new Grid<Slot<ICard<CardType>>>(width, height, Enumerable.Range(0, width * height).Select(_ => new Slot<ICard<CardType>>()));
+            _grid = new Grid<DungeonCardSlot>(width, height, Enumerable.Range(0, width * height).Select(_ => new DungeonCardSlot()));
             _legalMovesCache = GetLegalMovesCache();
+            foreach (var coordinates in _grid.GetAllPositions()) // TODO: This isn't being used currently
+            {
+                _grid[coordinates].Description = GetSquareDescription(coordinates);
+            }
         }
 
-        public ISlot<ICard<CardType>> this[int x, int y] => _grid[x, y];
+        public DungeonCardSlot this[int x, int y] => _grid[x, y];
 
-        public ISlot<ICard<CardType>> this[Coordinates coordinate] => _grid[coordinate.X, coordinate.Y];
+        public DungeonCardSlot this[Coordinates coordinate] => _grid[coordinate.X, coordinate.Y];
 
         public int Gold => _hero.Gold;
 
         public int Weapon => _hero.Weapon;
 
-        public int HeroHealth => this[_playerCoordinates].Card.Value;
+        public int HeroHealth => _heroCard.Value;
 
         public void ResetBoard(Func<ICard<CardType>> getCardFunc, ICard<CardType> playerCard)
         {
             _playerCoordinates = new Coordinates(1, 1);
             _hero.Reset();
+            _heroCard = playerCard;
 
             foreach (Coordinates coordinates in _grid.GetAllPositions())
             {
@@ -47,6 +59,11 @@ namespace Game
                     : getCardFunc.Invoke();
             }
 
+        }
+
+        public IEnumerable<Slot<ICard<CardType>>> GetSlots()
+        {
+            return _grid.GetAllPositions().Select(pos => this[pos]);
         }
 
         public IDictionary<Direction, Slot<ICard<CardType>>> GetCurrentLegalMoves()
@@ -181,9 +198,14 @@ namespace Game
 
         public SquareDesc Desc()
         {
-            if (_playerCoordinates.X == 0 || _playerCoordinates.X == 2)
+            return this[_playerCoordinates].Description;
+        }
+
+        private static SquareDesc GetSquareDescription(Coordinates coordinates)
+        {
+            if (coordinates.X == 0 || coordinates.X == 2)
             {
-                if (_playerCoordinates.Y == 0 || _playerCoordinates.Y == 2)
+                if (coordinates.Y == 0 || coordinates.Y == 2)
                 {
                     return SquareDesc.Corner;
                 }
@@ -199,7 +221,6 @@ namespace Game
             try
             {
                 return _grid[coordinates];
-
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch

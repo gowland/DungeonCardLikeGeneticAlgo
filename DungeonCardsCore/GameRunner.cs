@@ -6,6 +6,8 @@ namespace Game
     {
         private Func<Board, DirectionResult> _getDirectionFunc;
         private Action<Board> _dumpBoardAction;
+        public event EventHandler StateChanged;
+        public event EventHandler<Direction> DirectionChosen;
 
         public GameRunner(Func<Board, DirectionResult> getDirectionFunc, Action<Board> dumpBoardAction)
         {
@@ -31,13 +33,25 @@ namespace Game
 
                 if (directionResult.Direction.HasValue)
                 {
+                    OnDirectionChosen(directionResult.Direction.Value);
                     board.TakeAction(directionResult.Direction.Value);
+                    OnStateChanged();
                 }
                 else
                 {
                     Console.WriteLine("Unknown command");
                 }
             } while (true);
+        }
+
+        protected virtual void OnStateChanged()
+        {
+            StateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnDirectionChosen(Direction e)
+        {
+            DirectionChosen?.Invoke(this, e);
         }
     }
 }
