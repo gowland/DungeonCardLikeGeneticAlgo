@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DungeonCardsWatcher"
         xmlns:mvvm="clr-namespace:DungeonCardsWatcher.Mvvm"
+        xmlns:game="clr-namespace:Game;assembly=Game"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance  IsDesignTimeCreatable=False, Type={x:Type local:MainWindowViewModel}}"
         Title="MainWindow" Height="350" Width="525">
@@ -32,15 +33,33 @@
                             <Polygon x:Name="rightArrow"
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Right"
+                                     Visibility="Hidden"
                                      Margin="-5,0,0,0"
-                                     Points="0,0 8,5, 0,10"
+                                     Points="0,0 16,10, 0,20"
                                      Stroke="Black"
                                      Fill="Black" />
                             <Polygon x:Name="leftArrow"
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Left"
+                                     Visibility="Hidden"
                                      Margin="0,0,-5,0"
-                                     Points="8,0 0,5, 8,10"
+                                     Points="16,0 0,10, 16,20"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <Polygon x:Name="topArrow"
+                                     VerticalAlignment="Top"
+                                     HorizontalAlignment="Center"
+                                     Visibility="Hidden"
+                                     Margin="0,0,0,-5"
+                                     Points="0,16 10,0, 20,16"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <Polygon x:Name="bottomArrow"
+                                     VerticalAlignment="Bottom"
+                                     HorizontalAlignment="Center"
+                                     Visibility="Hidden"
+                                     Margin="0,0,0,-5"
+                                     Points="0,0 10,16, 20,0"
                                      Stroke="Black"
                                      Fill="Black" />
                             <TextBlock VerticalAlignment="Bottom"
@@ -53,6 +72,10 @@
                             <Setter Property="BorderBrush" Value="Red" TargetName="cardBorder"/>
                             <Setter Property="BorderThickness" Value="5" TargetName="cardBorder"/>
                             <Setter Property="Source" Value="pack://application:,,,/Resources/hero.png" TargetName="cardImage"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="leftArrow"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="rightArrow"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="topArrow"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="bottomArrow"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Gold}">
                             <Setter Property="BorderBrush" Value="Yellow" TargetName="cardBorder"/>
@@ -62,6 +85,34 @@
                             <Setter Property="BorderBrush" Value="Blue" TargetName="cardBorder"/>
                             <Setter Property="Source" Value="pack://application:,,,/Resources/sword.png" TargetName="cardImage"/>
                         </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Up}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="leftArrow"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Down}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="rightArrow"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Left}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="topArrow"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}"/>
+                                <Condition Binding="{Binding DataContext.MoveDirection, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="{x:Static game:Direction.Right}"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Fill" Value="Red" TargetName="bottomArrow"/>
+                        </MultiDataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

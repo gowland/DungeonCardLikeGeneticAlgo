@@ -55,6 +55,7 @@ namespace DungeonCardsWatcher
         public int Health => _board?.HeroHealth ?? 0;
         public int Weapon => _board?.Weapon ?? 0;
         public int Gold => _board?.Gold ?? 0;
+        public Direction? MoveDirection { get; set; }
 
         public bool IsRunningGame
         {
@@ -87,12 +88,18 @@ namespace DungeonCardsWatcher
 
         private void ShowDirection(object sender, Direction direction)
         {
-            // TODO: Show selected direction
+            MoveDirection = direction;
+            _mainWindowDispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                OnPropertyChanged(nameof(MoveDirection));
+            }));
+
             Thread.Sleep(1000);
         }
 
         private void UpdateBoard(object sender, EventArgs args)
         {
+            MoveDirection = null;
             var viewSlots =  _board.GetSlots().Select(s => new ViewSlot()
             {
                 Type = ToViewCardType(s.Card.Type),
@@ -106,6 +113,7 @@ namespace DungeonCardsWatcher
                     _observableCollection.Add(viewSlot);
                 }
 
+                OnPropertyChanged(nameof(MoveDirection));
                 OnPropertyChanged(nameof(Health));
                 OnPropertyChanged(nameof(Weapon));
                 OnPropertyChanged(nameof(Gold));
