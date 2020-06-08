@@ -8,7 +8,7 @@
         xmlns:game="clr-namespace:Game;assembly=Game"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance  IsDesignTimeCreatable=False, Type={x:Type local:MainWindowViewModel}}"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="700" Width="525">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -27,9 +27,19 @@
                 <DataTemplate DataType="{x:Type local:ViewSlot}">
                     <Border x:Name="cardBorder" Margin="10" Padding="10" BorderBrush="Green" BorderThickness="2">
                         <Grid Height="200" Width="100">
-                            <Viewbox Height="100" Width="100">
-                                <Image x:Name="cardImage" Source="pack://application:,,,/Resources/monster.png"></Image>
-                            </Viewbox>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Viewbox Height="100" Width="100">
+                                    <Image x:Name="cardImage" Source="pack://application:,,,/Resources/monster.png"></Image>
+                                </Viewbox>
+                                <StackPanel x:Name="weaponStatPanel" Orientation="Horizontal" Visibility="Collapsed">
+                                    <TextBlock>Weapon: </TextBlock>
+                                    <TextBlock Text="{Binding DataContext.Weapon, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock>Health: </TextBlock>
+                                    <TextBlock Text="{Binding Value}"/>
+                                </StackPanel>
+                            </StackPanel>
                             <Polygon x:Name="rightArrow"
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Right"
@@ -62,9 +72,6 @@
                                      Points="0,0 10,16, 20,0"
                                      Stroke="Black"
                                      Fill="Black" />
-                            <TextBlock VerticalAlignment="Bottom"
-                                       HorizontalAlignment="Right"
-                                       Text="{Binding Value}"/>
                         </Grid>
                     </Border>
                     <DataTemplate.Triggers>
@@ -72,6 +79,7 @@
                             <Setter Property="BorderBrush" Value="Red" TargetName="cardBorder"/>
                             <Setter Property="BorderThickness" Value="5" TargetName="cardBorder"/>
                             <Setter Property="Source" Value="pack://application:,,,/Resources/hero.png" TargetName="cardImage"/>
+                            <Setter Property="Visibility" Value="Visible" TargetName="weaponStatPanel"/>
                             <Setter Property="Visibility" Value="Visible" TargetName="leftArrow"/>
                             <Setter Property="Visibility" Value="Visible" TargetName="rightArrow"/>
                             <Setter Property="Visibility" Value="Visible" TargetName="topArrow"/>
