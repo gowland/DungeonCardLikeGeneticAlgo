@@ -51,8 +51,8 @@ namespace DungeonCardsGeneticAlgo
                 new IEarlyStoppingCondition<GameAgentMultipliers, double>[]
                 {
                     // new GeneticSolver.EarlyStoppingConditions.FitnessThresholdReachedEarlyStopCondition<GameAgentMultipliers, double>(fitness => fitness < 1e-6),
-                    // new GeneticSolver.EarlyStoppingConditions.ProgressStalledEarlyStoppingCondition<GameAgentMultipliers, double>(10, 0.5, 0.8),
-                    // new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentMultipliers>(1, 100),
+                    new GeneticSolver.EarlyStoppingConditions.ProgressStalledEarlyStoppingCondition<GameAgentMultipliers, double>(10, 0.5, 0.8),
+                    new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentMultipliers>(1, 100),
                 },
                 new IGenomeReproductionStrategy<GameAgentMultipliers>[]
                 {
@@ -64,7 +64,7 @@ namespace DungeonCardsGeneticAlgo
             solver.NewGeneration += (s, e) => mutator.CycleStdDev();
 
             logger.Start();
-            var best = solver.Evolve(30);
+            var best = solver.Evolve(1000);
             logger.LogGeneration(best);
             logger.End();
         }

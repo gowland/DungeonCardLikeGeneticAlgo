@@ -61,6 +61,11 @@ namespace Game
 
         }
 
+        public IEnumerable<Slot<ICard<CardType>>> GetSlots()
+        {
+            return _grid.GetAllPositions().Select(pos => this[pos]);
+        }
+
         public IDictionary<Direction, Slot<ICard<CardType>>> GetCurrentLegalMoves()
         {
             return _legalMovesCache[_playerCoordinates];

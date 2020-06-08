@@ -15,28 +15,27 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <!--
-        <ItemsControl Grid.Row="0">
+        <ItemsControl Grid.Row="0"
+                      ItemsSource="{Binding Slots}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="3">
-                        <ContentPresenter/>
-                    </UniformGrid>
+                    <UniformGrid Columns="3"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <ItemContainerTemplate>
+                <DataTemplate DataType="{x:Type local:ViewSlot}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10"/>
                             <RowDefinition Height="100"/>
                             <RowDefinition Height="10"/>
                         </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="{Binding Type}"/>
+                        <TextBlock Grid.Row="1" Text="{Binding Value}"/>
                     </Grid>
-                </ItemContainerTemplate>
+                </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        -->
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Health: "/>

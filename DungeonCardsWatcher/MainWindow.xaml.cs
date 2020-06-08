@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,27 +28,29 @@ namespace DungeonCardsWatcher
 
     public class MainWindowViewModel : NotifyPropertyChangedBase
     {
-        private IReadOnlyCollection<Slot> _slots;
-        private readonly IList<Slot> _slotList = new List<Slot>();
+        private readonly IList<ViewSlot> _slotList = new List<ViewSlot>();
         private readonly Board _board = GameBuilder.GetRandomStartBoard();
         private bool _isRunningGame;
         private readonly Dispatcher _mainWindowDispatcher;
+        private ObservableCollection<ViewSlot> _observableCollection;
 
         public MainWindowViewModel()
         {
-            _slots = new ReadOnlyObservableCollection<Slot>(new ObservableCollection<Slot>(_slotList));
+            _observableCollection = new ObservableCollection<ViewSlot>(_slotList);
+            Slots = new ReadOnlyObservableCollection<ViewSlot>(_observableCollection);
             var multipliers = new GameAgentMultipliers()
             {
-                GoldScoreMultiplier = new double[3]{38.2574, 35.0479, 32.4267},
-                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{35.8533, -58.9001, -26.1292},
-                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{4.2462, 2.1694, 2.4283},
-                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-24.2076, -27.1800, -52.8834},
-                WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3]{57.8609, 47.2535, 35.5468},
+                GoldScoreMultiplier = new double[3]{31.2382, 28.2065, 37.8986},
+                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{34.6751, -51.6451, -32.8258},
+                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{2.9752, 4.7708, 3.2642},
+                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-18.5836, -8.9805, -39.5702},
+                WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3]{55.1838, 28.1914, 29.3060},
             };
             DoRun = new Command(async _ => await DoOneRun(multipliers), _ =>true);
             _mainWindowDispatcher = Application.Current.MainWindow.Dispatcher;
         }
 
+        public IReadOnlyCollection<ViewSlot> Slots { get; }
         public ICommand DoRun { get; }
         public int Health => _board?.HeroHealth ?? 0;
         public int Weapon => _board?.Weapon ?? 0;
@@ -90,8 +93,19 @@ namespace DungeonCardsWatcher
 
         private void UpdateBoard(object sender, EventArgs args)
         {
+            var viewSlots =  _board.GetSlots().Select(s => new ViewSlot()
+            {
+                Type = s.Card.Type,
+                Value = s.Card.Value
+            });
             _mainWindowDispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
+                _observableCollection.Clear();
+                foreach (var viewSlot in viewSlots)
+                {
+                    _observableCollection.Add(viewSlot);
+                }
+
                 OnPropertyChanged(nameof(Health));
                 OnPropertyChanged(nameof(Weapon));
                 OnPropertyChanged(nameof(Gold));
@@ -100,18 +114,10 @@ namespace DungeonCardsWatcher
         }
     }
 
-    public class Slot
+    public class ViewSlot
     {
         public CardType Type { get; set; }
         public int Value { get; set; }
-    }
-
-    public enum CardType
-    {
-        Hero,
-        Monster,
-        Weapon,
-        Gold
     }
 
 }
