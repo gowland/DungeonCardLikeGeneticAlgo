@@ -95,7 +95,7 @@ namespace DungeonCardsWatcher
         {
             var viewSlots =  _board.GetSlots().Select(s => new ViewSlot()
             {
-                Type = s.Card.Type,
+                Type = ToViewCardType(s.Card.Type),
                 Value = s.Card.Value
             });
             _mainWindowDispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
@@ -112,12 +112,37 @@ namespace DungeonCardsWatcher
             }));
             Thread.Sleep(1000);
         }
+
+        private static ViewCardType ToViewCardType(CardType cardType)
+        {
+            switch (cardType)
+            {
+                case CardType.Monster:
+                    return ViewCardType.Monster;
+                case CardType.Weapon:
+                    return ViewCardType.Weapon;
+                case CardType.Player:
+                    return ViewCardType.Hero;
+                case CardType.Gold:
+                    return ViewCardType.Gold;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cardType), cardType, null);
+            }
+        }
     }
 
     public class ViewSlot
     {
-        public CardType Type { get; set; }
+        public ViewCardType Type { get; set; }
         public int Value { get; set; }
+    }
+
+    public enum ViewCardType
+    {
+        Hero,
+        Monster,
+        Gold,
+        Weapon,
     }
 
 }

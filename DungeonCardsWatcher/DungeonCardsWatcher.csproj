@@ -93,5 +93,11 @@
         <Name>DungeonCardsGeneticAlgo</Name>
       </ProjectReference>
     </ItemGroup>
+    <ItemGroup>
+      <Resource Include="Resources\gold.png" />
+      <Resource Include="Resources\hero.png" />
+      <Resource Include="Resources\monster.png" />
+      <Resource Include="Resources\sword.png" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

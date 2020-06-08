@@ -24,15 +24,45 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type local:ViewSlot}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="10"/>
-                            <RowDefinition Height="100"/>
-                            <RowDefinition Height="10"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="{Binding Type}"/>
-                        <TextBlock Grid.Row="1" Text="{Binding Value}"/>
-                    </Grid>
+                    <Border x:Name="cardBorder" Margin="10" Padding="10" BorderBrush="Green" BorderThickness="2">
+                        <Grid Height="200" Width="100">
+                            <Viewbox Height="100" Width="100">
+                                <Image x:Name="cardImage" Source="pack://application:,,,/Resources/monster.png"></Image>
+                            </Viewbox>
+                            <Polygon x:Name="rightArrow"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right"
+                                     Margin="-5,0,0,0"
+                                     Points="0,0 8,5, 0,10"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <Polygon x:Name="leftArrow"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Left"
+                                     Margin="0,0,-5,0"
+                                     Points="8,0 0,5, 8,10"
+                                     Stroke="Black"
+                                     Fill="Black" />
+                            <TextBlock VerticalAlignment="Bottom"
+                                       HorizontalAlignment="Right"
+                                       Text="{Binding Value}"/>
+                        </Grid>
+                    </Border>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Hero}">
+                            <Setter Property="BorderBrush" Value="Red" TargetName="cardBorder"/>
+                            <Setter Property="BorderThickness" Value="5" TargetName="cardBorder"/>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/hero.png" TargetName="cardImage"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Gold}">
+                            <Setter Property="BorderBrush" Value="Yellow" TargetName="cardBorder"/>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/gold.png" TargetName="cardImage"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ViewCardType.Weapon}">
+                            <Setter Property="BorderBrush" Value="Blue" TargetName="cardBorder"/>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/sword.png" TargetName="cardImage"/>
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
