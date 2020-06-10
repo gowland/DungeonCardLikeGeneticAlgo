@@ -90,4 +90,31 @@ namespace GeneticSolver.Random
             _usedValueQueue.Enqueue(currentStdDev);
         }
     }
+
+    public class Cyclable<T>
+    {
+        private Queue<T> _currentQueue;
+        private Queue<T> _usedValueQueue = new Queue<T>();
+
+        public Cyclable(IEnumerable<T> values)
+        {
+            _currentQueue = new Queue<T>(values);
+            Cycle();
+        }
+
+        public T CurrentValue => _usedValueQueue.Peek();
+
+        public void Cycle()
+        {
+            if (_currentQueue.Count <= 0)
+            {
+                var tmp = _currentQueue;
+                _currentQueue = _usedValueQueue;
+                _usedValueQueue = tmp;
+            }
+
+            T currentStdDev = _currentQueue.Dequeue();
+            _usedValueQueue.Enqueue(currentStdDev);
+        }
+    }
 }

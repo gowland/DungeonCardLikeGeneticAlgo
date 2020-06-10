@@ -42,7 +42,8 @@ namespace DungeonCardsGeneticAlgo
             var bellWeightedRandom = new CyclableBellWeightedRandom();
             var genomeDescriptions = new GameAgentMultipliersDescription(bellWeightedRandom);
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
-            var mutator = new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, solverParameters.PropertyMutationProbability, new UnWeightedRandom());
+            var mutationProbabilities = new Cyclable<double>(new[]{0.3, 0.5, 0.7});
+            var mutator = new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, mutationProbabilities, new UnWeightedRandom());
             var logger = new GameAgentSolverLogger();
             var solver = new Solver<GameAgentMultipliers, double>(
                 defaultGenomeFactory,
@@ -63,6 +64,7 @@ namespace DungeonCardsGeneticAlgo
                         // defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
                 });
             solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
+            solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
 
             logger.Start();
             var best = solver.Evolve(1000);

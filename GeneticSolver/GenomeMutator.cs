@@ -8,20 +8,33 @@ namespace GeneticSolver
 {
     public class GenomeMutator<T> : IMutator<T>
     {
+        private Cyclable<double> MutationProbability { get; }
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly double _mutationProbability;
         private readonly IRandom _random;
 
         public GenomeMutator(IGenomeDescription<T> genomeDescription, double mutationProbability, IRandom random)
+            : this(genomeDescription, random)
+        {
+            _mutationProbability = mutationProbability;
+        }
+        public GenomeMutator(IGenomeDescription<T> genomeDescription, Cyclable<double> mutationProbability, IRandom random)
+            : this(genomeDescription, random)
+        {
+            _mutationProbability = 0.0;
+            MutationProbability = mutationProbability;
+        }
+        private GenomeMutator(IGenomeDescription<T> genomeDescription, IRandom random)
         {
             _genomeDescription = genomeDescription;
-            _mutationProbability = mutationProbability;
             _random = random;
         }
 
+        private double Probability => MutationProbability?.CurrentValue ?? _mutationProbability;
+
         public void Mutate(T genome)
         {
-            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _mutationProbability))
+            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < Probability))
             {
                 property.Mutate(genome);
             }
