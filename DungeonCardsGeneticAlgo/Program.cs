@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DungeonCardsGeneticAlgo.Support;
 using GeneticSolver.BreedingStrategies;
+using GeneticSolver.Random;
 using GeneticSolver.RequiredInterfaces;
 
 namespace DungeonCardsGeneticAlgo
@@ -16,8 +17,6 @@ namespace DungeonCardsGeneticAlgo
             var maxEliteSize = 1000;
             var cache = new FitnessCache<GameAgentMultipliers, double>(2000*maxEliteSize); // TODO: need to clear on repeated runs
             var evaluator = new GameAgentEvaluator(cache);
-            var genomeDescriptions = new GameAgentMultipliersDescription();
-            var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
                 maxEliteSize,
@@ -28,7 +27,7 @@ namespace DungeonCardsGeneticAlgo
             for (int i = 0; i < 5; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
-                LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator);
+                LaunchEvolutionRun(solverParameters, evaluator);
             }
 
 //            Task.WaitAll(tasks.ToArray());
@@ -38,10 +37,12 @@ namespace DungeonCardsGeneticAlgo
             Console.ReadLine();
         }
 
-        private static void LaunchEvolutionRun(GameAgentMultipliersDescription genomeDescriptions,
-            SolverParameters solverParameters, GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers> defaultGenomeFactory, GameAgentEvaluator evaluator)
+        private static void LaunchEvolutionRun(SolverParameters solverParameters, GameAgentEvaluator evaluator)
         {
-            var mutator = new BellWeightedGenomeMutator<GameAgentMultipliers>(genomeDescriptions, solverParameters.PropertyMutationProbability);
+            var bellWeightedRandom = new CyclableBellWeightedRandom();
+            var genomeDescriptions = new GameAgentMultipliersDescription(bellWeightedRandom);
+            var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
+            var mutator = new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, solverParameters.PropertyMutationProbability, new UnWeightedRandom());
             var logger = new GameAgentSolverLogger();
             var solver = new Solver<GameAgentMultipliers, double>(
                 defaultGenomeFactory,
@@ -61,7 +62,7 @@ namespace DungeonCardsGeneticAlgo
                     // new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
                         // defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
                 });
-            solver.NewGeneration += (s, e) => mutator.CycleStdDev();
+            solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
 
             logger.Start();
             var best = solver.Evolve(1000);

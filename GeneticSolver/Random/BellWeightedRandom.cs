@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Random
@@ -34,7 +36,7 @@ namespace GeneticSolver.Random
 //                Console.WriteLine($"x = {x}, y = {y}, isUnder = {IsUnderCurve(x,y,_specificBellFunc)}");
 
                 if (IsUnderCurve(x, y, _specificBellFunc))
-    
+
                 {
                     return x;
                 }
@@ -49,6 +51,42 @@ namespace GeneticSolver.Random
         private bool IsUnderCurve(double x, double y, Func<double, double> func)
         {
             return y <= func(x);
+        }
+    }
+
+    public class CyclableBellWeightedRandom : IRandom
+    {
+        private static readonly double[] StdDeviationsCycle = {0.01, 0.1, 0.2, 1};
+        private Queue<IRandom> _currentQueue;
+        private Queue<IRandom> _usedValueQueue = new Queue<IRandom>();
+
+        public CyclableBellWeightedRandom()
+        {
+            _currentQueue = new Queue<IRandom>(StdDeviationsCycle.Select(stdev => new BellWeightedRandom(stdev)));
+            _currentQueue.Enqueue(new UnWeightedRandom());
+        }
+
+        public double NextDouble()
+        {
+            return _currentQueue.Peek().NextDouble();
+        }
+
+        public double NextDouble(double minX, double maxX)
+        {
+            return _currentQueue.Peek().NextDouble(minX, maxX);
+        }
+
+        public void CycleStdDev()
+        {
+            if (_currentQueue.Count <= 0)
+            {
+                var tmp = _currentQueue;
+                _currentQueue = _usedValueQueue;
+                _usedValueQueue = tmp;
+            }
+
+            IRandom currentStdDev = _currentQueue.Dequeue();
+            _usedValueQueue.Enqueue(currentStdDev);
         }
     }
 }

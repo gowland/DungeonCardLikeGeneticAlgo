@@ -56,8 +56,6 @@ namespace GeneticSolver
             double currentStdDev = currentQueue.Dequeue();
             usedValueQueue.Enqueue(currentStdDev);
             _random = new BellWeightedRandom(currentStdDev);
-
-//            Console.WriteLine($"New stddev: {currentStdDev:00.00000} -> {_random.NextDouble(-5,5):0.0000000}, {_random.NextDouble(-5,5):0.0000000}, {_random.NextDouble(-5,5):0.0000000}");
         }
 
         public void Mutate(T genome)
