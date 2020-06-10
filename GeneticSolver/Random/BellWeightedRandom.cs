@@ -64,16 +64,17 @@ namespace GeneticSolver.Random
         {
             _currentQueue = new Queue<IRandom>(StdDeviationsCycle.Select(stdev => new BellWeightedRandom(stdev)));
             _currentQueue.Enqueue(new UnWeightedRandom());
+            CycleStdDev();
         }
 
         public double NextDouble()
         {
-            return _currentQueue.Peek().NextDouble();
+            return _usedValueQueue.Peek().NextDouble();
         }
 
         public double NextDouble(double minX, double maxX)
         {
-            return _currentQueue.Peek().NextDouble(minX, maxX);
+            return _usedValueQueue.Peek().NextDouble(minX, maxX);
         }
 
         public void CycleStdDev()
