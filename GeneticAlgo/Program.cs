@@ -111,7 +111,7 @@ namespace GeneticAlgo
 //                    new AsexualGenomeReproductionStrategy<Coefficients.Coefficients>(mutator),
                 });
             solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
-//            solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
+            solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
 
             logger.Start();
             var best = solver.Evolve(1000);
