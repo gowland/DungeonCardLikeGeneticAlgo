@@ -8,36 +8,52 @@ namespace GeneticSolver
 {
     public class GenomeMutator<T> : IMutator<T>
     {
-        private Cyclable<double> MutationProbability { get; }
         private readonly IGenomeDescription<T> _genomeDescription;
-        private readonly double _mutationProbability;
+        private readonly IValueSource<double> _mutationProbability;
         private readonly IRandom _random;
 
         public GenomeMutator(IGenomeDescription<T> genomeDescription, double mutationProbability, IRandom random)
-            : this(genomeDescription, random)
+            : this(genomeDescription, StaticValueSource<double>.From(mutationProbability), random)
+        {
+        }
+
+        public GenomeMutator(IGenomeDescription<T> genomeDescription, IValueSource<double> mutationProbability, IRandom random)
         {
             _mutationProbability = mutationProbability;
-        }
-        public GenomeMutator(IGenomeDescription<T> genomeDescription, Cyclable<double> mutationProbability, IRandom random)
-            : this(genomeDescription, random)
-        {
-            _mutationProbability = 0.0;
-            MutationProbability = mutationProbability;
-        }
-        private GenomeMutator(IGenomeDescription<T> genomeDescription, IRandom random)
-        {
             _genomeDescription = genomeDescription;
             _random = random;
         }
 
-        private double Probability => MutationProbability?.CurrentValue ?? _mutationProbability;
-
         public void Mutate(T genome)
         {
-            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < Probability))
+            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _mutationProbability.GetValue()))
             {
                 property.Mutate(genome);
             }
+        }
+    }
+
+    public interface IValueSource<out T>
+    {
+        T GetValue();
+    }
+
+    class StaticValueSource<T> : IValueSource<T>
+    {
+        private readonly T _value;
+
+        public StaticValueSource(T value)
+        {
+            _value = value;
+        }
+        public T GetValue()
+        {
+            return _value;
+        }
+
+        public static IValueSource<T> From(T value)
+        {
+            return new StaticValueSource<T>(value);
         }
     }
 

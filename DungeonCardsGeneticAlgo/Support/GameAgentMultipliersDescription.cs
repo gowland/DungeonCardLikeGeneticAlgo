@@ -9,8 +9,8 @@ namespace DungeonCardsGeneticAlgo.Support
     public class GameAgentMultipliersDescription : IGenomeDescription<GameAgentMultipliers>
     {
         private readonly IRandom _random;
-        private readonly double _minChange = -5;
-        private readonly double _maxChange = 5;
+        private readonly double _minChange = -15;
+        private readonly double _maxChange = 15;
         private int _minMultiplierValue = -100;
         private int _maxMultiplierValue = 100;
 

@@ -91,7 +91,7 @@ namespace GeneticSolver.Random
         }
     }
 
-    public class Cyclable<T>
+    public class Cyclable<T> : IValueSource<T>
     {
         private Queue<T> _currentQueue;
         private Queue<T> _usedValueQueue = new Queue<T>();
@@ -115,6 +115,11 @@ namespace GeneticSolver.Random
 
             T currentStdDev = _currentQueue.Dequeue();
             _usedValueQueue.Enqueue(currentStdDev);
+        }
+
+        public T GetValue()
+        {
+            return CurrentValue;
         }
     }
 }
