@@ -39,10 +39,10 @@ namespace DungeonCardsGeneticAlgo
 
         private static void LaunchEvolutionRun(SolverParameters solverParameters, GameAgentEvaluator evaluator)
         {
-            var bellWeightedRandom = new CyclableBellWeightedRandom();
+            var bellWeightedRandom = new CyclableBellWeightedRandom(10.0, 3.0, 1.0, 0.5, 0.1);
             var genomeDescriptions = new GameAgentMultipliersDescription(bellWeightedRandom);
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
-            var mutationProbabilities = new Cyclable<double>(new[]{0.3, 0.5, 0.7});
+            var mutationProbabilities = new Cyclable<double>(new[]{0.3, 0.9, 1.0});
             var mutator = new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, mutationProbabilities, new UnWeightedRandom());
             var logger = new GameAgentSolverLogger();
             var solver = new Solver<GameAgentMultipliers, double>(

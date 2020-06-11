@@ -60,9 +60,9 @@ namespace GeneticSolver.Random
         private Queue<IRandom> _currentQueue;
         private Queue<IRandom> _usedValueQueue = new Queue<IRandom>();
 
-        public CyclableBellWeightedRandom()
+        public CyclableBellWeightedRandom(params double[] stdevs)
         {
-            _currentQueue = new Queue<IRandom>(StdDeviationsCycle.Select(stdev => new BellWeightedRandom(stdev)));
+            _currentQueue = new Queue<IRandom>((stdevs.Any() ? stdevs : StdDeviationsCycle).Select(stdev => new BellWeightedRandom(stdev)));
             _currentQueue.Enqueue(new UnWeightedRandom());
             CycleStdDev();
         }

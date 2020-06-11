@@ -29,8 +29,6 @@ namespace GeneticAlgo
             };
             var pointsToMatch = Enumerable.Range(-1000,1000).Select(x => new Point(x, coefficientsToMatch.Calc(x)));
             var evaluator = new CoefficientsGenomeEvaluator(pointsToMatch);
-            var genomeDescriptions = new CoefficientsGenomeDescriptions();
-            var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients.Coefficients>(genomeDescriptions);
 
             var solverParameters = new SolverParameters(
                 1000,
@@ -41,7 +39,7 @@ namespace GeneticAlgo
             for (int i = 0; i < 10; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
-                LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator);
+                LaunchEvolutionRun(solverParameters, evaluator);
             }
 
 //            Task.WaitAll(tasks.ToArray());
@@ -83,10 +81,13 @@ namespace GeneticAlgo
             }
         }
 
-        private static void LaunchEvolutionRun(CoefficientsGenomeDescriptions genomeDescriptions,
-            SolverParameters solverParameters, DefaultGenomeFactory<Coefficients.Coefficients> defaultGenomeFactory, CoefficientsGenomeEvaluator evaluator)
+        private static void LaunchEvolutionRun(SolverParameters solverParameters, CoefficientsGenomeEvaluator evaluator)
         {
-            var mutator = new BellWeightedGenomeMutator<Coefficients.Coefficients>(genomeDescriptions, solverParameters.PropertyMutationProbability);
+            var mutationProbabilities = new Cyclable<double>(new []{0.3,0.9,1.0});
+            var bellWeightedRandom = new CyclableBellWeightedRandom(10.0, 3.0, 1.0, 0.5, 0.1);
+            var genomeDescriptions = new CoefficientsGenomeDescriptions(bellWeightedRandom);
+            var defaultGenomeFactory = new DefaultGenomeFactory<Coefficients.Coefficients>(genomeDescriptions);
+            var mutator = new GenomeMutator<Coefficients.Coefficients>(genomeDescriptions, mutationProbabilities, new UnWeightedRandom());
             var logger = new CoefficientsSolverLogger();
             var solver = new Solver<Coefficients.Coefficients, double>(
                 defaultGenomeFactory,
@@ -103,13 +104,14 @@ namespace GeneticAlgo
                 {
 //                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new HaremBreedingStrategy(),
 //                        defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new StratifiedBreedingStrategy(), 
+                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new StratifiedBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new RandomBreedingStrategy(), 
+                    new SexualGenomeReproductionStrategy<Coefficients.Coefficients, double>(mutator, new RandomBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
-//                    new AsexualGenomeReproductionStrategy<Coefficients.Coefficients>(mutator), 
+//                    new AsexualGenomeReproductionStrategy<Coefficients.Coefficients>(mutator),
                 });
-            solver.NewGeneration += (s, e) => mutator.CycleStdDev();
+            solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
+//            solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
 
             logger.Start();
             var best = solver.Evolve(1000);
