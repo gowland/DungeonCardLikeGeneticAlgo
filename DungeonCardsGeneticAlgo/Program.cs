@@ -60,8 +60,8 @@ namespace DungeonCardsGeneticAlgo
                 {
                     new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
                         defaultGenomeFactory, genomeDescriptions, evaluator, 20, 2),
-                    // new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
-                        // defaultGenomeFactory, genomeDescriptions, evaluator, 100, 2),
+                    new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
+                        defaultGenomeFactory, genomeDescriptions, evaluator, 20, 2),
                 });
             solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
             solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
