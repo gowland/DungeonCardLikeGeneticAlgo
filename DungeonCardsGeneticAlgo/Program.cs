@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using GeneticSolver;
 using System.Text;
 using System.Threading.Tasks;
 using DungeonCardsGeneticAlgo.Support;
 using GeneticSolver.BreedingStrategies;
+using GeneticSolver.Expressions;
 using GeneticSolver.Random;
+using GeneticSolver.ReproductionStrategies;
 using GeneticSolver.RequiredInterfaces;
 
 namespace DungeonCardsGeneticAlgo
@@ -23,11 +26,31 @@ namespace DungeonCardsGeneticAlgo
                 2*maxEliteSize,
                 0.3);
 
+            var expressionGenerator = new ExpressionGenerator(
+                new BellWeightedRandom(0.5),
+                new IExpression[]
+                {
+                    new BoundValueExpression(new DynamicValueSource<double>(() => solverParameters.InitialGenerationSize)),
+                    new BoundValueExpression(new DynamicValueSource<double>(() => solverParameters.MaxEliteSize)),
+                    new BoundValueExpression(new DynamicValueSource<double>(() => solverParameters.PropertyMutationProbability)),
+                },
+                new []
+                {
+                    new Operation((a,b) => a + b, "+"),
+                    new Operation((a,b) => a - b, "-"),
+                    new Operation((a,b) => a * b, "*"),
+                });
+
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(expressionGenerator.GetRandomExpression());
+            }
+
 //            var tasks = new List<Task>();
             for (int i = 0; i < 5; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
-                LaunchEvolutionRun(solverParameters, evaluator);
+                // LaunchEvolutionRun(solverParameters, evaluator);
             }
 
 //            Task.WaitAll(tasks.ToArray());
@@ -58,10 +81,15 @@ namespace DungeonCardsGeneticAlgo
                 },
                 new IGenomeReproductionStrategy<GameAgentMultipliers>[]
                 {
-                    new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
-                        defaultGenomeFactory, genomeDescriptions, evaluator, 20, 2),
-                    new GeneticSolver.ReproductionStrategies.SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
-                        defaultGenomeFactory, genomeDescriptions, evaluator, 20, 2),
+                    new CyclableReproductionStrategy(new IGenomeReproductionStrategy<GameAgentMultipliers>[]
+                    {
+                        new SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
+                            defaultGenomeFactory, genomeDescriptions, evaluator, 40, 2),
+                        new SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
+                            defaultGenomeFactory, genomeDescriptions, evaluator, 40, 2),
+                        new AsexualGenomeReproductionStrategy<GameAgentMultipliers>(new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, 1.0, new UnWeightedRandom())),
+                    }),
+                    new AsexualGenomeReproductionStrategy<GameAgentMultipliers>(new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, 0.4, new UnWeightedRandom())),
                 });
             solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
             solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
@@ -70,6 +98,18 @@ namespace DungeonCardsGeneticAlgo
             var best = solver.Evolve(1000);
             logger.LogGeneration(best);
             logger.End();
+        }
+    }
+
+    public class CyclableReproductionStrategy : Cyclable<IGenomeReproductionStrategy<GameAgentMultipliers>>, IGenomeReproductionStrategy<GameAgentMultipliers>
+    {
+        public CyclableReproductionStrategy(IEnumerable<IGenomeReproductionStrategy<GameAgentMultipliers>> values) : base(values)
+        {
+        }
+
+        public IEnumerable<GameAgentMultipliers> ProduceOffspring(IEnumerable<GameAgentMultipliers> parents)
+        {
+            return CurrentValue.ProduceOffspring(parents);
         }
     }
 }

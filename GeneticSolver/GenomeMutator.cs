@@ -38,7 +38,21 @@ namespace GeneticSolver
         T GetValue();
     }
 
-    class StaticValueSource<T> : IValueSource<T>
+    public class DynamicValueSource<T> : IValueSource<T>
+    {
+        private readonly Func<T> _getterFunc;
+
+        public DynamicValueSource(Func<T> getterFunc)
+        {
+            _getterFunc = getterFunc;
+        }
+        public T GetValue()
+        {
+            return _getterFunc();
+        }
+    }
+
+    public class StaticValueSource<T> : IValueSource<T>
     {
         private readonly T _value;
 

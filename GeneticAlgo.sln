@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCore", "DungeonCardsCor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCardsWatcher", "DungeonCardsWatcher\DungeonCardsWatcher.csproj", "{A300C17D-0352-4CD6-AB95-533146E9EF76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticSolver.Tests", "GeneticSolver.Tests\GeneticSolver.Tests.csproj", "{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

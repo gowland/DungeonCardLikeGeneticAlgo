@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\IExpression.cs" />
     <Compile Include="GenomeMutator.cs" />
     <Compile Include="OrderedEnumerableExtensions.cs" />
     <Compile Include="PairingStrategies\HaremBreedingStrategy.cs" />

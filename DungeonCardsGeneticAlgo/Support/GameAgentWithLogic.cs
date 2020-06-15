@@ -47,18 +47,13 @@ namespace DungeonCardsGeneticAlgo.Support
         private double ScoreWeaponCard(int heroWeapon, int weaponValue, int heroHealth, SquareDesc squareDesc)
         {
             return heroWeapon > 0
-                ? _multipliers.WeaponWhenPossessingWeaponScoreMultiplier[(int)squareDesc] * ScoreWeaponCardWhenPossessingWeapon(heroWeapon, weaponValue, heroHealth)
+                ? _multipliers.WeaponWhenPossessingWeaponScoreMultiplier[(int)squareDesc] * _multipliers.WeaponWhenPossessingWeaponScoreFunc.Evaluate()
                 : _multipliers.WeaponWhenPossessingNotWeaponScoreMultiplier[(int)squareDesc] * ScoreWeaponCardWhenNotPossessingWeapon(weaponValue);
         }
 
         private double ScoreWeaponCardWhenNotPossessingWeapon(int weaponValue)
         {
             return weaponValue;
-        }
-
-        private double ScoreWeaponCardWhenPossessingWeapon(int heroWeapon, int cardWeapon, int heroHealth)
-        {
-            return _multipliers.WeaponWhenPossessingWeaponScoreFunc(heroWeapon, cardWeapon, heroHealth);
         }
 
         private double ScoreMonsterCard(int heroWeapon, int monsterHealth, int heroHealth, SquareDesc squareDesc)
