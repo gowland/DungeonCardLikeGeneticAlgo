@@ -50,6 +50,9 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             new DoubleGenomeProperty<GameAgentLogicGenome>(g => g.MonsterWhenNotPossessingWeaponScoreMultiplier[2],
                 (g, val) => g.MonsterWhenNotPossessingWeaponScoreMultiplier[2] = val, _minMultiplierValue,
                 _maxMultiplierValue, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentLogicGenome>(g => g.WeaponWhenPossessingWeaponScoreMultiplier[0], (g, val) => g.WeaponWhenPossessingWeaponScoreMultiplier[0] = val, _minMultiplierValue, _maxMultiplierValue, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentLogicGenome>(g => g.WeaponWhenPossessingWeaponScoreMultiplier[1], (g, val) => g.WeaponWhenPossessingWeaponScoreMultiplier[1] = val, _minMultiplierValue, _maxMultiplierValue, _minChange, _maxChange, _random),
+            new DoubleGenomeProperty<GameAgentLogicGenome>(g => g.WeaponWhenPossessingWeaponScoreMultiplier[2], (g, val) => g.WeaponWhenPossessingWeaponScoreMultiplier[2] = val, _minMultiplierValue, _maxMultiplierValue, _minChange, _maxChange, _random),
             new DoubleGenomeProperty<GameAgentLogicGenome>(g => g.WeaponWhenPossessingNotWeaponScoreMultiplier[0],
                 (g, val) => g.WeaponWhenPossessingNotWeaponScoreMultiplier[0] = val, _minMultiplierValue,
                 _maxMultiplierValue, _minChange, _maxChange, _random),
@@ -61,6 +64,8 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
                 _maxMultiplierValue, _minChange, _maxChange, _random),
             new ExpressionGenomeProperty<GameAgentLogicGenome, GameState>(g => g.WeaponWhenPossessingWeaponScoreFunc,
                 (g, val) => g.WeaponWhenPossessingWeaponScoreFunc = val, _generator),
+            new ExpressionGenomeProperty<GameAgentLogicGenome, GameState>(g => g.WeaponWhenNotPossessingWeaponScoreFunc,
+                (g, val) => g.WeaponWhenNotPossessingWeaponScoreFunc = val, _generator),
         };
     }
 }

@@ -59,8 +59,8 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
         private double ScoreWeaponCard(int heroWeapon, int weaponValue, int heroHealth, SquareDesc squareDesc, GameState state)
         {
             return heroWeapon > 0
-                ? _multipliers.WeaponWhenPossessingWeaponScoreFunc.Evaluate(state)
-                : _multipliers.WeaponWhenPossessingNotWeaponScoreMultiplier[(int)squareDesc] * ScoreWeaponCardWhenNotPossessingWeapon(weaponValue);
+                ? _multipliers.WeaponWhenPossessingWeaponScoreMultiplier[(int) squareDesc] * _multipliers.WeaponWhenPossessingWeaponScoreFunc.Evaluate(state)
+                : _multipliers.WeaponWhenPossessingNotWeaponScoreMultiplier[(int) squareDesc] * _multipliers.WeaponWhenNotPossessingWeaponScoreFunc.Evaluate(state);
         }
 
         private double ScoreWeaponCardWhenNotPossessingWeapon(int weaponValue)
