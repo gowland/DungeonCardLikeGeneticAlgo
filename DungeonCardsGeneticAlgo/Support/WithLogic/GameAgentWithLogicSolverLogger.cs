@@ -41,9 +41,10 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
                 resultFile.WriteLine($"Gold multipliers              {string.Join(", ", best.GoldScoreMultiplier.Select(d => $"{d:0.0000}"))}");
                 resultFile.WriteLine($"Monster w/ weapon multipliers {string.Join(", ", best.MonsterWhenPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
                 resultFile.WriteLine($"Monster no weapon multipliers {string.Join(", ", best.MonsterWhenNotPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
-                resultFile.WriteLine($"Weapon no weapon multipliers  {string.Join(", ", best.WeaponWhenPossessingNotWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
+                resultFile.WriteLine($"Weapon w/ weapon multipliers  {string.Join(", ", best.WeaponWhenPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
+                resultFile.WriteLine($"Weapon no weapon multipliers  {string.Join(", ", best.WeaponWhenNotPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
                 resultFile.WriteLine($"Weapon w/ weapon func  {best.WeaponWhenPossessingWeaponScoreFunc}");
-                resultFile.WriteLine($"Weapon w/ weapon func  {best.WeaponWhenNotPossessingWeaponScoreFunc}");
+                resultFile.WriteLine($"Weapon no weapon func  {best.WeaponWhenNotPossessingWeaponScoreFunc}");
                 resultFile.Close();
             }
         }

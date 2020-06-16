@@ -78,7 +78,7 @@ namespace DungeonCardsWatcher
                 GoldScoreMultiplier = new double[3]{31.2382, 28.2065, 37.8986},
                 MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{34.6751, -51.6451, -32.8258},
                 MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{2.9752, 4.7708, 3.2642},
-                WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3]{55.1838, 28.1914, 29.3060},
+                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{55.1838, 28.1914, 29.3060},
                 WeaponWhenPossessingWeaponScoreFunc = new FuncExpression<GameState>()
                 {
                     Left = new FuncExpression<GameState>()

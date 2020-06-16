@@ -12,13 +12,13 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             MonsterWhenPossessingWeaponScoreMultiplier = new double[3];
             MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3];
             WeaponWhenPossessingWeaponScoreMultiplier = new double[3];
-            WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3];
+            WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3];
         }
         public double[] GoldScoreMultiplier { get; set; }
         public double[] MonsterWhenPossessingWeaponScoreMultiplier { get; set; }
         public double[] MonsterWhenNotPossessingWeaponScoreMultiplier { get; set; }
         public double[] WeaponWhenPossessingWeaponScoreMultiplier { get; set; }
-        public double[] WeaponWhenPossessingNotWeaponScoreMultiplier { get; set; }
+        public double[] WeaponWhenNotPossessingWeaponScoreMultiplier { get; set; }
         public IExpression<GameState> WeaponWhenPossessingWeaponScoreFunc { get; set; }
         public IExpression<GameState> WeaponWhenNotPossessingWeaponScoreFunc { get; set; }
 
@@ -30,7 +30,7 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             MonsterWhenPossessingWeaponScoreMultiplier.CopyTo(clone.MonsterWhenPossessingWeaponScoreMultiplier, 0);
             MonsterWhenNotPossessingWeaponScoreMultiplier.CopyTo(clone.MonsterWhenNotPossessingWeaponScoreMultiplier, 0);
             WeaponWhenPossessingWeaponScoreMultiplier.CopyTo(clone.WeaponWhenPossessingWeaponScoreMultiplier, 0);
-            WeaponWhenPossessingNotWeaponScoreMultiplier.CopyTo(clone.WeaponWhenPossessingNotWeaponScoreMultiplier, 0);
+            WeaponWhenNotPossessingWeaponScoreMultiplier.CopyTo(clone.WeaponWhenNotPossessingWeaponScoreMultiplier, 0);
             clone.WeaponWhenPossessingWeaponScoreFunc = (IExpression<GameState>)WeaponWhenPossessingWeaponScoreFunc.Clone();
             clone.WeaponWhenNotPossessingWeaponScoreFunc = (IExpression<GameState>)WeaponWhenNotPossessingWeaponScoreFunc.Clone();
 
