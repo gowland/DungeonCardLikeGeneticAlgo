@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DungeonCardsGeneticAlgo.Support
+namespace DungeonCardsGeneticAlgo.Support.Multipliers
 {
     public class GameAgentMultipliers : ICloneable
     {

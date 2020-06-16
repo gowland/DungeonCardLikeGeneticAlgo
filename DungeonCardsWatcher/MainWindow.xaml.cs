@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using DungeonCardsGeneticAlgo;
 using DungeonCardsGeneticAlgo.Support;
+using DungeonCardsGeneticAlgo.Support.Multipliers;
 using DungeonCardsWatcher.Mvvm;
 using Game;
 

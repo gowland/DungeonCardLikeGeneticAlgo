@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using DungeonCardsGeneticAlgo.Support.Multipliers;
 using Game;
 
 namespace DungeonCardsGeneticAlgo.Support
 {
-    public class GameAgent
+    public class GameAgent : IGameAgent
     {
         private readonly GameAgentMultipliers _multipliers;
 

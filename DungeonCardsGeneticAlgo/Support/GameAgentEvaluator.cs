@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Game;
 using GeneticSolver;
@@ -7,28 +8,30 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace DungeonCardsGeneticAlgo.Support
 {
-    public class GameAgentEvaluator : IGenomeEvaluator<GameAgentMultipliers, double>
+    public class GameAgentEvaluator<T> : IGenomeEvaluator<T, double>
     {
-        private readonly FitnessCache<GameAgentMultipliers, double> _fitnessCache;
+        private readonly FitnessCache<T, double> _fitnessCache;
+        private readonly Func<T, IGameAgent> _gameAgentFunc;
         private readonly Board _board = GameBuilder.GetRandomStartBoard();
 
-        public GameAgentEvaluator(FitnessCache<GameAgentMultipliers, double> fitnessCache)
+        public GameAgentEvaluator(FitnessCache<T, double> fitnessCache, Func<T, IGameAgent> gameAgentFunc)
         {
             _fitnessCache = fitnessCache;
+            _gameAgentFunc = gameAgentFunc;
         }
 
-        public IOrderedEnumerable<FitnessResult<GameAgentMultipliers, double>> GetFitnessResults(IEnumerable<IGenomeInfo<GameAgentMultipliers>> genomes)
+        public IOrderedEnumerable<FitnessResult<T, double>> GetFitnessResults(IEnumerable<IGenomeInfo<T>> genomes)
         {
-            return genomes.Select(genome => new FitnessResult<GameAgentMultipliers, double>(genome, GetFitness(genome.Genome)))
+            return genomes.Select(genome => new FitnessResult<T, double>(genome, GetFitness(genome.Genome)))
                 .OrderByDescending(r => r.Fitness);
         }
 
-        public IOrderedEnumerable<GameAgentMultipliers> GetFitnessResults(IEnumerable<GameAgentMultipliers> genomes)
+        public IOrderedEnumerable<T> GetFitnessResults(IEnumerable<T> genomes)
         {
             return genomes.OrderByDescending(GetFitness);
         }
 
-        private double GetFitness(GameAgentMultipliers genome)
+        private double GetFitness(T genome)
         {
             if (_fitnessCache.TryGetFitness(genome, out double cachedFitness))
             {
@@ -46,10 +49,10 @@ namespace DungeonCardsGeneticAlgo.Support
             return fitness;
         }
 
-        private int DoOneRun(GameAgentMultipliers multipliers)
+        private int DoOneRun(T multipliers)
         {
             GameBuilder.RandomizeBoardToStart(_board);
-            var gameAgent = new GameAgent(multipliers);
+            var gameAgent = _gameAgentFunc(multipliers);
             var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => {});
             return gameRunner.RunGame(_board);
         }

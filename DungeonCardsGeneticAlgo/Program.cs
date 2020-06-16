@@ -5,6 +5,8 @@ using GeneticSolver;
 using System.Text;
 using System.Threading.Tasks;
 using DungeonCardsGeneticAlgo.Support;
+using DungeonCardsGeneticAlgo.Support.WithLogic;
+using Game;
 using GeneticSolver.BreedingStrategies;
 using GeneticSolver.Expressions;
 using GeneticSolver.Random;
@@ -18,21 +20,24 @@ namespace DungeonCardsGeneticAlgo
         static void Main(string[] args)
         {
             var maxEliteSize = 1000;
-            var cache = new FitnessCache<GameAgentMultipliers, double>(2000*maxEliteSize); // TODO: need to clear on repeated runs
-            var evaluator = new GameAgentEvaluator(cache);
+            var cache = new FitnessCache<GameAgentLogicGenome, double>(2000*maxEliteSize); // TODO: need to clear on repeated runs
+            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(genome));
 
             var solverParameters = new SolverParameters(
                 maxEliteSize,
                 2*maxEliteSize,
                 0.3);
 
-            var expressionGenerator = new ExpressionGenerator(
+            var expressionGenerator = new ExpressionGenerator<GameState>(
                 new BellWeightedRandom(0.5),
-                new IExpression[]
+                new IExpression<GameState>[]
                 {
-                    new BoundValueExpression(new DynamicValueSource<double>(() => solverParameters.InitialGenerationSize)),
-                    new BoundValueExpression(new DynamicValueSource<double>(() => solverParameters.MaxEliteSize)),
-                    new BoundValueExpression(new DynamicValueSource<double>(() => solverParameters.PropertyMutationProbability)),
+                    new BoundValueExpression<GameState>(game => game.HeroGold, nameof(GameState.HeroGold)),
+                    new BoundValueExpression<GameState>(game => game.HeroHealth, nameof(GameState.HeroHealth)),
+                    new BoundValueExpression<GameState>(game => game.HeroWeapon, nameof(GameState.HeroWeapon)),
+                    new BoundValueExpression<GameState>(game => game.CardGold, nameof(GameState.CardGold)),
+                    new BoundValueExpression<GameState>(game => game.MonsterHealth, nameof(GameState.MonsterHealth)),
+                    new BoundValueExpression<GameState>(game => game.CardWeapon, nameof(GameState.CardWeapon)),
                 },
                 new []
                 {
@@ -41,16 +46,13 @@ namespace DungeonCardsGeneticAlgo
                     new Operation((a,b) => a * b, "*"),
                 });
 
-            for (int i = 0; i < 10; i++)
-            {
-                Console.WriteLine(expressionGenerator.GetRandomExpression());
-            }
+            // TestExpressionGenerator(expressionGenerator);
 
 //            var tasks = new List<Task>();
             for (int i = 0; i < 5; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
-                // LaunchEvolutionRun(solverParameters, evaluator);
+                LaunchEvolutionRun(solverParameters, evaluator, expressionGenerator);
             }
 
 //            Task.WaitAll(tasks.ToArray());
@@ -60,36 +62,44 @@ namespace DungeonCardsGeneticAlgo
             Console.ReadLine();
         }
 
-        private static void LaunchEvolutionRun(SolverParameters solverParameters, GameAgentEvaluator evaluator)
+        private static void TestExpressionGenerator(ExpressionGenerator<GameState> expressionGenerator)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(expressionGenerator.GetRandomExpression());
+            }
+        }
+
+        private static void LaunchEvolutionRun(SolverParameters solverParameters, GameAgentEvaluator<GameAgentLogicGenome> evaluator, ExpressionGenerator<GameState> expressionGenerator)
         {
             var bellWeightedRandom = new CyclableBellWeightedRandom(10.0, 3.0, 1.0, 0.5, 0.1);
-            var genomeDescriptions = new GameAgentMultipliersDescription(bellWeightedRandom);
-            var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentMultipliers>(genomeDescriptions);
+            var genomeDescriptions = new GameAgentLogicGenomeDescription(bellWeightedRandom, expressionGenerator);
+            var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentLogicGenome>(genomeDescriptions);
             var mutationProbabilities = new Cyclable<double>(new[]{0.3, 0.9, 1.0});
-            var mutator = new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, mutationProbabilities, new UnWeightedRandom());
-            var logger = new GameAgentSolverLogger();
-            var solver = new Solver<GameAgentMultipliers, double>(
+            var mutator = new GenomeMutator<GameAgentLogicGenome>(genomeDescriptions, mutationProbabilities, new UnWeightedRandom());
+            var logger = new GameAgentWithLogicSolverLogger();
+            var solver = new Solver<GameAgentLogicGenome, double>(
                 defaultGenomeFactory,
                 evaluator,
                 logger,
                 solverParameters,
-                new IEarlyStoppingCondition<GameAgentMultipliers, double>[]
+                new IEarlyStoppingCondition<GameAgentLogicGenome, double>[]
                 {
                     // new GeneticSolver.EarlyStoppingConditions.FitnessThresholdReachedEarlyStopCondition<GameAgentMultipliers, double>(fitness => fitness < 1e-6),
-                    new GeneticSolver.EarlyStoppingConditions.ProgressStalledEarlyStoppingCondition<GameAgentMultipliers, double>(10, 0.5, 0.8),
-                    new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentMultipliers>(1, 100),
+                    new GeneticSolver.EarlyStoppingConditions.ProgressStalledEarlyStoppingCondition<GameAgentLogicGenome, double>(10, 0.5, 0.8),
+                    new GeneticSolver.EarlyStoppingConditions.FitnessNotImprovingEarlyStoppingCondition<GameAgentLogicGenome>(1, 100),
                 },
-                new IGenomeReproductionStrategy<GameAgentMultipliers>[]
+                new IGenomeReproductionStrategy<GameAgentLogicGenome>[]
                 {
-                    new CyclableReproductionStrategy(new IGenomeReproductionStrategy<GameAgentMultipliers>[]
+                    new CyclableReproductionStrategy<GameAgentLogicGenome>(new IGenomeReproductionStrategy<GameAgentLogicGenome>[]
                     {
-                        new SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new StratifiedBreedingStrategy(),
+                        new SexualGenomeReproductionStrategy<GameAgentLogicGenome, double>(mutator, new StratifiedBreedingStrategy(),
                             defaultGenomeFactory, genomeDescriptions, evaluator, 40, 2),
-                        new SexualGenomeReproductionStrategy<GameAgentMultipliers, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
+                        new SexualGenomeReproductionStrategy<GameAgentLogicGenome, double>(mutator, new GeneticSolver.PairingStrategies.RandomBreedingStrategy(),
                             defaultGenomeFactory, genomeDescriptions, evaluator, 40, 2),
-                        new AsexualGenomeReproductionStrategy<GameAgentMultipliers>(new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, 1.0, new UnWeightedRandom())),
+                        new AsexualGenomeReproductionStrategy<GameAgentLogicGenome>(new GenomeMutator<GameAgentLogicGenome>(genomeDescriptions, 1.0, new UnWeightedRandom())),
                     }),
-                    new AsexualGenomeReproductionStrategy<GameAgentMultipliers>(new GenomeMutator<GameAgentMultipliers>(genomeDescriptions, 0.4, new UnWeightedRandom())),
+                    new AsexualGenomeReproductionStrategy<GameAgentLogicGenome>(new GenomeMutator<GameAgentLogicGenome>(genomeDescriptions, 0.4, new UnWeightedRandom())),
                 });
             solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
             solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
@@ -101,13 +111,13 @@ namespace DungeonCardsGeneticAlgo
         }
     }
 
-    public class CyclableReproductionStrategy : Cyclable<IGenomeReproductionStrategy<GameAgentMultipliers>>, IGenomeReproductionStrategy<GameAgentMultipliers>
+    public class CyclableReproductionStrategy<T> : Cyclable<IGenomeReproductionStrategy<T>>, IGenomeReproductionStrategy<T>
     {
-        public CyclableReproductionStrategy(IEnumerable<IGenomeReproductionStrategy<GameAgentMultipliers>> values) : base(values)
+        public CyclableReproductionStrategy(IEnumerable<IGenomeReproductionStrategy<T>> values) : base(values)
         {
         }
 
-        public IEnumerable<GameAgentMultipliers> ProduceOffspring(IEnumerable<GameAgentMultipliers> parents)
+        public IEnumerable<T> ProduceOffspring(IEnumerable<T> parents)
         {
             return CurrentValue.ProduceOffspring(parents);
         }

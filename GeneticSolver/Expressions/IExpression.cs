@@ -5,19 +5,19 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Expressions
 {
-    public class ExpressionGenerator
+    public class ExpressionGenerator<T>
     {
         private readonly IRandom _random;
-        private readonly IEnumerable<IExpression> _boundValueExpressions;
+        private readonly IEnumerable<IExpression<T>> _boundValueExpressions;
         private readonly IEnumerable<Operation> _operations;
 
-        public ExpressionGenerator(IRandom random, IEnumerable<IExpression> boundValueExpressions, IEnumerable<Operation> operations)
+        public ExpressionGenerator(IRandom random, IEnumerable<IExpression<T>> boundValueExpressions, IEnumerable<Operation> operations)
         {
             _random = random;
             _boundValueExpressions = boundValueExpressions;
             _operations = operations;
         }
-        public IExpression GetRandomExpression()
+        public IExpression<T> GetRandomExpression()
         {
             var randVal = _random.NextDouble();
 
@@ -35,9 +35,9 @@ namespace GeneticSolver.Expressions
             }
         }
 
-        public IExpression GetFunctionExpression()
+        public IExpression<T> GetFunctionExpression()
         {
-            return new FuncExpression()
+            return new FuncExpression<T>()
             {
                 Left = GetRandomExpression(),
                 Right = GetRandomExpression(),
@@ -45,34 +45,34 @@ namespace GeneticSolver.Expressions
             };
         }
 
-        public IExpression GetRandomValueExpression()
+        public IExpression<T> GetRandomValueExpression()
         {
             return _random.NextDouble() < 0.5
                 ? GetBoundValueExpression()
                 : GetMutableValueExpression();
         }
 
-        public IExpression GetBoundValueExpression()
+        public IExpression<T> GetBoundValueExpression()
         {
             return _boundValueExpressions.OrderBy(e => _random.NextDouble()).First();
         }
 
-        public IExpression GetMutableValueExpression()
+        public IExpression<T> GetMutableValueExpression()
         {
-            return new ValueExpression(_random.NextDouble(-20,20));
+            return new ValueExpression<T>(_random.NextDouble(-20,20));
         }
     }
 
-    public interface IExpression : ICloneable
+    public interface IExpression<T> : ICloneable
     {
-        double Evaluate();
+        double Evaluate(T input);
         void Accept(IExpressionVisitor visitor);
     }
 
     public interface IExpressionVisitor
     {}
 
-    public class ValueExpression : IExpression
+    public class ValueExpression<T> : IExpression<T>
     {
         private double _value;
 
@@ -80,7 +80,7 @@ namespace GeneticSolver.Expressions
         {
             _value = value;
         }
-        public double Evaluate()
+        public double Evaluate(T value)
         {
             return _value;
         }
@@ -97,21 +97,23 @@ namespace GeneticSolver.Expressions
 
         public object Clone()
         {
-            return new ValueExpression(_value);
+            return new ValueExpression<T>(_value);
         }
     }
 
-    public class BoundValueExpression : IExpression
+    public class BoundValueExpression<T> : IExpression<T>
     {
-        private readonly IValueSource<double> _valueSource;
+        private readonly Func<T, double> _valueSource;
+        private readonly string _propertyName;
 
-        public BoundValueExpression(IValueSource<double> valueSource)
+        public BoundValueExpression(Func<T, double> valueSource, string propertyName)
         {
             _valueSource = valueSource;
+            _propertyName = propertyName;
         }
-        public double Evaluate()
+        public double Evaluate(T value)
         {
-            return _valueSource.GetValue();
+            return _valueSource(value);
         }
 
         public void Accept(IExpressionVisitor visitor)
@@ -121,12 +123,12 @@ namespace GeneticSolver.Expressions
 
         public override string ToString()
         {
-            return $"{_valueSource.GetValue():00.00000}";
+            return $"{_propertyName}";
         }
 
         public object Clone()
         {
-            return new BoundValueExpression(_valueSource);
+            return this;
         }
     }
 
@@ -148,15 +150,15 @@ namespace GeneticSolver.Expressions
         }
     }
 
-    public class FuncExpression : IExpression
+    public class FuncExpression<T> : IExpression<T>
     {
-        public IExpression Left { get; set; }
-        public IExpression Right { get; set; }
+        public IExpression<T> Left { get; set; }
+        public IExpression<T> Right { get; set; }
         public Operation Operation { get; set; }
 
-        public double Evaluate()
+        public double Evaluate(T value)
         {
-            return Operation.Function(Left.Evaluate(), Right.Evaluate());
+            return Operation.Function(Left.Evaluate(value), Right.Evaluate(value));
         }
 
         public void Accept(IExpressionVisitor visitor)
@@ -171,10 +173,10 @@ namespace GeneticSolver.Expressions
 
         public object Clone()
         {
-            return new FuncExpression()
+            return new FuncExpression<T>()
             {
-                Left = (IExpression)Left.Clone(),
-                Right = (IExpression)Right.Clone(),
+                Left = (IExpression<T>)Left.Clone(),
+                Right = (IExpression<T>)Right.Clone(),
                 Operation = Operation,
             };
         }

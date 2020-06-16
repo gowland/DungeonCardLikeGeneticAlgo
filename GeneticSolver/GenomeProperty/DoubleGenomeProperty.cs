@@ -5,14 +5,14 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.GenomeProperty
 {
-    public class ExpressionGenomeProperty<T> : IGenomeProperty<T>
+    public class ExpressionGenomeProperty<T, TInput> : IGenomeProperty<T>
     {
-        private readonly Func<T, IExpression> _getterFunc;
-        private readonly Action<T, IExpression> _setterAction;
-        private readonly ExpressionGenerator _generator;
+        private readonly Func<T, IExpression<TInput>> _getterFunc;
+        private readonly Action<T, IExpression<TInput>> _setterAction;
+        private readonly ExpressionGenerator<TInput> _generator;
         private IRandom _random = new UnWeightedRandom();
 
-        public ExpressionGenomeProperty(Func<T, IExpression> getterFunc, Action<T, IExpression> setterAction, ExpressionGenerator generator)
+        public ExpressionGenomeProperty(Func<T, IExpression<TInput>> getterFunc, Action<T, IExpression<TInput>> setterAction, ExpressionGenerator<TInput> generator)
         {
             _getterFunc = getterFunc;
             _setterAction = setterAction;

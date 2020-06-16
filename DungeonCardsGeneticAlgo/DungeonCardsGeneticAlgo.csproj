@@ -49,11 +49,15 @@
     <Compile Include="Support\FitnessCache.cs" />
     <Compile Include="Support\GameAgent.cs" />
     <Compile Include="Support\GameAgentEvaluator.cs" />
-    <Compile Include="Support\GameAgentLogicGenome.cs" />
-    <Compile Include="Support\GameAgentMultipliers.cs" />
-    <Compile Include="Support\GameAgentMultipliersDescription.cs" />
-    <Compile Include="Support\GameAgentSolverLogger.cs" />
-    <Compile Include="Support\GameAgentWithLogic.cs" />
+    <Compile Include="Support\IGameAgent.cs" />
+    <Compile Include="Support\Multipliers\GameAgentMultipliers.cs" />
+    <Compile Include="Support\Multipliers\GameAgentMultipliersDescription.cs" />
+    <Compile Include="Support\Multipliers\GameAgentSolverLogger.cs" />
+    <Compile Include="Support\WithLogic\GameAgentLogicGenome.cs" />
+    <Compile Include="Support\WithLogic\GameAgentLogicGenomeDescription.cs" />
+    <Compile Include="Support\WithLogic\GameAgentWithLogic.cs" />
+    <Compile Include="Support\WithLogic\GameAgentWithLogicSolverLogger.cs" />
+    <Compile Include="Support\WithLogic\GameState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

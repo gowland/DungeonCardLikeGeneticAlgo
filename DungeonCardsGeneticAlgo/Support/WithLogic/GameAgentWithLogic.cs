@@ -2,9 +2,9 @@
 using System.Linq;
 using Game;
 
-namespace DungeonCardsGeneticAlgo.Support
+namespace DungeonCardsGeneticAlgo.Support.WithLogic
 {
-    public class GameAgentWithLogic
+    public class GameAgentWithLogic : IGameAgent
     {
         private readonly GameAgentLogicGenome _multipliers;
 
@@ -26,13 +26,25 @@ namespace DungeonCardsGeneticAlgo.Support
         {
             var card = slot.Card;
             SquareDesc squareDesc = board.Desc();
+                    var state = new GameState()
+                    {
+                        HeroGold = board.Gold,
+                        HeroHealth = board.HeroHealth,
+                        HeroWeapon = board.Weapon,
+                        CardGold = 0,
+                        MonsterHealth = 0,
+                        CardWeapon = 0,
+                    };
             switch (card.Type)
             {
                 case CardType.Monster:
+                    state.MonsterHealth = card.Value;
                     return ScoreMonsterCard(board.Weapon, card.Value, board.HeroHealth, squareDesc);
                 case CardType.Weapon:
-                    return ScoreWeaponCard(board.Weapon, card.Value, board.HeroHealth, squareDesc);
+                    state.CardWeapon = card.Value;
+                    return ScoreWeaponCard(board.Weapon, card.Value, board.HeroHealth, squareDesc, state);
                 case CardType.Gold:
+                    state.CardGold = card.Value;
                     return ScoreGoldCard(card.Value, squareDesc);
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -44,10 +56,10 @@ namespace DungeonCardsGeneticAlgo.Support
             return _multipliers.GoldScoreMultiplier[(int)squareDesc] * goldScore;
         }
 
-        private double ScoreWeaponCard(int heroWeapon, int weaponValue, int heroHealth, SquareDesc squareDesc)
+        private double ScoreWeaponCard(int heroWeapon, int weaponValue, int heroHealth, SquareDesc squareDesc, GameState state)
         {
             return heroWeapon > 0
-                ? _multipliers.WeaponWhenPossessingWeaponScoreMultiplier[(int)squareDesc] * _multipliers.WeaponWhenPossessingWeaponScoreFunc.Evaluate()
+                ? _multipliers.WeaponWhenPossessingWeaponScoreFunc.Evaluate(state)
                 : _multipliers.WeaponWhenPossessingNotWeaponScoreMultiplier[(int)squareDesc] * ScoreWeaponCardWhenNotPossessingWeapon(weaponValue);
         }
 

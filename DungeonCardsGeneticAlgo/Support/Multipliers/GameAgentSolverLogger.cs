@@ -4,7 +4,7 @@ using System.Linq;
 using GeneticSolver;
 using GeneticSolver.RequiredInterfaces;
 
-namespace DungeonCardsGeneticAlgo.Support
+namespace DungeonCardsGeneticAlgo.Support.Multipliers
 {
     public class GameAgentSolverLogger : ISolverLogger<GameAgentMultipliers, double>
     {
