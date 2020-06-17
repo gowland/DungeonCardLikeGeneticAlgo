@@ -39,10 +39,10 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             {
                 case CardType.Monster:
                     state.MonsterHealth = card.Value;
-                    return ScoreMonsterCard(board.Weapon, card.Value, board.HeroHealth, squareDesc, state);
+                    return ScoreMonsterCard(squareDesc, state);
                 case CardType.Weapon:
                     state.CardWeapon = card.Value;
-                    return ScoreWeaponCard(board.Weapon, card.Value, board.HeroHealth, squareDesc, state);
+                    return ScoreWeaponCard(squareDesc, state);
                 case CardType.Gold:
                     state.CardGold = card.Value;
                     return ScoreGoldCard(card.Value, squareDesc);
@@ -56,27 +56,22 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             return _multipliers.GoldScoreMultiplier[(int)squareDesc] * goldScore;
         }
 
-        private double ScoreWeaponCard(int heroWeapon, int weaponValue, int heroHealth, SquareDesc squareDesc, GameState state)
+        private double ScoreWeaponCard(SquareDesc squareDesc, GameState state)
         {
-            return heroWeapon > 0
+            return state.HeroWeapon > 0
                 ? _multipliers.WeaponWhenPossessingWeaponScoreMultiplier[(int) squareDesc] * _multipliers.WeaponWhenPossessingWeaponScoreFunc.Evaluate(state)
                 : _multipliers.WeaponWhenNotPossessingWeaponScoreMultiplier[(int) squareDesc] * _multipliers.WeaponWhenNotPossessingWeaponScoreFunc.Evaluate(state);
         }
 
-        private double ScoreWeaponCardWhenNotPossessingWeapon(int weaponValue)
+        private double ScoreMonsterCard(SquareDesc squareDesc, GameState state)
         {
-            return weaponValue;
-        }
-
-        private double ScoreMonsterCard(int heroWeapon, int monsterHealth, int heroHealth, SquareDesc squareDesc, GameState state)
-        {
-            if (heroWeapon > 0)
+            if (state.HeroWeapon > 0)
             {
                 return _multipliers.MonsterWhenPossessingWeaponScoreMultiplier[(int)squareDesc] * _multipliers.MonsterWhenPossessingWeaponScoreFunc.Evaluate(state);
             }
-            else if (monsterHealth > heroHealth)
+            else if (state.MonsterHealth > state.HeroHealth)
             {
-                return ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(heroHealth, monsterHealth);
+                return ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(state);
             }
             else
             {
@@ -84,19 +79,9 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             }
         }
 
-        private double ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(int heroHealth, int monsterHealth)
+        private double ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(GameState state)
         {
             return -100;
-        }
-
-        private double ScoreMonsterWhenNotPossessingWeaponAndHeroHealthIsGreater(int heroHealth, int monsterHealth)
-        {
-            return (heroHealth - monsterHealth);
-        }
-
-        private double ScoreMonsterWhenPossessingWeapon(int heroWeapon, int monsterHealth)
-        {
-            return (monsterHealth - heroWeapon);
         }
     }
 }
