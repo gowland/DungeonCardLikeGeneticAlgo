@@ -6,6 +6,7 @@ using GeneticSolver;
 using GeneticSolver.BreedingStrategies;
 using GeneticSolver.EarlyStoppingConditions;
 using GeneticSolver.Genome;
+using GeneticSolver.Mutators;
 using GeneticSolver.PairingStrategies;
 using GeneticSolver.Random;
 using GeneticSolver.ReproductionStrategies;

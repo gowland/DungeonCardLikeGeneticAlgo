@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeneticSolver.Expressions;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Random
