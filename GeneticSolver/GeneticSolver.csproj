@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Expressions\IExpression.cs" />
+    <Compile Include="Expressions\IExpressionVisitor.cs" />
     <Compile Include="GenomeMutator.cs" />
+    <Compile Include="GenomeProperty\ExpressionGenomeProperty.cs" />
     <Compile Include="OrderedEnumerableExtensions.cs" />
     <Compile Include="PairingStrategies\HaremBreedingStrategy.cs" />
     <Compile Include="PairingStrategies\RandomBreedingStrategy.cs" />

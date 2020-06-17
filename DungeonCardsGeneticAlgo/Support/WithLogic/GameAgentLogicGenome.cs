@@ -19,6 +19,8 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
         public double[] MonsterWhenNotPossessingWeaponScoreMultiplier { get; set; }
         public double[] WeaponWhenPossessingWeaponScoreMultiplier { get; set; }
         public double[] WeaponWhenNotPossessingWeaponScoreMultiplier { get; set; }
+        public IExpression<GameState> MonsterWhenPossessingWeaponScoreFunc { get; set; }
+        public IExpression<GameState> MonsterWhenNotPossessingWeaponScoreFunc { get; set; }
         public IExpression<GameState> WeaponWhenPossessingWeaponScoreFunc { get; set; }
         public IExpression<GameState> WeaponWhenNotPossessingWeaponScoreFunc { get; set; }
 
@@ -31,6 +33,8 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
             MonsterWhenNotPossessingWeaponScoreMultiplier.CopyTo(clone.MonsterWhenNotPossessingWeaponScoreMultiplier, 0);
             WeaponWhenPossessingWeaponScoreMultiplier.CopyTo(clone.WeaponWhenPossessingWeaponScoreMultiplier, 0);
             WeaponWhenNotPossessingWeaponScoreMultiplier.CopyTo(clone.WeaponWhenNotPossessingWeaponScoreMultiplier, 0);
+            clone.MonsterWhenPossessingWeaponScoreFunc = (IExpression<GameState>)MonsterWhenPossessingWeaponScoreFunc.Clone();
+            clone.MonsterWhenNotPossessingWeaponScoreFunc = (IExpression<GameState>)MonsterWhenNotPossessingWeaponScoreFunc.Clone();
             clone.WeaponWhenPossessingWeaponScoreFunc = (IExpression<GameState>)WeaponWhenPossessingWeaponScoreFunc.Clone();
             clone.WeaponWhenNotPossessingWeaponScoreFunc = (IExpression<GameState>)WeaponWhenNotPossessingWeaponScoreFunc.Clone();
 

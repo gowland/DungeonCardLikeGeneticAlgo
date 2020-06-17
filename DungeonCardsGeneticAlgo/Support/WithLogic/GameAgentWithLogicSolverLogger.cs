@@ -29,8 +29,10 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
         {
             Console.WriteLine($"{_runId},{generationResult.GenerationNumber},{generationResult.FittestGenome.Fitness}");
             _logFile.WriteLine($"{_runId},{generationResult.GenerationNumber},{generationResult.FittestGenome.Fitness}");
+            Console.WriteLine($"Monster w/ weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.MonsterWhenPossessingWeaponScoreFunc}");
+            Console.WriteLine($"Monster no weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.MonsterWhenNotPossessingWeaponScoreFunc}");
             Console.WriteLine($"Weapon w/ weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.WeaponWhenPossessingWeaponScoreFunc}");
-            Console.WriteLine($"Weapon w/ weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.WeaponWhenNotPossessingWeaponScoreFunc}");
+            Console.WriteLine($"Weapon no weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.WeaponWhenNotPossessingWeaponScoreFunc}");
         }
 
         public void LogGeneration(IGenerationResult<GameAgentLogicGenome, double> generation)
@@ -43,8 +45,10 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
                 resultFile.WriteLine($"Monster no weapon multipliers {string.Join(", ", best.MonsterWhenNotPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
                 resultFile.WriteLine($"Weapon w/ weapon multipliers  {string.Join(", ", best.WeaponWhenPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
                 resultFile.WriteLine($"Weapon no weapon multipliers  {string.Join(", ", best.WeaponWhenNotPossessingWeaponScoreMultiplier.Select(d => $"{d:0.0000}"))}");
-                resultFile.WriteLine($"Weapon w/ weapon func  {best.WeaponWhenPossessingWeaponScoreFunc}");
-                resultFile.WriteLine($"Weapon no weapon func  {best.WeaponWhenNotPossessingWeaponScoreFunc}");
+                resultFile.WriteLine($"Monster w/ weapon func, {best.MonsterWhenPossessingWeaponScoreFunc}");
+                resultFile.WriteLine($"Monster no weapon func, {best.MonsterWhenNotPossessingWeaponScoreFunc}");
+                resultFile.WriteLine($"Weapon w/ weapon func, {best.WeaponWhenPossessingWeaponScoreFunc}");
+                resultFile.WriteLine($"Weapon no weapon func, {best.WeaponWhenNotPossessingWeaponScoreFunc}");
                 resultFile.Close();
             }
         }

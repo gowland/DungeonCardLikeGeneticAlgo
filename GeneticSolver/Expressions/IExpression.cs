@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeneticSolver.GenomeProperty;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Expressions
@@ -41,8 +42,13 @@ namespace GeneticSolver.Expressions
             {
                 Left = GetRandomExpression(),
                 Right = GetRandomExpression(),
-                Operation = _operations.OrderBy(f => _random.NextDouble()).First(),
+                Operation = GetRandomOperation(),
             };
+        }
+
+        public Operation GetRandomOperation()
+        {
+            return _operations.OrderBy(f => _random.NextDouble()).First();
         }
 
         public IExpression<T> GetRandomValueExpression()
@@ -66,38 +72,35 @@ namespace GeneticSolver.Expressions
     public interface IExpression<T> : ICloneable
     {
         double Evaluate(T input);
-        void Accept(IExpressionVisitor visitor);
+        void Accept(IExpressionVisitor<T> visitor);
     }
-
-    public interface IExpressionVisitor
-    {}
 
     public class ValueExpression<T> : IExpression<T>
     {
-        private double _value;
+        public double Value { get; set; }
 
         public ValueExpression(double value)
         {
-            _value = value;
+            Value = value;
         }
         public double Evaluate(T value)
         {
-            return _value;
+            return Value;
         }
 
-        public void Accept(IExpressionVisitor visitor)
+        public void Accept(IExpressionVisitor<T> visitor)
         {
-            throw new NotImplementedException();
+            visitor.Visit(this);
         }
 
         public override string ToString()
         {
-            return $"{_value:00.00000}";
+            return $"{Value:00.00000}";
         }
 
         public object Clone()
         {
-            return new ValueExpression<T>(_value);
+            return new ValueExpression<T>(Value);
         }
     }
 
@@ -116,9 +119,9 @@ namespace GeneticSolver.Expressions
             return _valueSource(value);
         }
 
-        public void Accept(IExpressionVisitor visitor)
+        public void Accept(IExpressionVisitor<T> visitor)
         {
-            throw new NotImplementedException();
+            visitor.Visit(this);
         }
 
         public override string ToString()
@@ -161,9 +164,11 @@ namespace GeneticSolver.Expressions
             return Operation.Function(Left.Evaluate(value), Right.Evaluate(value));
         }
 
-        public void Accept(IExpressionVisitor visitor)
+        public void Accept(IExpressionVisitor<T> visitor)
         {
-            throw new NotImplementedException();
+            visitor.Visit(this);
+            Left.Accept(visitor);
+            Right.Accept(visitor);
         }
 
         public override string ToString()
