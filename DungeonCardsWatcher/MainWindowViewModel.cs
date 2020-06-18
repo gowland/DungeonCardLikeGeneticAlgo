@@ -75,54 +75,15 @@ namespace DungeonCardsWatcher
         {
             var multipliers = new GameAgentLogicGenome()
             {
-                GoldScoreMultiplier = new double[3]{31.2382, 28.2065, 37.8986},
-                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{34.6751, -51.6451, -32.8258},
-                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{2.9752, 4.7708, 3.2642},
-                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{55.1838, 28.1914, 29.3060},
-                WeaponWhenPossessingWeaponScoreFunc = new FuncExpression<GameState>()
-                {
-                    Left = new FuncExpression<GameState>()
-                    {
-                        Left  = new ValueExpression<GameState>(-16.01238),
-                        Right = new FuncExpression<GameState>()
-                        {
-                            Left = new BoundValueExpression<GameState>(state => state.HeroHealth, nameof(GameState.HeroHealth)),
-                            Right = new FuncExpression<GameState>()
-                            {
-                                Left  = new ValueExpression<GameState>(-3.86706),
-                                Right = new BoundValueExpression<GameState>(state => state.CardWeapon, nameof(GameState.CardWeapon)),
-                                Operation = new Operation((a,b) => a - b, "-")
-                            },
-                            Operation = new Operation((a,b) => a - b, "-")
-                        },
-                        Operation = new Operation((a,b) => a * b, "*")
-                    },
-                    Right = new BoundValueExpression<GameState>(state => state.MonsterHealth, nameof(GameState.MonsterHealth)),
-                    /*
-                    Right = new FuncExpression<GameState>()
-                    {
-                        Left = new BoundValueExpression<GameState>(state => state.CardGold, nameof(GameState.CardGold)),
-                        Right = new FuncExpression<GameState>()
-                        {
-                            Left  = new ValueExpression<GameState>(-16.24578),
-                            Right = new FuncExpression<GameState>()
-                            {
-                                Left = new BoundValueExpression<GameState>(state => state.HeroGold, nameof(GameState.HeroGold)),
-                                Right = new FuncExpression<GameState>()
-                                {
-                                    Left  = new ValueExpression<GameState>(8.04031),
-                                    Right = new ValueExpression<GameState>(-7.75607),
-                                    Operation = new Operation((a,b) => a * b, "*")
-                                },
-                                Operation = new Operation((a,b) => a * b, "*")
-                            },
-                            Operation = new Operation((a,b) => a + b, "+")
-                        } ,
-                        Operation = new Operation((a,b) => a - b, "-")
-                    },
-                    */
-                    Operation = new Operation((a,b) => a + b, "+")
-                }
+                GoldScoreMultiplier = new double[3]{8.9333, 22.5057, 38.3460},
+                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{10.7683, 10.3861, 3.7720},
+                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{-19.0546, -20.1365, -25.0921},
+                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-33.6411, -38.3365, -36.0864},
+                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{22.2358, 38.3204, 14.1252},
+                MonsterWhenPossessingWeaponScoreFunc = new ValueExpression<GameState>(-42.7745673178),
+                MonsterWhenNotPossessingWeaponScoreFunc = new BoundValueExpression<GameState>(s => s.MonsterHealth, nameof(GameState.MonsterHealth)),
+                WeaponWhenPossessingWeaponScoreFunc = new ValueExpression<GameState>(3.99947),
+                WeaponWhenNotPossessingWeaponScoreFunc = new ValueExpression<GameState>(329.78287),
             };
 
             var agent = new GameAgentWithLogic(multipliers);

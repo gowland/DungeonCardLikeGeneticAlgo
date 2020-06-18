@@ -14,7 +14,7 @@ namespace GeneticSolver.Mutators
         private IRandom _random;
 
         public BellWeightedGenomeMutator(IGenomeDescription<T> genomeDescription, double mutationProbability)
-            : base(genomeDescription, new StaticValueSource<double>(mutationProbability)))
+            : base(genomeDescription, new StaticValueSource<double>(mutationProbability))
         {
             _random = new BellWeightedRandom(1);
         }

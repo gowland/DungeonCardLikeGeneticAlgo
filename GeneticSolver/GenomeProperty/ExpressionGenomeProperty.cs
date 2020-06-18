@@ -18,7 +18,7 @@ namespace GeneticSolver.GenomeProperty
             _getterFunc = getterFunc;
             _setterAction = setterAction;
             _generator = generator;
-            _mutationVisitor = new ExpressionMutationVisitor<TInput>(generator, _random, new StaticValueSource<double>(0.3), new BellWeightedRandom(0.25));
+            _mutationVisitor = new ExpressionMutationVisitor<TInput>(generator, _random, 0.3, new BellWeightedRandom(0.25));
         }
         public void Mutate(T genome)
         {

@@ -9,6 +9,12 @@ namespace GeneticSolver.Expressions
         private readonly IValueSource<double> _mutationRate;
         private readonly IRandom _bellWeightedRandom;
 
+        public ExpressionMutationVisitor(ExpressionGenerator<T> expressionGenerator, IRandom random,
+            double mutationRate, IRandom bellWeightedRandom)
+            : this(expressionGenerator, random, new StaticValueSource<double>(mutationRate), bellWeightedRandom)
+        {
+        }
+
         public ExpressionMutationVisitor(ExpressionGenerator<T> expressionGenerator, IRandom random, IValueSource<double> mutationRate, IRandom bellWeightedRandom)
         {
             _expressionGenerator = expressionGenerator;
