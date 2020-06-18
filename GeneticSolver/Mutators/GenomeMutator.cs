@@ -1,10 +1,42 @@
 ﻿using System.Linq;
 using GeneticSolver.Expressions;
+using GeneticSolver.Random;
 using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Mutators
 {
-    public class GenomeMutator<T> : IMutator<T>
+    public abstract class MutatorBase<T> : IMutator<T>
+    {
+        private readonly IGenomeDescription<T> _genomeDescription;
+        private readonly IValueSource<double> _mutationProbability;
+
+        protected MutatorBase(IGenomeDescription<T> genomeDescription, IValueSource<double> mutationProbability)
+        {
+            _mutationProbability = mutationProbability;
+            _genomeDescription = genomeDescription;
+        }
+
+        public void Mutate(T genome)
+        {
+            var propertiesToMutate = _genomeDescription.Properties
+                .Where(p => NextDouble() < _mutationProbability.GetValue())
+                .ToList();
+
+            if (!propertiesToMutate.Any())
+            {
+                propertiesToMutate.Add(_genomeDescription.Properties.OrderBy(p => NextDouble()).First());
+            }
+
+            foreach (var property in propertiesToMutate)
+            {
+                property.Mutate(genome);
+            }
+        }
+
+        protected abstract double NextDouble();
+    }
+
+    public class GenomeMutator<T> : MutatorBase<T>
     {
         private readonly IGenomeDescription<T> _genomeDescription;
         private readonly IValueSource<double> _mutationProbability;
@@ -16,18 +48,16 @@ namespace GeneticSolver.Mutators
         }
 
         public GenomeMutator(IGenomeDescription<T> genomeDescription, IValueSource<double> mutationProbability, IRandom random)
+            : base(genomeDescription, mutationProbability)
         {
             _mutationProbability = mutationProbability;
             _genomeDescription = genomeDescription;
             _random = random;
         }
 
-        public void Mutate(T genome)
+        protected override double NextDouble()
         {
-            foreach (var property in _genomeDescription.Properties.Where(p => _random.NextDouble() < _mutationProbability.GetValue()))
-            {
-                property.Mutate(genome);
-            }
+            return _random.NextDouble();
         }
     }
 }

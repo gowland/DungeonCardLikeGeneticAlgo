@@ -66,6 +66,7 @@
     <Compile Include="IGenomeDescription.cs" />
     <Compile Include="Interfaces\IPairingStrategy.cs" />
     <Compile Include="Random\BellWeightedRandom.cs" />
+    <Compile Include="Random\RandomExtensions.cs" />
     <Compile Include="Random\UnWeightedRandom.cs" />
     <Compile Include="ReproductionStrategies\AsexualGenomeReproductionStrategy.cs" />
     <Compile Include="ReproductionStrategies\SexualGenomeReproductionStrategy.cs" />

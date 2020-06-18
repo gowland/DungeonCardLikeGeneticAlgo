@@ -1,4 +1,5 @@
-﻿using GeneticSolver.RequiredInterfaces;
+﻿using System.ComponentModel.Design;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Random
 {
