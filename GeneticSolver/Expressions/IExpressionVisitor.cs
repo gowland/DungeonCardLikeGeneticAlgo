@@ -1,4 +1,5 @@
 ﻿using System;
+using GeneticSolver.Expressions.Implementations;
 
 namespace GeneticSolver.Expressions
 {

@@ -42,10 +42,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Expressions\DynamicValueSource.cs" />
+    <Compile Include="Expressions\ExpressionGenerator.cs" />
     <Compile Include="Expressions\ExpressionMutationVisitor.cs" />
     <Compile Include="Expressions\IExpression.cs" />
     <Compile Include="Expressions\IExpressionVisitor.cs" />
+    <Compile Include="Expressions\Implementations\BoundValueExpression.cs" />
+    <Compile Include="Expressions\Implementations\FuncExpression.cs" />
+    <Compile Include="Expressions\Implementations\ValueExpression.cs" />
     <Compile Include="Expressions\IValueSource.cs" />
+    <Compile Include="Expressions\Operation.cs" />
     <Compile Include="Expressions\StaticValueSource.cs" />
     <Compile Include="GenomeProperty\ExpressionGenomeProperty.cs" />
     <Compile Include="Mutators\BellWeightedGenomeMutator.cs" />

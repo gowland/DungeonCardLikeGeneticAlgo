@@ -9,6 +9,7 @@ using DungeonCardsGeneticAlgo.Support.WithLogic;
 using Game;
 using GeneticSolver.BreedingStrategies;
 using GeneticSolver.Expressions;
+using GeneticSolver.Expressions.Implementations;
 using GeneticSolver.Mutators;
 using GeneticSolver.Random;
 using GeneticSolver.ReproductionStrategies;

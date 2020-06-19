@@ -1,5 +1,6 @@
 ﻿using System;
 using GeneticSolver.Expressions;
+using GeneticSolver.Expressions.Implementations;
 using GeneticSolver.Random;
 using GeneticSolver.RequiredInterfaces;
 

@@ -1,4 +1,5 @@
-﻿using GeneticSolver.RequiredInterfaces;
+﻿using GeneticSolver.Expressions.Implementations;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Expressions
 {

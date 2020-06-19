@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.Design;
+﻿using System;
+using System.ComponentModel.Design;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using GeneticSolver.Expressions;
+using GeneticSolver.Expressions.Implementations;
+using GeneticSolver.Random;
 using NUnit.Framework;
 
 namespace GeneticSolver.Tests
@@ -8,6 +11,38 @@ namespace GeneticSolver.Tests
     [TestFixture]
     public class ExpressionsFixture
     {
+
+        [TestCase("(C) + (1)")]
+        [TestCase("((23) * (Foo)) + ((Blah) - (42))")]
+        public void BuildTreeFromString(string input)
+        {
+            Console.WriteLine(ExpressionGenerator<SomeClass>.BuildTreeFromString(input));
+        }
+
+        [TestCase("(02.00000) + (01.00000)")]
+        [TestCase("((23.00000) * (45.20000)) + ((99.00000) - (42.00000))")]
+        [TestCase("(SomeValue) + (01.00000)")]
+        public void FromString (string input)
+        {
+            var expressionGenerator = new ExpressionGenerator<SomeClass>(
+                new UnWeightedRandom(),
+               new []
+                {
+                    new BoundValueExpression<SomeClass>(someClass => someClass.SomeValue, nameof(SomeClass.SomeValue)),
+                },
+               new []
+                {
+
+                        new Operation((a,b) => a + b, "+"),
+                        new Operation((a,b) => a - b, "-"),
+                        new Operation((a,b) => a * b, "*"),
+                });
+
+            var fromString = expressionGenerator.FromString(input);
+            Console.WriteLine(fromString);
+            Assert.That(fromString.ToString(), Is.EqualTo(input));
+        }
+
         [TestFixture]
         public class FuncExpressionFixture
         {
