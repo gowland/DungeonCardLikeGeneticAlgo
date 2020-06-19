@@ -50,6 +50,7 @@
     <Compile Include="GenomeProperty\ExpressionGenomeProperty.cs" />
     <Compile Include="Mutators\BellWeightedGenomeMutator.cs" />
     <Compile Include="Mutators\GenomeMutator.cs" />
+    <Compile Include="Mutators\MutatorBase.cs" />
     <Compile Include="OrderedEnumerableExtensions.cs" />
     <Compile Include="PairingStrategies\HaremBreedingStrategy.cs" />
     <Compile Include="PairingStrategies\RandomBreedingStrategy.cs" />

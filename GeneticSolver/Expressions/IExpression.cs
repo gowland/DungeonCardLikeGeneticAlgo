@@ -53,7 +53,7 @@ namespace GeneticSolver.Expressions
 
         public IExpression<T> GetRandomValueExpression()
         {
-            return _random.NextDouble() < 0.5
+            return _random.NextBool()
                 ? GetBoundValueExpression()
                 : GetMutableValueExpression();
         }

@@ -49,6 +49,11 @@ namespace GeneticSolver.Random
             return minX + NextDouble() * (maxX - minX);
         }
 
+        public bool NextBool()
+        {
+            return NextDouble() > 0.5;
+        }
+
         private bool IsUnderCurve(double x, double y, Func<double, double> func)
         {
             return y <= func(x);
@@ -76,6 +81,11 @@ namespace GeneticSolver.Random
         public double NextDouble(double minX, double maxX)
         {
             return _usedValueQueue.Peek().NextDouble(minX, maxX);
+        }
+
+        public bool NextBool()
+        {
+            return NextDouble() > 0.5;
         }
 
         public void CycleStdDev()

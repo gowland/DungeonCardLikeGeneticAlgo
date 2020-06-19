@@ -16,5 +16,10 @@ namespace GeneticSolver.Random
         {
             return minX + NextDouble() * (maxX - minX);
         }
+
+        public bool NextBool()
+        {
+            return NextDouble() > 0.5;
+        }
     }
 }
