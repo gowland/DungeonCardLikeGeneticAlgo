@@ -22,7 +22,6 @@ namespace DungeonCardsGeneticAlgo
         static void Main(string[] args)
         {
             var maxEliteSize = 1000;
-
             var solverParameters = new SolverParameters(
                 maxEliteSize,
                 2*maxEliteSize,
