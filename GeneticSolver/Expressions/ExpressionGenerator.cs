@@ -14,6 +14,7 @@ namespace GeneticSolver.Expressions
         private readonly IRandom _random;
         private readonly IEnumerable<IExpression<T>> _boundValueExpressions;
         private readonly IEnumerable<Operation> _operations;
+        private readonly IRandom _unweightedRandom = new UnWeightedRandom();
 
         public ExpressionGenerator(IRandom random, IEnumerable<IExpression<T>> boundValueExpressions, IEnumerable<Operation> operations)
         {
@@ -23,11 +24,11 @@ namespace GeneticSolver.Expressions
         }
         public IExpression<T> GetRandomExpression()
         {
-            return _random.SelectOption(new[]
+            return _unweightedRandom.SelectOption(new Func<IExpression<T>>[]
             {
-                new Tuple<double,Func<IExpression<T>>>(0.33, GetFunctionExpression),
-                new Tuple<double,Func<IExpression<T>>>(0.67, GetBoundValueExpression),
-                new Tuple<double,Func<IExpression<T>>>(1.00, GetMutableValueExpression),
+                GetFunctionExpression,
+                GetBoundValueExpression,
+                GetMutableValueExpression,
             }).Invoke();
         }
 
@@ -43,7 +44,7 @@ namespace GeneticSolver.Expressions
 
         public Operation GetRandomOperation()
         {
-            return _random.SelectOption(_operations);
+            return _unweightedRandom.SelectOption(_operations);
         }
 
         public IExpression<T> GetRandomValueExpression()
