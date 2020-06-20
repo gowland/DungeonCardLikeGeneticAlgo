@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using GeneticSolver;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,8 +23,6 @@ namespace DungeonCardsGeneticAlgo
         static void Main(string[] args)
         {
             var maxEliteSize = 1000;
-            var cache = new FitnessCache<GameAgentLogicGenome, double>(2000*maxEliteSize); // TODO: need to clear on repeated runs
-            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(genome));
 
             var solverParameters = new SolverParameters(
                 maxEliteSize,
@@ -54,7 +53,7 @@ namespace DungeonCardsGeneticAlgo
             for (int i = 0; i < 5; i++)
             {
 //                tasks.Add(Task.Run(() => LaunchEvolutionRun(genomeDescriptions, solverParameters, defaultGenomeFactory, evaluator)));
-                LaunchEvolutionRun(solverParameters, evaluator, expressionGenerator);
+                LaunchEvolutionRun(solverParameters, expressionGenerator);
             }
 
 //            Task.WaitAll(tasks.ToArray());
@@ -72,8 +71,10 @@ namespace DungeonCardsGeneticAlgo
             }
         }
 
-        private static void LaunchEvolutionRun(SolverParameters solverParameters, GameAgentEvaluator<GameAgentLogicGenome> evaluator, ExpressionGenerator<GameState> expressionGenerator)
+        private static void LaunchEvolutionRun(SolverParameters solverParameters, ExpressionGenerator<GameState> expressionGenerator)
         {
+            var cache = new FitnessCache<GameAgentLogicGenome, double>(2000*solverParameters.MaxEliteSize);
+            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(genome));
             var bellWeightedRandom = new CyclableBellWeightedRandom(10.0, 3.0, 1.0, 0.5, 0.1);
             var genomeDescriptions = new GameAgentLogicGenomeDescription(bellWeightedRandom, expressionGenerator);
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentLogicGenome>(genomeDescriptions);
@@ -105,6 +106,7 @@ namespace DungeonCardsGeneticAlgo
                 });
             solver.NewGeneration += (s, e) => bellWeightedRandom.CycleStdDev();
             solver.NewGeneration += (s, e) => mutationProbabilities.Cycle();
+            solver.NewGeneration += (sender, e) => cache.ClearExcept(e.OrderedGenomes.Select(g => g.GenomeInfo.Genome));
 
             logger.Start();
             var best = solver.Evolve(1000);

@@ -27,12 +27,15 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
 
         public void LogGenerationInfo(IGenerationResult<GameAgentLogicGenome, double> generationResult)
         {
+            Console.WriteLine("----------------------------");
             Console.WriteLine($"{_runId},{generationResult.GenerationNumber},{generationResult.FittestGenome.Fitness}");
             _logFile.WriteLine($"{_runId},{generationResult.GenerationNumber},{generationResult.FittestGenome.Fitness}");
             Console.WriteLine($"Monster w/ weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.MonsterWhenPossessingWeaponScoreFunc}");
             Console.WriteLine($"Monster no weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.MonsterWhenNotPossessingWeaponScoreFunc}");
             Console.WriteLine($"Weapon w/ weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.WeaponWhenPossessingWeaponScoreFunc}");
             Console.WriteLine($"Weapon no weapon func  {generationResult.FittestGenome.GenomeInfo.Genome.WeaponWhenNotPossessingWeaponScoreFunc}");
+
+            LogGeneration(generationResult);
         }
 
         public void LogGeneration(IGenerationResult<GameAgentLogicGenome, double> generation)
