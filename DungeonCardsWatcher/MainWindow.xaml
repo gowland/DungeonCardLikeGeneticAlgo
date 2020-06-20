@@ -141,6 +141,9 @@
                 <TextBlock Text="{Binding Gold, Mode=OneWay}"/>
             </StackPanel>
         </StackPanel>
-        <Button Grid.Row="2" Visibility="{Binding IsRunningGame, Converter={mvvm:BoolToVisibleOrCollapsed Invert=True}, Mode=OneWay}" Command="{Binding DoRun}" Content="Do a Run"/>
+        <UniformGrid Grid.Row="2" Columns="2">
+            <Button Visibility="{Binding IsRunningGame, Converter={mvvm:BoolToVisibleOrCollapsed Invert=True}, Mode=OneWay}" Command="{Binding DoRun}" Content="Run with multipliers"/>
+            <Button Visibility="{Binding IsRunningGame, Converter={mvvm:BoolToVisibleOrCollapsed Invert=True}, Mode=OneWay}" Command="{Binding DoSmartRun}" Content="Run with logic"/>
+        </UniformGrid>
     </Grid>
 </Window>

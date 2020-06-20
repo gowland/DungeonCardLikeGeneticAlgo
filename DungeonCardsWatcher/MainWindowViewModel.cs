@@ -30,12 +30,14 @@ namespace DungeonCardsWatcher
             _observableCollection = new ObservableCollection<ViewSlot>(_slotList);
             Slots = new ReadOnlyObservableCollection<ViewSlot>(_observableCollection);
 
-            DoRun = new Command(async _ => await DoOneRun(), _ =>true);
+            DoRun = new Command(async _ => await DoOneRun(DoMultipliersRun), _ =>true);
+            DoSmartRun = new Command(async _ => await DoOneRun(DoLogicRun), _ =>true);
             _mainWindowDispatcher = Application.Current.MainWindow.Dispatcher;
         }
 
         public IReadOnlyCollection<ViewSlot> Slots { get; }
         public ICommand DoRun { get; }
+        public ICommand DoSmartRun { get; }
         public int Health => _board?.HeroHealth ?? 0;
         public int Weapon => _board?.Weapon ?? 0;
         public int Gold => _board?.Gold ?? 0;
@@ -47,16 +49,16 @@ namespace DungeonCardsWatcher
             set => SetProperty(ref _isRunningGame, value);
         }
 
-        private async Task DoOneRun()
+        private async Task DoOneRun(Action run)
         {
             IsRunningGame = true;
 
-            await Task.Run(DoLogicRun);
+            await Task.Run(run);
 
             IsRunningGame = false;
         }
 
-        private int DoMultipliersRun()
+        private void DoMultipliersRun()
         {
             var multipliers = new GameAgentMultipliers()
             {
@@ -69,30 +71,32 @@ namespace DungeonCardsWatcher
 
             var agent = new GameAgent(multipliers);
 
-            return LongRunningTask(agent);
+            LongRunningTask(agent);
         }
 
-        private int DoLogicRun()
+        private void DoLogicRun()
         {
+            var expressionGenerator = ExpressionGeneratorFactory.CreateExpressionGenerator();
+
             var multipliers = new GameAgentLogicGenome()
             {
-                GoldScoreMultiplier = new double[3]{8.9333, 22.5057, 38.3460},
-                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{10.7683, 10.3861, 3.7720},
-                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{-19.0546, -20.1365, -25.0921},
-                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-33.6411, -38.3365, -36.0864},
-                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{22.2358, 38.3204, 14.1252},
-                MonsterWhenPossessingWeaponScoreFunc = new ValueExpression<GameState>(-42.7745673178),
-                MonsterWhenNotPossessingWeaponScoreFunc = new BoundValueExpression<GameState>(s => s.MonsterHealth, nameof(GameState.MonsterHealth)),
-                WeaponWhenPossessingWeaponScoreFunc = new ValueExpression<GameState>(3.99947),
-                WeaponWhenNotPossessingWeaponScoreFunc = new ValueExpression<GameState>(329.78287),
+                GoldScoreMultiplier = new double[3]{31.6097, 25.2618, 28.8472},
+                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{13.8347, 38.8220, 22.6251},
+                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{-59.8023, -15.4477, -35.4791},
+                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-58.7515, -15.7610, -32.4471},
+                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{-49.4148, -30.9206, -27.8985},
+                MonsterWhenPossessingWeaponScoreFunc = expressionGenerator.FromString("(((HeroWeapon) - (MonsterHealth)) + ((-12.68429) - ((((MonsterHealth) + (-16.85612)) * (08.87666)) - (CardWeapon)))) - (HeroWeapon)"),
+                MonsterWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("((HeroWeapon) - (HeroWeapon)) - ((((CardGold) - ((((14.69402) * ((CardWeapon) - ((-01.39758) * ((12.32318) * (((HeroWeapon) - (05.81554)) - (HeroHealth)))))) - ((HeroWeapon) - (((09.53710) * (MonsterHealth)) + (03.34151)))) + (HeroWeapon))) * (CardGold)) - (CardWeapon))"),
+                WeaponWhenPossessingWeaponScoreFunc = expressionGenerator.FromString("(((HeroHealth) - (00.69406)) - (CardGold)) + (((10.58041) * ((02.77070) - ((((MonsterHealth) - (CardWeapon)) - ((CardWeapon) * (03.56971))) * (CardWeapon)))) + ((HeroWeapon) + ((HeroHealth) * (CardGold))))"),
+                WeaponWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("((-22.45206) + (CardWeapon)) - (((12.13807) - ((04.70020) + (((-06.75484) + (-01.91616)) - (MonsterHealth)))) * (((((-11.14653) + (10.42238)) - (((CardGold) * (-19.54710)) * (07.45629))) + ((((CardGold) + (10.45101)) * (HeroHealth)) - (11.76460))) - (((MonsterHealth) + ((-01.59274) + ((-11.04280) + (CardWeapon)))) - (HeroWeapon))))"),
             };
 
             var agent = new GameAgentWithLogic(multipliers);
 
-            return LongRunningTask(agent);
+            LongRunningTask(agent);
         }
 
-        private int LongRunningTask(IGameAgent gameAgent)
+        private void LongRunningTask(IGameAgent gameAgent)
         {
             GameBuilder.RandomizeBoardToStart(_board);
             UpdateBoard(this, EventArgs.Empty);
@@ -102,10 +106,10 @@ namespace DungeonCardsWatcher
             int runResult = gameRunner.RunGame(_board);
             gameRunner.StateChanged -= UpdateBoard;
             gameRunner.DirectionChosen -= ShowDirection;
-            return runResult;
         }
 
-        private int LongRunningTask(GameAgentMultipliers multipliers)
+        /*
+        private void LongRunningTask(GameAgentMultipliers multipliers)
         {
             GameBuilder.RandomizeBoardToStart(_board);
             UpdateBoard(this, EventArgs.Empty);
@@ -116,8 +120,8 @@ namespace DungeonCardsWatcher
             int runResult = gameRunner.RunGame(_board);
             gameRunner.StateChanged -= UpdateBoard;
             gameRunner.DirectionChosen -= ShowDirection;
-            return runResult;
         }
+        */
 
         private void ShowDirection(object sender, Direction direction)
         {

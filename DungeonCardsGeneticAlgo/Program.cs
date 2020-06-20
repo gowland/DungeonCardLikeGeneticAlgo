@@ -10,7 +10,6 @@ using DungeonCardsGeneticAlgo.Support.WithLogic;
 using Game;
 using GeneticSolver.BreedingStrategies;
 using GeneticSolver.Expressions;
-using GeneticSolver.Expressions.Implementations;
 using GeneticSolver.Mutators;
 using GeneticSolver.Random;
 using GeneticSolver.ReproductionStrategies;
@@ -29,23 +28,7 @@ namespace DungeonCardsGeneticAlgo
                 2*maxEliteSize,
                 0.3);
 
-            var expressionGenerator = new ExpressionGenerator<GameState>(
-                new BellWeightedRandom(0.5),
-                new IExpression<GameState>[]
-                {
-                    new BoundValueExpression<GameState>(game => game.HeroGold, nameof(GameState.HeroGold)),
-                    new BoundValueExpression<GameState>(game => game.HeroHealth, nameof(GameState.HeroHealth)),
-                    new BoundValueExpression<GameState>(game => game.HeroWeapon, nameof(GameState.HeroWeapon)),
-                    new BoundValueExpression<GameState>(game => game.CardGold, nameof(GameState.CardGold)),
-                    new BoundValueExpression<GameState>(game => game.MonsterHealth, nameof(GameState.MonsterHealth)),
-                    new BoundValueExpression<GameState>(game => game.CardWeapon, nameof(GameState.CardWeapon)),
-                },
-                new []
-                {
-                    new Operation((a,b) => a + b, "+"),
-                    new Operation((a,b) => a - b, "-"),
-                    new Operation((a,b) => a * b, "*"),
-                });
+            var expressionGenerator = ExpressionGeneratorFactory.CreateExpressionGenerator();
 
             // TestExpressionGenerator(expressionGenerator);
 

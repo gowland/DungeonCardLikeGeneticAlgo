@@ -46,6 +46,7 @@
     <Compile Include="MathExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Support\ExpressionGeneratorFactory.cs" />
     <Compile Include="Support\FitnessCache.cs" />
     <Compile Include="Support\GameAgent.cs" />
     <Compile Include="Support\GameAgentEvaluator.cs" />
