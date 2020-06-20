@@ -45,15 +45,15 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
                     return ScoreWeaponCard(squareDesc, state);
                 case CardType.Gold:
                     state.CardGold = card.Value;
-                    return ScoreGoldCard(card.Value, squareDesc);
+                    return ScoreGoldCard(squareDesc, state);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private double ScoreGoldCard(int goldScore, SquareDesc squareDesc)
+        private double ScoreGoldCard(SquareDesc squareDesc, GameState state)
         {
-            return _multipliers.GoldScoreMultiplier[(int)squareDesc] * goldScore;
+            return _multipliers.GoldScoreMultiplier[(int)squareDesc] * state.CardGold;
         }
 
         private double ScoreWeaponCard(SquareDesc squareDesc, GameState state)
