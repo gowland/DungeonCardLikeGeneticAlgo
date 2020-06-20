@@ -41,7 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GenomeMutator.cs" />
+    <Compile Include="Expressions\DynamicValueSource.cs" />
+    <Compile Include="Expressions\ExpressionGenerator.cs" />
+    <Compile Include="Expressions\ExpressionMutationVisitor.cs" />
+    <Compile Include="Expressions\IExpression.cs" />
+    <Compile Include="Expressions\IExpressionVisitor.cs" />
+    <Compile Include="Expressions\Implementations\BoundValueExpression.cs" />
+    <Compile Include="Expressions\Implementations\FuncExpression.cs" />
+    <Compile Include="Expressions\Implementations\ValueExpression.cs" />
+    <Compile Include="Expressions\IValueSource.cs" />
+    <Compile Include="Expressions\Operation.cs" />
+    <Compile Include="Expressions\StaticValueSource.cs" />
+    <Compile Include="GenomeProperty\ExpressionGenomeProperty.cs" />
+    <Compile Include="Mutators\BellWeightedGenomeMutator.cs" />
+    <Compile Include="Mutators\GenomeMutator.cs" />
+    <Compile Include="Mutators\MutatorBase.cs" />
     <Compile Include="OrderedEnumerableExtensions.cs" />
     <Compile Include="PairingStrategies\HaremBreedingStrategy.cs" />
     <Compile Include="PairingStrategies\RandomBreedingStrategy.cs" />
@@ -58,6 +72,7 @@
     <Compile Include="IGenomeDescription.cs" />
     <Compile Include="Interfaces\IPairingStrategy.cs" />
     <Compile Include="Random\BellWeightedRandom.cs" />
+    <Compile Include="Random\RandomExtensions.cs" />
     <Compile Include="Random\UnWeightedRandom.cs" />
     <Compile Include="ReproductionStrategies\AsexualGenomeReproductionStrategy.cs" />
     <Compile Include="ReproductionStrategies\SexualGenomeReproductionStrategy.cs" />

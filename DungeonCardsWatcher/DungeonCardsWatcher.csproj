@@ -64,6 +64,7 @@
         </Compile>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="MainWindowViewModel.cs" />
         <Compile Include="Mvvm\BoolToVisibleOrCollapsed.cs" />
         <Compile Include="Mvvm\Command.cs" />
         <Compile Include="Mvvm\NotifyPropertyChangedBase.cs" />
@@ -91,6 +92,10 @@
       <ProjectReference Include="..\DungeonCardsGeneticAlgo\DungeonCardsGeneticAlgo.csproj">
         <Project>{6d074ffa-2707-4372-8a5d-c365b646572d}</Project>
         <Name>DungeonCardsGeneticAlgo</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\GeneticSolver\GeneticSolver.csproj">
+        <Project>{613107f7-1d9f-457f-b32b-9555bd220622}</Project>
+        <Name>GeneticSolver</Name>
       </ProjectReference>
     </ItemGroup>
     <ItemGroup>

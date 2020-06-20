@@ -8,9 +8,14 @@ namespace GeneticAlgo.Coefficients
 {
     public class CoefficientsGenomeDescriptions : IGenomeDescription<Coefficients>
     {
-        private readonly IRandom _random = new UnWeightedRandom();
+        private readonly IRandom _random;
         private readonly double _minChange = -30;
         private readonly double _maxChange = 30;
+
+        public CoefficientsGenomeDescriptions(IRandom random)
+        {
+            _random = random;
+        }
 
         public IEnumerable<IGenomeProperty<Coefficients>> Properties => new[]
         {

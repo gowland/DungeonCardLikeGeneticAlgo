@@ -12,7 +12,7 @@ namespace GeneticSolver
         double AverageGenomeGeneration { get; }
     }
 
-    class GenerationResult <T, TScore> : IGenerationResult<T, TScore>
+    public class GenerationResult <T, TScore> : IGenerationResult<T, TScore>
         where TScore : IComparable<TScore>
     {
         public GenerationResult(int generationNumber, ScoredGeneration<T, TScore> orderedGenomes)

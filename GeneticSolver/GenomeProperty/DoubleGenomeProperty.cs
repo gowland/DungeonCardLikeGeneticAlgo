@@ -30,11 +30,6 @@ namespace GeneticSolver.GenomeProperty
             _setterAction(genome, AlterNumber(_getterFunc(genome), _random));
         }
 
-        public void Mutate(T genome, IRandom random)
-        {
-            _setterAction(genome, AlterNumber(_getterFunc(genome), random));
-        }
-
         public void SetRandom(T genome)
         {
             _setterAction(genome, GetRandomDouble(_min, _max));

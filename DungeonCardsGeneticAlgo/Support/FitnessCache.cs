@@ -47,11 +47,20 @@ namespace DungeonCardsGeneticAlgo.Support
 
         private void Purge()
         {
-            var oldAccesses = _items.OrderBy(a => a.Value.LastAccess).Take(_cacheSize/2).Select(a => a.Key).ToArray();
-            foreach (var key in oldAccesses)
+            Remove(_items.OrderBy(a => a.Value.LastAccess).Take(_cacheSize/2).Select(a => a.Key));
+        }
+
+        private void Remove(IEnumerable<T> itemsToRemove)
+        {
+            foreach (var key in itemsToRemove.ToArray())
             {
                 _items.Remove(key);
             }
+        }
+
+        public void ClearExcept(IEnumerable<T> itemsToKeep)
+        {
+            Remove(_items.Keys.Except(itemsToKeep));
         }
 
         public void Cache(T key, TScore value)

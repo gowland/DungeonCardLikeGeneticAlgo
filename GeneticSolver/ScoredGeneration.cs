@@ -6,7 +6,7 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
-    class ScoredGeneration<T, TScore>
+    public class ScoredGeneration<T, TScore>
         where TScore : IComparable<TScore>
     {
         public ScoredGeneration(IEnumerable<IGenomeInfo<T>> genomes, IGenomeEvaluator<T, TScore> evaluator)

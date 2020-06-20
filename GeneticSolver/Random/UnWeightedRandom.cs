@@ -1,4 +1,5 @@
-﻿using GeneticSolver.RequiredInterfaces;
+﻿using System.ComponentModel.Design;
+using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver.Random
 {
@@ -14,6 +15,11 @@ namespace GeneticSolver.Random
         public double NextDouble(double minX, double maxX)
         {
             return minX + NextDouble() * (maxX - minX);
+        }
+
+        public bool NextBool()
+        {
+            return NextDouble() > 0.5;
         }
     }
 }

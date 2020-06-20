@@ -7,7 +7,7 @@ using GeneticSolver.RequiredInterfaces;
 
 namespace GeneticSolver
 {
-    public class Solver<T, TScore> 
+    public class Solver<T, TScore>
         where T : ICloneable
         where TScore : IComparable<TScore>
     {
@@ -18,11 +18,11 @@ namespace GeneticSolver
         private readonly IEnumerable<IEarlyStoppingCondition<T, TScore>> _earlyStoppingConditions;
         private readonly IEnumerable<IGenomeReproductionStrategy<T>> _genomeReproductionStrategies;
 
-        public event EventHandler<int> NewGeneration;
+        public event EventHandler<GenerationResult<T, TScore>> NewGeneration;
 
         public Solver(IGenomeFactory<T> genomeFactory,
-            IGenomeEvaluator<T, TScore> evaluator, 
-            ISolverLogger<T, TScore> logger, ISolverParameters solverParameters, 
+            IGenomeEvaluator<T, TScore> evaluator,
+            ISolverLogger<T, TScore> logger, ISolverParameters solverParameters,
             IEnumerable<IEarlyStoppingCondition<T, TScore>> earlyStoppingConditions,
             IEnumerable<IGenomeReproductionStrategy<T>> genomeReproductionStrategies)
         {
@@ -61,7 +61,7 @@ namespace GeneticSolver
 
                 generationResult = new GenerationResult<T, TScore>(generationNum, scoredGeneration);
 
-                OnNewGeneration(generationNum);
+                OnNewGeneration(generationResult);
                 _logger.LogGenerationInfo(generationResult);
 
                 if (IsEarlyStopConditionHit(generationResult))
@@ -79,7 +79,7 @@ namespace GeneticSolver
                 condition.Match(generationResult));
         }
 
-        protected virtual void OnNewGeneration(int e)
+        protected virtual void OnNewGeneration(GenerationResult<T, TScore> e)
         {
             NewGeneration?.Invoke(this, e);
         }
