@@ -80,15 +80,15 @@ namespace DungeonCardsWatcher
 
             var multipliers = new GameAgentLogicGenome()
             {
-                GoldScoreMultiplier = new double[3]{31.6097, 25.2618, 28.8472},
-                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{13.8347, 38.8220, 22.6251},
-                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{-59.8023, -15.4477, -35.4791},
-                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-58.7515, -15.7610, -32.4471},
-                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{-49.4148, -30.9206, -27.8985},
-                MonsterWhenPossessingWeaponScoreFunc = expressionGenerator.FromString("(((HeroWeapon) - (MonsterHealth)) + ((-12.68429) - ((((MonsterHealth) + (-16.85612)) * (08.87666)) - (CardWeapon)))) - (HeroWeapon)"),
-                MonsterWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("((HeroWeapon) - (HeroWeapon)) - ((((CardGold) - ((((14.69402) * ((CardWeapon) - ((-01.39758) * ((12.32318) * (((HeroWeapon) - (05.81554)) - (HeroHealth)))))) - ((HeroWeapon) - (((09.53710) * (MonsterHealth)) + (03.34151)))) + (HeroWeapon))) * (CardGold)) - (CardWeapon))"),
-                WeaponWhenPossessingWeaponScoreFunc = expressionGenerator.FromString("(((HeroHealth) - (00.69406)) - (CardGold)) + (((10.58041) * ((02.77070) - ((((MonsterHealth) - (CardWeapon)) - ((CardWeapon) * (03.56971))) * (CardWeapon)))) + ((HeroWeapon) + ((HeroHealth) * (CardGold))))"),
-                WeaponWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("((-22.45206) + (CardWeapon)) - (((12.13807) - ((04.70020) + (((-06.75484) + (-01.91616)) - (MonsterHealth)))) * (((((-11.14653) + (10.42238)) - (((CardGold) * (-19.54710)) * (07.45629))) + ((((CardGold) + (10.45101)) * (HeroHealth)) - (11.76460))) - (((MonsterHealth) + ((-01.59274) + ((-11.04280) + (CardWeapon)))) - (HeroWeapon))))"),
+                GoldScoreMultiplier = new double[3]{25.5316, 24.0099, 16.2610},
+                MonsterWhenPossessingWeaponScoreMultiplier = new double[3]{24.5933, 23.4264, 22.0143},
+                MonsterWhenNotPossessingWeaponScoreMultiplier = new double[3]{-31.2997, -22.0128, -29.7514},
+                WeaponWhenPossessingWeaponScoreMultiplier = new double[3]{-43.3635, -21.5867, -27.6219},
+                WeaponWhenNotPossessingWeaponScoreMultiplier = new double[3]{-43.2861, -20.3950, -29.5461},
+                MonsterWhenPossessingWeaponScoreFunc = expressionGenerator.FromString("((((HeroGold) - ((((HeroWeapon) - ((HeroWeapon) + ((-07.11710) + (19.00022)))) - (18.00540)) - (CardWeapon))) + ((-14.95005) * (((-01.94737) - (04.02547)) - (CardWeapon)))) * (((((HeroWeapon) + (HeroHealth)) * ((HeroHealth) * (((-00.41577) - (06.60667)) * ((12.55579) + (07.71862))))) * (((CardWeapon) * (-18.98748)) * (((-02.64072) + ((MonsterHealth) - ((CardGold) + (MonsterHealth)))) * ((-06.30514) + (14.90779))))) + (((((-15.86993) - (MonsterHealth)) + ((-14.95005) * (((-05.25034) - (08.87666)) - (CardWeapon)))) * (((HeroHealth) + (((04.39729) - (11.29765)) + (-14.68780))) * (((-18.98172) - (-09.60717)) * (07.72093)))) + (((HeroWeapon) + (HeroHealth)) * ((HeroHealth) + (((00.06431) - ((-14.26864) - ((-17.26604) + (CardGold)))) + ((CardWeapon) + (12.43572)))))))) + ((HeroGold) + (((CardWeapon) + ((-14.95005) * (((-05.25034) - (12.70156)) - (CardWeapon)))) + (((HeroGold) - (MonsterHealth)) - ((-18.77707) * (((-05.25034) - (-10.68887)) - (CardWeapon))))))"),
+                MonsterWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("(((MonsterHealth) + (10.36471)) + (-08.94748)) + (((MonsterHealth) + (11.08993)) - (((MonsterHealth) + (12.71245)) - (CardGold)))"),
+                WeaponWhenPossessingWeaponScoreFunc = expressionGenerator.FromString("((((19.58677) - (00.69406)) - (-06.99937)) * (((((19.18323) * (HeroWeapon)) + (((((-01.64314) - ((MonsterHealth) * (05.89712))) + (((-06.60712) - (((11.88549) + ((((MonsterHealth) + (-02.58400)) + ((04.93510) - ((19.22972) * (CardGold)))) + (HeroWeapon))) - (CardGold))) + (HeroHealth))) * ((HeroGold) - ((HeroWeapon) * ((03.31325) - (06.59709))))) * (-10.23020))) * ((((HeroHealth) * ((CardWeapon) * (13.90223))) - ((18.60329) + (CardGold))) - ((12.86722) + ((((CardGold) - (CardWeapon)) * (-00.79672)) + (-06.02827))))) + (((((HeroHealth) - (00.69406)) - (MonsterHealth)) - ((12.26878) * ((CardGold) * ((((HeroHealth) * (HeroHealth)) - (HeroHealth)) + (-05.28352))))) * (((19.18323) * (HeroWeapon)) + (((((-01.64314) - ((MonsterHealth) * (05.89712))) + (((-06.60712) - (((11.88549) + ((((MonsterHealth) + (-02.58400)) + ((04.93510) - ((19.22972) * (CardGold)))) + (HeroWeapon))) - (CardGold))) + (HeroHealth))) * ((HeroGold) - ((HeroWeapon) * ((03.31325) - (06.59709))))) * (-10.23020)))))) - ((((HeroHealth) - ((-03.41793) + (((MonsterHealth) + (HeroHealth)) - (-00.95787)))) - (CardGold)) * ((((HeroHealth) - (05.21138)) - (CardGold)) + (((HeroHealth) - ((-22.22169) * (CardWeapon))) - (CardGold))))"),
+                WeaponWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("(-11.46160) + (((-17.80806) + (CardWeapon)) + (((-17.80806) + (CardWeapon)) + ((-17.80806) + ((-05.75740) - (HeroHealth)))))"),
             };
 
             var agent = new GameAgentWithLogic(multipliers);
@@ -155,7 +155,7 @@ namespace DungeonCardsWatcher
                 OnPropertyChanged(nameof(Weapon));
                 OnPropertyChanged(nameof(Gold));
             }));
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
         }
 
         private static ViewCardType ToViewCardType(CardType cardType)

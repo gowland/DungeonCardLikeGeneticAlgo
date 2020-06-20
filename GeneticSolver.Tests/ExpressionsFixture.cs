@@ -21,7 +21,7 @@ namespace GeneticSolver.Tests
 
         [TestCase("(02.00000) + (01.00000)")]
         [TestCase("((23.00000) * (45.20000)) + ((99.00000) - (42.00000))")]
-        [TestCase("(SomeValue) + (01.00000)")]
+        [TestCase("(SomeValue) + (-01.00001)")]
         public void FromString (string input)
         {
             var expressionGenerator = new ExpressionGenerator<SomeClass>(
