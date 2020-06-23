@@ -1,4 +1,5 @@
 ﻿using System;
+using Game.Player;
 
 namespace Game
 {
@@ -9,10 +10,10 @@ namespace Game
         public event EventHandler StateChanged;
         public event EventHandler<Direction> DirectionChosen;
 
-        public GameRunner(Func<Board, DirectionResult> getDirectionFunc, Action<Board> dumpBoardAction)
+        public GameRunner(IGameAgent gameAgent, Action<Board> dumpBoardAction)
         {
             _dumpBoardAction = dumpBoardAction;
-            _getDirectionFunc = getDirectionFunc;
+            _getDirectionFunc = gameAgent.GetDirectionFromAlgo;
         }
 
         public int RunGame(Board board)

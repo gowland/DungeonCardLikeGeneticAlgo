@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Game;
+using Game.Player;
 using GeneticSolver;
 using GeneticSolver.Interfaces;
 using GeneticSolver.RequiredInterfaces;
@@ -53,7 +54,7 @@ namespace DungeonCardsGeneticAlgo.Support
         {
             GameBuilder.RandomizeBoardToStart(_board);
             var gameAgent = _gameAgentFunc(multipliers);
-            var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => {});
+            var gameRunner = new GameRunner(gameAgent, _ => {});
             return gameRunner.RunGame(_board);
         }
     }

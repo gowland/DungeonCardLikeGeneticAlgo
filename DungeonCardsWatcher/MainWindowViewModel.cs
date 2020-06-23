@@ -12,6 +12,7 @@ using DungeonCardsGeneticAlgo.Support.Multipliers;
 using DungeonCardsGeneticAlgo.Support.WithLogic;
 using DungeonCardsWatcher.Mvvm;
 using Game;
+using Game.Player;
 using GeneticSolver.Expressions;
 using GeneticSolver.Expressions.Implementations;
 
@@ -100,7 +101,7 @@ namespace DungeonCardsWatcher
         {
             GameBuilder.RandomizeBoardToStart(_board);
             UpdateBoard(this, EventArgs.Empty);
-            var gameRunner = new GameRunner(gameAgent.GetDirectionFromAlgo, _ => { });
+            var gameRunner = new GameRunner(gameAgent, _ => { });
             gameRunner.StateChanged += UpdateBoard;
             gameRunner.DirectionChosen += ShowDirection;
             int runResult = gameRunner.RunGame(_board);

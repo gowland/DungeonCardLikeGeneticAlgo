@@ -54,6 +54,8 @@
     <Compile Include="Hero.cs" />
     <Compile Include="ICard.cs" />
     <Compile Include="MovementResultGenerator.cs" />
+    <Compile Include="Player\GameAgentBase.cs" />
+    <Compile Include="Player\IGameAgent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

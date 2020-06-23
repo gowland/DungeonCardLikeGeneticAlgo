@@ -1,6 +1,4 @@
-﻿using Game;
-
-namespace DungeonCardsGeneticAlgo.Support
+﻿namespace Game.Player
 {
     public interface IGameAgent
     {

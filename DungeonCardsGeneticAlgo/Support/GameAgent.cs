@@ -2,11 +2,13 @@
 using System.Linq;
 using System.Threading;
 using DungeonCardsGeneticAlgo.Support.Multipliers;
+using DungeonCardsGeneticAlgo.Support.WithLogic;
 using Game;
+using Game.Player;
 
 namespace DungeonCardsGeneticAlgo.Support
 {
-    public class GameAgent : IGameAgent
+    public class GameAgent : GameAgentBase
     {
         private readonly GameAgentMultipliers _multipliers;
 
@@ -15,16 +17,7 @@ namespace DungeonCardsGeneticAlgo.Support
             _multipliers = multipliers;
         }
 
-        public DirectionResult GetDirectionFromAlgo(Board board)
-        {
-            var moves = board.GetCurrentLegalMoves();
-
-            var scoredMoves = moves.Select(pair => new { Direction = pair.Key, Score = GetScore(board, pair.Value) });
-
-            return new DirectionResult(scoredMoves.OrderByDescending(move => move.Score).First().Direction);
-        }
-
-        private double GetScore(Board board, ISlot<ICard<CardType>> slot)
+        protected override double GetScore(Board board, ISlot<ICard<CardType>> slot)
         {
             var card = slot.Card;
             SquareDesc squareDesc = board.Desc();

@@ -50,7 +50,6 @@
     <Compile Include="Support\FitnessCache.cs" />
     <Compile Include="Support\GameAgent.cs" />
     <Compile Include="Support\GameAgentEvaluator.cs" />
-    <Compile Include="Support\IGameAgent.cs" />
     <Compile Include="Support\Multipliers\GameAgentMultipliers.cs" />
     <Compile Include="Support\Multipliers\GameAgentMultipliersDescription.cs" />
     <Compile Include="Support\Multipliers\GameAgentSolverLogger.cs" />
