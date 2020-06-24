@@ -71,6 +71,11 @@ namespace Game
             return _legalMovesCache[_playerCoordinates];
         }
 
+        public Slot<ICard<CardType>> GetSlotNextToHero(Direction direction)
+        {
+            return _grid[_playerCoordinates.Get(direction)];
+        }
+
         private IDictionary<Coordinates, IDictionary<Direction, Slot<ICard<CardType>>>> GetLegalMovesCache()
         {
             return _grid.GetAllPositions()
