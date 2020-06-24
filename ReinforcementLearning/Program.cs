@@ -27,12 +27,14 @@ namespace ReinforcementLearning
             gameRunner.StateChanged += (sender, eventArgs) =>
                 trainer.SetStateAfterLatestDecision(GameState.FromBoard(board));
 
-            int score = gameRunner.RunGame(board);
-
-            trainer.Train();
-
-            Console.WriteLine($"Game score {score}");
-            Console.ReadLine();
+            while (Console.ReadKey().Key != ConsoleKey.X)
+            {
+                GameBuilder.RandomizeBoardToStart(board);
+                var score = gameRunner.RunGame(board);
+                trainer.Train();
+                trainer.Dump();
+                Console.WriteLine($"Game score {score}");
+            }
         }
     }
 
@@ -54,15 +56,12 @@ namespace ReinforcementLearning
                 SlotState = slotState,
             };
 
-            var score = _scorer.GetScoresForState(decision);
-
-            return score.Score;
+            return _scorer.GetScoresForState(decision);
         }
     }
 
     public class GameState : IEquatable<GameState>
     {
-        public int HeroGold { get; set; }
         public int HeroHealth { get; set; }
         public int HeroWeapon { get; set; }
 
@@ -74,17 +73,21 @@ namespace ReinforcementLearning
         {
             return new GameState()
             {
-                HeroGold = board.Gold,
                 HeroHealth = board.HeroHealth,
                 HeroWeapon = board.Weapon,
             };
+        }
+
+        public override string ToString()
+        {
+            return $"heroHealth:{HeroHealth}, heroWeapon:{HeroWeapon}";
         }
 
         public bool Equals(GameState other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return HeroGold == other.HeroGold && HeroHealth == other.HeroHealth && HeroWeapon == other.HeroWeapon;
+            return HeroHealth == other.HeroHealth && HeroWeapon == other.HeroWeapon;
         }
 
         public override bool Equals(object obj)
@@ -99,8 +102,7 @@ namespace ReinforcementLearning
         {
             unchecked
             {
-                var hashCode = HeroGold;
-                hashCode = (hashCode * 397) ^ HeroHealth;
+                var hashCode = HeroHealth;
                 hashCode = (hashCode * 397) ^ HeroWeapon;
                 return hashCode;
             }
@@ -109,7 +111,26 @@ namespace ReinforcementLearning
 
     public class MoveScore : IComparable<MoveScore>
     {
-        public double Score { get; set; }
+        public double ChangeInHealth { get; set; }
+        public double LossOfWeapon { get; set; }
+        public double ChangeInWeapon { get; set; }
+
+        public double Score => ChangeInWeapon - LossOfWeapon - ChangeInHealth;
+
+        public static MoveScore FromChangeInState(GameState oldState, GameState newState)
+        {
+            return new MoveScore()
+            {
+                LossOfWeapon = 0, // TODO: How do I calculate this?
+                ChangeInHealth = oldState.HeroHealth - newState.HeroHealth,
+                ChangeInWeapon = newState.HeroWeapon - oldState.HeroWeapon,
+            };
+        }
+
+        public override string ToString()
+        {
+            return $"chgHeath:{ChangeInHealth}, chgWeapon:{ChangeInWeapon} -> score:{Score}";
+        }
 
         public int CompareTo(MoveScore other)
         {
@@ -117,18 +138,17 @@ namespace ReinforcementLearning
             if (ReferenceEquals(null, other)) return 1;
             return Score.CompareTo(other.Score);
         }
-
-        public static MoveScore FromChangeInState(GameState oldState, GameState newState)
-        {
-            // TODO: Calc difference
-            return new MoveScore(){Score = 0.5};
-        }
     }
 
     public class Decision
     {
         public GameState State { get; set; }
         public SlotState SlotState { get; set; }
+
+        public override string ToString()
+        {
+            return $"({State}),({SlotState})";
+        }
     }
 
     public class SlotState
@@ -156,42 +176,63 @@ namespace ReinforcementLearning
 
             return state;
         }
+
+        public override string ToString()
+        {
+            return $"cardGold{CardGold}, cardMonster{CardMonster}, cardWeapon{CardWeapon}";
+        }
     }
 
     public interface IDecisionScorer
     {
-        MoveScore GetScoresForState(Decision decision);
+        double GetScoresForState(Decision decision);
     }
 
     public interface IDecisionUpdater
     {
-        void UpdateScores(Decision decision, MoveScore score);
+        void UpdateScores(Decision decision, MoveScore newScore);
     }
 
     public class DecisionScores : IDecisionScorer, IDecisionUpdater
     {
         private readonly IDictionary<Decision, MoveScore> _choices = new Dictionary<Decision, MoveScore>();
 
-        public MoveScore GetScoresForState(Decision decision)
+        public double GetScoresForState(Decision decision)
         {
             if (_choices.TryGetValue(decision, out MoveScore score))
             {
-                return score;
+                return score.Score;
             }
 
-            return new MoveScore()
-            {
-                Score = 0.1,
-            };
+            return 0.1;
         }
 
-        public void UpdateScores(Decision decision, MoveScore score)
+        public void UpdateScores(Decision decision, MoveScore newScore)
         {
-            /*
-             * TODO:
-             *   - update existing decision if present
-             *   - add new decision otherwise
-             */
+            if (_choices.TryGetValue(decision, out MoveScore currentScore))
+            {
+                currentScore.ChangeInWeapon = GetUpdatedValue(currentScore.ChangeInWeapon, newScore.ChangeInWeapon, 0.1);
+                currentScore.ChangeInHealth = GetUpdatedValue(currentScore.ChangeInHealth, newScore.ChangeInHealth, 0.1);
+                currentScore.LossOfWeapon = GetUpdatedValue(currentScore.LossOfWeapon, newScore.LossOfWeapon, 0.1);
+            }
+            else
+            {
+                _choices[decision] = newScore;
+            }
+        }
+
+        public void Dump()
+        {
+            foreach (var pair in _choices)
+            {
+                Console.WriteLine($"[{pair.Key}] = {pair.Value}");
+            }
+        }
+
+        private double GetUpdatedValue(double startValue, double newValue, double learningRate)
+        {
+            var diff = newValue - startValue;
+            return startValue + learningRate * diff;
         }
     }
 
@@ -225,6 +266,11 @@ namespace ReinforcementLearning
             {
                 _initialScores.UpdateScores(score.Item1, score.Item2);
             }
+        }
+
+        public void Dump()
+        {
+            _initialScores.Dump();
         }
     }
 }
