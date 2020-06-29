@@ -65,6 +65,14 @@ namespace ReinforcementLearning
         public int HeroHealth { get; set; }
         public int HeroWeapon { get; set; }
 
+        public int TotalBoardMonster { get; set; }
+        public int TotalBoardWeapon { get; set; }
+        public int TotalBoardGold { get; set; }
+
+        public int HeroNeighborMonster { get; set; }
+        public int HeroNeighborWeapon { get; set; }
+        public int HeroNeighborGold { get; set; }
+
         // position : corner / side / center
         // neighbors : L/R/U/D -> monster / weapon / code /
         // look ahead: count of different types of cards of neighbors?
@@ -75,19 +83,27 @@ namespace ReinforcementLearning
             {
                 HeroHealth = board.HeroHealth,
                 HeroWeapon = board.Weapon,
+
+                TotalBoardMonster = board.GetSlots().Where(s => s.Card.Type == CardType.Monster).Sum(s => s.Card.Value),
+                TotalBoardWeapon = board.GetSlots().Where(s => s.Card.Type == CardType.Weapon).Sum(s => s.Card.Value),
+                TotalBoardGold = board.GetSlots().Where(s => s.Card.Type == CardType.Gold).Sum(s => s.Card.Value),
+
+                HeroNeighborMonster = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Monster).Sum(s => s.Value.Card.Value),
+                HeroNeighborWeapon = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Weapon).Sum(s => s.Value.Card.Value),
+                HeroNeighborGold = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Gold).Sum(s => s.Value.Card.Value),
             };
         }
 
         public override string ToString()
         {
-            return $"heroHealth:{HeroHealth}, heroWeapon:{HeroWeapon}";
+            return $"HERO [H:{HeroHealth}, W:{HeroWeapon}], BOARD [M:{TotalBoardMonster}, W:{TotalBoardWeapon}, G:{TotalBoardGold}], NEIGHBOR [M:{HeroNeighborMonster}, W:{HeroNeighborWeapon}, G:{HeroNeighborGold}]";
         }
 
         public bool Equals(GameState other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return HeroHealth == other.HeroHealth && HeroWeapon == other.HeroWeapon;
+            return HeroHealth == other.HeroHealth && HeroWeapon == other.HeroWeapon && TotalBoardMonster == other.TotalBoardMonster && TotalBoardWeapon == other.TotalBoardWeapon && TotalBoardGold == other.TotalBoardGold && HeroNeighborMonster == other.HeroNeighborMonster && HeroNeighborWeapon == other.HeroNeighborWeapon && HeroNeighborGold == other.HeroNeighborGold;
         }
 
         public override bool Equals(object obj)
@@ -104,6 +120,12 @@ namespace ReinforcementLearning
             {
                 var hashCode = HeroHealth;
                 hashCode = (hashCode * 397) ^ HeroWeapon;
+                hashCode = (hashCode * 397) ^ TotalBoardMonster;
+                hashCode = (hashCode * 397) ^ TotalBoardWeapon;
+                hashCode = (hashCode * 397) ^ TotalBoardGold;
+                hashCode = (hashCode * 397) ^ HeroNeighborMonster;
+                hashCode = (hashCode * 397) ^ HeroNeighborWeapon;
+                hashCode = (hashCode * 397) ^ HeroNeighborGold;
                 return hashCode;
             }
         }
@@ -115,21 +137,35 @@ namespace ReinforcementLearning
         public double LossOfWeapon { get; set; }
         public double ChangeInWeapon { get; set; }
 
-        public double Score => ChangeInWeapon - LossOfWeapon - ChangeInHealth;
+        public double ChangeInBoardMonster { get; set; }
+        public double ChangeInBoardWeapon { get; set; }
+        public double ChangeInBoardGold { get; set; }
 
-        public static MoveScore FromChangeInState(GameState oldState, GameState newState)
+        public double ChangeInHeroNeighborMonster { get; set; }
+        public double ChangeInHeroNeighborWeapon { get; set; }
+        public double ChangeInHeroNeighborGold { get; set; }
+
+        public double Score => -2 * ChangeInHealth + ChangeInBoardMonster + ChangeInBoardWeapon + ChangeInHeroNeighborMonster + ChangeInHeroNeighborWeapon; //TODO: Update
+
+        public static MoveScore FromChangeInState(Decision decision, GameState newState)
         {
             return new MoveScore()
             {
                 LossOfWeapon = 0, // TODO: How do I calculate this?
-                ChangeInHealth = oldState.HeroHealth - newState.HeroHealth,
-                ChangeInWeapon = newState.HeroWeapon - oldState.HeroWeapon,
+                ChangeInHealth = decision.State.HeroHealth - newState.HeroHealth,
+                ChangeInWeapon = decision.State.HeroWeapon - newState.HeroWeapon, // TODO: This isn't a bad thing if a monster got killed or injured
+                ChangeInBoardMonster = decision.State.TotalBoardMonster - newState.TotalBoardMonster,
+                ChangeInBoardWeapon = decision.State.TotalBoardWeapon - newState.TotalBoardWeapon,
+                ChangeInBoardGold = decision.State.TotalBoardGold - newState.TotalBoardGold,
+                ChangeInHeroNeighborMonster = decision.State.HeroNeighborMonster - newState.HeroNeighborMonster,
+                ChangeInHeroNeighborWeapon = decision.State.HeroNeighborWeapon - newState.HeroNeighborWeapon,
+                ChangeInHeroNeighborGold = decision.State.HeroNeighborGold - newState.HeroNeighborGold,
             };
         }
 
         public override string ToString()
         {
-            return $"chgHeath:{ChangeInHealth}, chgWeapon:{ChangeInWeapon} -> score:{Score}";
+            return $"CHANGES Health: {ChangeInHealth} + BOARD[M:{ChangeInBoardMonster} + W:{ChangeInBoardWeapon}] + NEIGHBOR[M:{ChangeInHeroNeighborMonster} + W:{ChangeInHeroNeighborWeapon}] = score:{Score}"; //TODO: Update
         }
 
         public int CompareTo(MoveScore other)
@@ -214,6 +250,14 @@ namespace ReinforcementLearning
                 currentScore.ChangeInWeapon = GetUpdatedValue(currentScore.ChangeInWeapon, newScore.ChangeInWeapon, 0.1);
                 currentScore.ChangeInHealth = GetUpdatedValue(currentScore.ChangeInHealth, newScore.ChangeInHealth, 0.1);
                 currentScore.LossOfWeapon = GetUpdatedValue(currentScore.LossOfWeapon, newScore.LossOfWeapon, 0.1);
+
+                currentScore.ChangeInBoardMonster = GetUpdatedValue(currentScore.ChangeInBoardMonster, newScore.ChangeInBoardMonster, 0.1);
+                currentScore.ChangeInBoardWeapon = GetUpdatedValue(currentScore.ChangeInBoardWeapon, newScore.ChangeInBoardWeapon, 0.1);
+                currentScore.ChangeInBoardGold = GetUpdatedValue(currentScore.ChangeInBoardGold, newScore.ChangeInBoardGold, 0.1);
+
+                currentScore.ChangeInHeroNeighborMonster = GetUpdatedValue(currentScore.ChangeInHeroNeighborMonster, newScore.ChangeInHeroNeighborMonster, 0.1);
+                currentScore.ChangeInHeroNeighborWeapon = GetUpdatedValue(currentScore.ChangeInHeroNeighborWeapon, newScore.ChangeInHeroNeighborWeapon, 0.1);
+                currentScore.ChangeInHeroNeighborGold = GetUpdatedValue(currentScore.ChangeInHeroNeighborGold, newScore.ChangeInHeroNeighborGold, 0.1);
             }
             else
             {
@@ -256,7 +300,7 @@ namespace ReinforcementLearning
 
         public void SetStateAfterLatestDecision(GameState newState)
         {
-            _accumulatedScores.Add(new Tuple<Decision, MoveScore>(_latestDecision, MoveScore.FromChangeInState(_latestDecision.State, newState) ));
+            _accumulatedScores.Add(new Tuple<Decision, MoveScore>(_latestDecision, MoveScore.FromChangeInState(_latestDecision, newState) ));
             _latestDecision = null;
         }
 
