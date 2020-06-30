@@ -28,17 +28,17 @@ namespace ReinforcementLearning
                 trainer.SetStateAfterLatestDecision(GameState.FromBoard(board));
 
             // while (Console.ReadKey().Key != ConsoleKey.X)
-            for (int trainingBatch = 0; trainingBatch < 100; trainingBatch++)
+            for (int trainingBatch = 0; trainingBatch < 10000; trainingBatch++)
             {
-                for(int i=0; i<100000; i++)
+                for(int i=0; i<10000; i++)
                 {
                     GameBuilder.RandomizeBoardToStart(board);
                     var score = gameRunner.RunGame(board);
+                    trainer.Train(score);
 
                     // Console.WriteLine($"Game score {score}");
                 }
 
-                trainer.Train(board.Gold);
                 var currentEvaluationScore = Evaluate(initialDecisionScorer);
                 Console.WriteLine($"{trainingBatch:0000}:{currentEvaluationScore}");
             }
