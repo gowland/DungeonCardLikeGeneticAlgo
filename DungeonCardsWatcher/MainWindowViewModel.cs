@@ -70,7 +70,7 @@ namespace DungeonCardsWatcher
                 WeaponWhenPossessingNotWeaponScoreMultiplier = new double[3]{55.1838, 28.1914, 29.3060},
             };
 
-            var agent = new GameAgent(new GameAgentBase(), multipliers);
+            var agent = new GameAgent(new MaximalMoveSelector(), multipliers);
 
             LongRunningTask(agent);
         }
@@ -92,7 +92,7 @@ namespace DungeonCardsWatcher
                 WeaponWhenNotPossessingWeaponScoreFunc = expressionGenerator.FromString("(-11.46160) + (((-17.80806) + (CardWeapon)) + (((-17.80806) + (CardWeapon)) + ((-17.80806) + ((-05.75740) - (HeroHealth)))))"),
             };
 
-            var agent = new GameAgentWithLogic(new GameAgentBase(), multipliers);
+            var agent = new GameAgentWithLogic(new MaximalMoveSelector(), multipliers);
 
             LongRunningTask(agent);
         }

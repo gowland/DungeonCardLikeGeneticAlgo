@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Game.Player
 {
-    public class GameAgentBase
+    public class MaximalMoveSelector : IMoveSelector
     {
         public DirectionResult GetDirectionFromAlgo(Board board, Func<Board,ISlot<ICard<CardType>>,double> getScore)
         {
@@ -15,7 +15,12 @@ namespace Game.Player
         }
     }
 
-    public class ProbabilityBasedGameAgentBase
+    public interface IMoveSelector
+    {
+        DirectionResult GetDirectionFromAlgo(Board board, Func<Board,ISlot<ICard<CardType>>,double> getScore);
+    }
+
+    public class ProbabilityBasedMoveSelector : IMoveSelector
     {
         private readonly Random _random = new Random();
 

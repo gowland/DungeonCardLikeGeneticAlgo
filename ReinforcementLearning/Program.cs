@@ -11,7 +11,7 @@ namespace ReinforcementLearning
         public static void Main(string[] args)
         {
             var initialDecisionScorer = new DecisionScores();
-            IGameAgent agent = new ReinforcementLearningGameAgent(new ProbabilityBasedGameAgentBase(), initialDecisionScorer);
+            IGameAgent agent = new GameStateGameAgent(new ProbabilityBasedMoveSelector(), initialDecisionScorer);
 
             var trainer = new Trainer(initialDecisionScorer);
 
@@ -28,27 +28,53 @@ namespace ReinforcementLearning
                 trainer.SetStateAfterLatestDecision(GameState.FromBoard(board));
 
             // while (Console.ReadKey().Key != ConsoleKey.X)
-                for(int i=0; i<1000000; i++)
+            for (int trainingBatch = 0; trainingBatch < 100; trainingBatch++)
             {
-                GameBuilder.RandomizeBoardToStart(board);
-                var score = gameRunner.RunGame(board);
+                for(int i=0; i<100000; i++)
+                {
+                    GameBuilder.RandomizeBoardToStart(board);
+                    var score = gameRunner.RunGame(board);
+
+                    // Console.WriteLine($"Game score {score}");
+                }
+
                 trainer.Train(board.Gold);
-                // trainer.Dump();
-                Console.WriteLine($"Game score {score}");
+                var currentEvaluationScore = Evaluate(initialDecisionScorer);
+                Console.WriteLine($"{trainingBatch:0000}:{currentEvaluationScore}");
             }
 
             Console.ReadKey();
 
             initialDecisionScorer.DumpChoices();
         }
+
+        private static double Evaluate(DecisionScores scores)
+        {
+            Board board = GameBuilder.GetRandomStartBoard();
+
+            var fitnesses = Enumerable.Range(1, 100)
+                .Select(_ => (double)DoOneRun(board, scores))
+                .ToArray();
+
+            var fitness = fitnesses.Average() + fitnesses.StdDev();
+            return fitness;
+        }
+
+        private static int DoOneRun(Board board, DecisionScores scores)
+        {
+            GameBuilder.RandomizeBoardToStart(board);
+            IGameAgent agent = new GameStateGameAgent(new MaximalMoveSelector(), scores);
+            var gameRunner = new GameRunner(agent, _ => {});
+            return gameRunner.RunGame(board);
+        }
     }
 
-    public class ReinforcementLearningGameAgent : IGameAgent
+    public class GameStateGameAgent : IGameAgent
     {
-        private readonly ProbabilityBasedGameAgentBase _itemSelector;
+        private readonly IMoveSelector _itemSelector;
         private readonly IDecisionScorer _scorer;
 
-        public ReinforcementLearningGameAgent(ProbabilityBasedGameAgentBase itemSelector, IDecisionScorer scorer)
+        public GameStateGameAgent(IMoveSelector itemSelector, IDecisionScorer scorer)
         {
             _itemSelector = itemSelector;
             _scorer = scorer;

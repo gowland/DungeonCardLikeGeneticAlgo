@@ -6,10 +6,10 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
 {
     public class GameAgentWithLogic : IGameAgent
     {
-        private readonly GameAgentBase _itemSelector;
+        private readonly IMoveSelector _itemSelector;
         private readonly GameAgentLogicGenome _multipliers;
 
-        public GameAgentWithLogic(GameAgentBase itemSelector, GameAgentLogicGenome multipliers)
+        public GameAgentWithLogic(IMoveSelector itemSelector, GameAgentLogicGenome multipliers)
         {
             _itemSelector = itemSelector;
             _multipliers = multipliers;

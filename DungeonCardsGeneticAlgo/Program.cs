@@ -57,7 +57,7 @@ namespace DungeonCardsGeneticAlgo
         private static void LaunchEvolutionRun(SolverParameters solverParameters, ExpressionGenerator<GameState> expressionGenerator)
         {
             var cache = new FitnessCache<GameAgentLogicGenome, double>(2000*solverParameters.MaxEliteSize);
-            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(new GameAgentBase(), genome));
+            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(new MaximalMoveSelector(), genome));
             var bellWeightedRandom = new CyclableBellWeightedRandom(10.0, 3.0, 1.0, 0.5, 0.1);
             var genomeDescriptions = new GameAgentLogicGenomeDescription(bellWeightedRandom, expressionGenerator);
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentLogicGenome>(genomeDescriptions);
