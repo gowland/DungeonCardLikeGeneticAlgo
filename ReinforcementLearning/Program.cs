@@ -313,7 +313,7 @@ namespace ReinforcementLearning
         {
             if (_choices.TryGetValue(decision, out MoveScore currentScore))
             {
-                currentScore.Gold = GetUpdatedValue(currentScore.Gold, newScore.Gold, 0.1);
+                currentScore.Gold = GetUpdatedValue(currentScore.Gold, newScore.Gold, 0.01);
             }
             else
             {
