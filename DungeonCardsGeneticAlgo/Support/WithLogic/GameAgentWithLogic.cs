@@ -4,16 +4,18 @@ using Game.Player;
 
 namespace DungeonCardsGeneticAlgo.Support.WithLogic
 {
-    public class GameAgentWithLogic : GameAgentBase
+    public class GameAgentWithLogic : IGameAgent
     {
+        private readonly GameAgentBase _itemSelector;
         private readonly GameAgentLogicGenome _multipliers;
 
-        public GameAgentWithLogic(GameAgentLogicGenome multipliers)
+        public GameAgentWithLogic(GameAgentBase itemSelector, GameAgentLogicGenome multipliers)
         {
+            _itemSelector = itemSelector;
             _multipliers = multipliers;
         }
 
-        protected override double GetScore(Board board, ISlot<ICard<CardType>> slot)
+        protected double GetScore(Board board, ISlot<ICard<CardType>> slot)
         {
             var card = slot.Card;
             SquareDesc squareDesc = board.Desc();
@@ -73,6 +75,11 @@ namespace DungeonCardsGeneticAlgo.Support.WithLogic
         private double ScoreMonsterWhenNotPossessingWeaponAndMonsterHealthIsGreater(GameState state)
         {
             return -100;
+        }
+
+        public DirectionResult GetDirectionFromAlgo(Board board)
+        {
+            return _itemSelector.GetDirectionFromAlgo(board, this.GetScore);
         }
     }
 }

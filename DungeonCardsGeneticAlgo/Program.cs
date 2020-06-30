@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DungeonCardsGeneticAlgo.Support;
 using DungeonCardsGeneticAlgo.Support.WithLogic;
 using Game;
+using Game.Player;
 using GeneticSolver.BreedingStrategies;
 using GeneticSolver.Expressions;
 using GeneticSolver.Mutators;
@@ -56,7 +57,7 @@ namespace DungeonCardsGeneticAlgo
         private static void LaunchEvolutionRun(SolverParameters solverParameters, ExpressionGenerator<GameState> expressionGenerator)
         {
             var cache = new FitnessCache<GameAgentLogicGenome, double>(2000*solverParameters.MaxEliteSize);
-            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(genome));
+            var evaluator = new GameAgentEvaluator<GameAgentLogicGenome>(cache, genome => new GameAgentWithLogic(new GameAgentBase(), genome));
             var bellWeightedRandom = new CyclableBellWeightedRandom(10.0, 3.0, 1.0, 0.5, 0.1);
             var genomeDescriptions = new GameAgentLogicGenomeDescription(bellWeightedRandom, expressionGenerator);
             var defaultGenomeFactory = new GeneticSolver.Genome.DefaultGenomeFactory<GameAgentLogicGenome>(genomeDescriptions);

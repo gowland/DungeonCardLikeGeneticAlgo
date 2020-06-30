@@ -11,7 +11,7 @@ namespace ReinforcementLearning
         public static void Main(string[] args)
         {
             var initialDecisionScorer = new DecisionScores();
-            IGameAgent agent = new ReinforcementLearningGameAgent(initialDecisionScorer);
+            IGameAgent agent = new ReinforcementLearningGameAgent(new ProbabilityBasedGameAgentBase(), initialDecisionScorer);
 
             var trainer = new Trainer(initialDecisionScorer);
 
@@ -27,26 +27,33 @@ namespace ReinforcementLearning
             gameRunner.StateChanged += (sender, eventArgs) =>
                 trainer.SetStateAfterLatestDecision(GameState.FromBoard(board));
 
-            while (Console.ReadKey().Key != ConsoleKey.X)
+            // while (Console.ReadKey().Key != ConsoleKey.X)
+                for(int i=0; i<1000000; i++)
             {
                 GameBuilder.RandomizeBoardToStart(board);
                 var score = gameRunner.RunGame(board);
-                trainer.Train();
-                trainer.Dump();
+                trainer.Train(board.Gold);
+                // trainer.Dump();
                 Console.WriteLine($"Game score {score}");
             }
+
+            Console.ReadKey();
+
+            initialDecisionScorer.DumpChoices();
         }
     }
 
-    public class ReinforcementLearningGameAgent : GameAgentBase
+    public class ReinforcementLearningGameAgent : IGameAgent
     {
+        private readonly ProbabilityBasedGameAgentBase _itemSelector;
         private readonly IDecisionScorer _scorer;
 
-        public ReinforcementLearningGameAgent(IDecisionScorer scorer)
+        public ReinforcementLearningGameAgent(ProbabilityBasedGameAgentBase itemSelector, IDecisionScorer scorer)
         {
+            _itemSelector = itemSelector;
             _scorer = scorer;
         }
-        protected override double GetScore(Board board, ISlot<ICard<CardType>> slot)
+        protected double GetScore(Board board, ISlot<ICard<CardType>> slot)
         {
             var state = GameState.FromBoard(board);
             var slotState = SlotState.FromSlot(slot);
@@ -58,16 +65,23 @@ namespace ReinforcementLearning
 
             return _scorer.GetScoresForState(decision);
         }
+
+        public DirectionResult GetDirectionFromAlgo(Board board)
+        {
+            return _itemSelector.GetDirectionFromAlgo(board, this.GetScore);
+        }
     }
 
     public class GameState : IEquatable<GameState>
     {
-        public int HeroHealth { get; set; }
+        // public int HeroHealth { get; set; }
         public int HeroWeapon { get; set; }
 
+        /*
         public int TotalBoardMonster { get; set; }
         public int TotalBoardWeapon { get; set; }
         public int TotalBoardGold { get; set; }
+        */
 
         public int HeroNeighborMonster { get; set; }
         public int HeroNeighborWeapon { get; set; }
@@ -81,29 +95,36 @@ namespace ReinforcementLearning
         {
             return new GameState()
             {
-                HeroHealth = board.HeroHealth,
+                // HeroHealth = board.HeroHealth,
                 HeroWeapon = board.Weapon,
 
+                /*
                 TotalBoardMonster = board.GetSlots().Where(s => s.Card.Type == CardType.Monster).Sum(s => s.Card.Value),
                 TotalBoardWeapon = board.GetSlots().Where(s => s.Card.Type == CardType.Weapon).Sum(s => s.Card.Value),
                 TotalBoardGold = board.GetSlots().Where(s => s.Card.Type == CardType.Gold).Sum(s => s.Card.Value),
+                */
 
-                HeroNeighborMonster = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Monster).Sum(s => s.Value.Card.Value),
-                HeroNeighborWeapon = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Weapon).Sum(s => s.Value.Card.Value),
-                HeroNeighborGold = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Gold).Sum(s => s.Value.Card.Value),
+                // HeroNeighborMonster = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Monster).Sum(s => s.Value.Card.Value),
+                // HeroNeighborWeapon = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Weapon).Sum(s => s.Value.Card.Value),
+                // HeroNeighborGold = board.GetCurrentLegalMoves().Where(s => s.Value.Card.Type == CardType.Gold).Sum(s => s.Value.Card.Value),
+                HeroNeighborMonster = board.GetCurrentLegalMoves().Count(s => s.Value.Card.Type == CardType.Monster),
+                HeroNeighborWeapon = board.GetCurrentLegalMoves().Count(s => s.Value.Card.Type == CardType.Weapon),
+                HeroNeighborGold = board.GetCurrentLegalMoves().Count(s => s.Value.Card.Type == CardType.Gold),
             };
         }
 
         public override string ToString()
         {
-            return $"HERO [H:{HeroHealth}, W:{HeroWeapon}], BOARD [M:{TotalBoardMonster}, W:{TotalBoardWeapon}, G:{TotalBoardGold}], NEIGHBOR [M:{HeroNeighborMonster}, W:{HeroNeighborWeapon}, G:{HeroNeighborGold}]";
+            // return $"HERO [H:{HeroHealth}, W:{HeroWeapon}], BOARD [M:{TotalBoardMonster}, W:{TotalBoardWeapon}, G:{TotalBoardGold}], NEIGHBOR [M:{HeroNeighborMonster}, W:{HeroNeighborWeapon}, G:{HeroNeighborGold}]";
+            // return $"HERO [H:{HeroHealth}, W:{HeroWeapon}], NEIGHBOR [M:{HeroNeighborMonster}, W:{HeroNeighborWeapon}, G:{HeroNeighborGold}]";
+            return $"HERO [W:{HeroWeapon}], NEIGHBOR [M:{HeroNeighborMonster}, W:{HeroNeighborWeapon}, G:{HeroNeighborGold}]";
         }
 
         public bool Equals(GameState other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return HeroHealth == other.HeroHealth && HeroWeapon == other.HeroWeapon && TotalBoardMonster == other.TotalBoardMonster && TotalBoardWeapon == other.TotalBoardWeapon && TotalBoardGold == other.TotalBoardGold && HeroNeighborMonster == other.HeroNeighborMonster && HeroNeighborWeapon == other.HeroNeighborWeapon && HeroNeighborGold == other.HeroNeighborGold;
+            return HeroWeapon == other.HeroWeapon && HeroNeighborMonster == other.HeroNeighborMonster && HeroNeighborWeapon == other.HeroNeighborWeapon && HeroNeighborGold == other.HeroNeighborGold;
         }
 
         public override bool Equals(object obj)
@@ -118,11 +139,7 @@ namespace ReinforcementLearning
         {
             unchecked
             {
-                var hashCode = HeroHealth;
-                hashCode = (hashCode * 397) ^ HeroWeapon;
-                hashCode = (hashCode * 397) ^ TotalBoardMonster;
-                hashCode = (hashCode * 397) ^ TotalBoardWeapon;
-                hashCode = (hashCode * 397) ^ TotalBoardGold;
+                var hashCode = HeroWeapon;
                 hashCode = (hashCode * 397) ^ HeroNeighborMonster;
                 hashCode = (hashCode * 397) ^ HeroNeighborWeapon;
                 hashCode = (hashCode * 397) ^ HeroNeighborGold;
@@ -133,50 +150,24 @@ namespace ReinforcementLearning
 
     public class MoveScore : IComparable<MoveScore>
     {
-        public double ChangeInHealth { get; set; }
-        public double LossOfWeapon { get; set; }
-        public double ChangeInWeapon { get; set; }
+        public double Gold { get; set; }
 
-        public double ChangeInBoardMonster { get; set; }
-        public double ChangeInBoardWeapon { get; set; }
-        public double ChangeInBoardGold { get; set; }
-
-        public double ChangeInHeroNeighborMonster { get; set; }
-        public double ChangeInHeroNeighborWeapon { get; set; }
-        public double ChangeInHeroNeighborGold { get; set; }
-
-        public double Score => -2 * ChangeInHealth + ChangeInBoardMonster + ChangeInBoardWeapon + ChangeInHeroNeighborMonster + ChangeInHeroNeighborWeapon; //TODO: Update
-
-        public static MoveScore FromChangeInState(Decision decision, GameState newState)
-        {
-            return new MoveScore()
-            {
-                LossOfWeapon = 0, // TODO: How do I calculate this?
-                ChangeInHealth = decision.State.HeroHealth - newState.HeroHealth,
-                ChangeInWeapon = decision.State.HeroWeapon - newState.HeroWeapon, // TODO: This isn't a bad thing if a monster got killed or injured
-                ChangeInBoardMonster = decision.State.TotalBoardMonster - newState.TotalBoardMonster,
-                ChangeInBoardWeapon = decision.State.TotalBoardWeapon - newState.TotalBoardWeapon,
-                ChangeInBoardGold = decision.State.TotalBoardGold - newState.TotalBoardGold,
-                ChangeInHeroNeighborMonster = decision.State.HeroNeighborMonster - newState.HeroNeighborMonster,
-                ChangeInHeroNeighborWeapon = decision.State.HeroNeighborWeapon - newState.HeroNeighborWeapon,
-                ChangeInHeroNeighborGold = decision.State.HeroNeighborGold - newState.HeroNeighborGold,
-            };
-        }
-
-        public override string ToString()
-        {
-            return $"CHANGES Health: {ChangeInHealth} + BOARD[M:{ChangeInBoardMonster} + W:{ChangeInBoardWeapon}] + NEIGHBOR[M:{ChangeInHeroNeighborMonster} + W:{ChangeInHeroNeighborWeapon}] = score:{Score}"; //TODO: Update
-        }
+        public double Score => Gold;
 
         public int CompareTo(MoveScore other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
-            return Score.CompareTo(other.Score);
+            return Gold.CompareTo(other.Gold);
+        }
+
+        public override string ToString()
+        {
+            return $"{Score}";
         }
     }
 
-    public class Decision
+    public class Decision : IEquatable<Decision>
     {
         public GameState State { get; set; }
         public SlotState SlotState { get; set; }
@@ -185,9 +176,32 @@ namespace ReinforcementLearning
         {
             return $"({State}),({SlotState})";
         }
+
+        public bool Equals(Decision other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(State, other.State) && Equals(SlotState, other.SlotState);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Decision) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((State != null ? State.GetHashCode() : 0) * 397) ^ (SlotState != null ? SlotState.GetHashCode() : 0);
+            }
+        }
     }
 
-    public class SlotState
+    public class SlotState : IEquatable<SlotState>
     {
         public int CardGold { get; set; }
         public int CardWeapon { get; set; }
@@ -216,6 +230,32 @@ namespace ReinforcementLearning
         public override string ToString()
         {
             return $"cardGold{CardGold}, cardMonster{CardMonster}, cardWeapon{CardWeapon}";
+        }
+
+        public bool Equals(SlotState other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return CardGold == other.CardGold && CardWeapon == other.CardWeapon && CardMonster == other.CardMonster;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((SlotState) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = CardGold;
+                hashCode = (hashCode * 397) ^ CardWeapon;
+                hashCode = (hashCode * 397) ^ CardMonster;
+                return hashCode;
+            }
         }
     }
 
@@ -247,17 +287,7 @@ namespace ReinforcementLearning
         {
             if (_choices.TryGetValue(decision, out MoveScore currentScore))
             {
-                currentScore.ChangeInWeapon = GetUpdatedValue(currentScore.ChangeInWeapon, newScore.ChangeInWeapon, 0.1);
-                currentScore.ChangeInHealth = GetUpdatedValue(currentScore.ChangeInHealth, newScore.ChangeInHealth, 0.1);
-                currentScore.LossOfWeapon = GetUpdatedValue(currentScore.LossOfWeapon, newScore.LossOfWeapon, 0.1);
-
-                currentScore.ChangeInBoardMonster = GetUpdatedValue(currentScore.ChangeInBoardMonster, newScore.ChangeInBoardMonster, 0.1);
-                currentScore.ChangeInBoardWeapon = GetUpdatedValue(currentScore.ChangeInBoardWeapon, newScore.ChangeInBoardWeapon, 0.1);
-                currentScore.ChangeInBoardGold = GetUpdatedValue(currentScore.ChangeInBoardGold, newScore.ChangeInBoardGold, 0.1);
-
-                currentScore.ChangeInHeroNeighborMonster = GetUpdatedValue(currentScore.ChangeInHeroNeighborMonster, newScore.ChangeInHeroNeighborMonster, 0.1);
-                currentScore.ChangeInHeroNeighborWeapon = GetUpdatedValue(currentScore.ChangeInHeroNeighborWeapon, newScore.ChangeInHeroNeighborWeapon, 0.1);
-                currentScore.ChangeInHeroNeighborGold = GetUpdatedValue(currentScore.ChangeInHeroNeighborGold, newScore.ChangeInHeroNeighborGold, 0.1);
+                currentScore.Gold = GetUpdatedValue(currentScore.Gold, newScore.Gold, 0.1);
             }
             else
             {
@@ -267,10 +297,17 @@ namespace ReinforcementLearning
 
         public void Dump()
         {
+            Console.WriteLine($"Total states: {_choices.Count}");
+        }
+
+        public void DumpChoices()
+        {
             foreach (var pair in _choices)
             {
                 Console.WriteLine($"[{pair.Key}] = {pair.Value}");
             }
+
+            Console.WriteLine($"Total states: {_choices.Count}");
         }
 
         private double GetUpdatedValue(double startValue, double newValue, double learningRate)
@@ -300,16 +337,19 @@ namespace ReinforcementLearning
 
         public void SetStateAfterLatestDecision(GameState newState)
         {
-            _accumulatedScores.Add(new Tuple<Decision, MoveScore>(_latestDecision, MoveScore.FromChangeInState(_latestDecision, newState) ));
+            _accumulatedScores.Add(new Tuple<Decision, MoveScore>(_latestDecision, new MoveScore{Gold = 0} ));
             _latestDecision = null;
         }
 
-        public void Train()
+        public void Train(int gold)
         {
             foreach (var score in _accumulatedScores)
             {
+                score.Item2.Gold += gold;
                 _initialScores.UpdateScores(score.Item1, score.Item2);
             }
+
+            _accumulatedScores.Clear();
         }
 
         public void Dump()
