@@ -27,20 +27,27 @@ namespace ReinforcementLearning
             gameRunner.StateChanged += (sender, eventArgs) =>
                 trainer.SetStateAfterLatestDecision(GameState.FromBoard(board));
 
+            double learningRate = 0.5;
+            double targetFinalLearningRate = 0.01;
+            double numberOfBatches = 10000;
+            double learnigRateIncrement = (learningRate - targetFinalLearningRate) / numberOfBatches;
+
             // while (Console.ReadKey().Key != ConsoleKey.X)
-            for (int trainingBatch = 0; trainingBatch < 10000; trainingBatch++)
+            for (int trainingBatch = 0; trainingBatch < numberOfBatches; trainingBatch++)
             {
-                for(int i=0; i<10000; i++)
+                for(int i=0; i<100000; i++)
                 {
                     GameBuilder.RandomizeBoardToStart(board);
                     var score = gameRunner.RunGame(board);
-                    trainer.Train(score);
+                    trainer.Train(score, learningRate);
 
                     // Console.WriteLine($"Game score {score}");
                 }
 
+                learningRate -= learnigRateIncrement;
+
                 var currentEvaluationScore = Evaluate(initialDecisionScorer);
-                Console.WriteLine($"{trainingBatch:0000}:{currentEvaluationScore}");
+                Console.WriteLine($"{trainingBatch:0000}:{(int)currentEvaluationScore:000}, LR:{learningRate:0.0000}");
             }
 
             Console.ReadKey();
@@ -52,7 +59,7 @@ namespace ReinforcementLearning
         {
             Board board = GameBuilder.GetRandomStartBoard();
 
-            var fitnesses = Enumerable.Range(1, 100)
+            var fitnesses = Enumerable.Range(1, 1000)
                 .Select(_ => (double)DoOneRun(board, scores))
                 .ToArray();
 
@@ -292,7 +299,7 @@ namespace ReinforcementLearning
 
     public interface IDecisionUpdater
     {
-        void UpdateScores(Decision decision, MoveScore newScore);
+        void UpdateScores(Decision decision, MoveScore newScore, double learningRate);
     }
 
     public class DecisionScores : IDecisionScorer, IDecisionUpdater
@@ -309,11 +316,11 @@ namespace ReinforcementLearning
             return 0.1;
         }
 
-        public void UpdateScores(Decision decision, MoveScore newScore)
+        public void UpdateScores(Decision decision, MoveScore newScore, double learningRate)
         {
             if (_choices.TryGetValue(decision, out MoveScore currentScore))
             {
-                currentScore.Gold = GetUpdatedValue(currentScore.Gold, newScore.Gold, 0.01);
+                currentScore.Gold = GetUpdatedValue(currentScore.Gold, newScore.Gold, learningRate);
             }
             else
             {
@@ -345,7 +352,7 @@ namespace ReinforcementLearning
 
     public class Trainer
     {
-        private readonly DecisionScores _initialScores;
+        private readonly IDecisionUpdater _initialScores;
 
         private IList<Tuple<Decision, MoveScore>> _accumulatedScores = new List<Tuple<Decision, MoveScore>>();
 
@@ -367,20 +374,15 @@ namespace ReinforcementLearning
             _latestDecision = null;
         }
 
-        public void Train(int gold)
+        public void Train(int gold, double learningRate)
         {
             foreach (var score in _accumulatedScores)
             {
                 score.Item2.Gold += gold;
-                _initialScores.UpdateScores(score.Item1, score.Item2);
+                _initialScores.UpdateScores(score.Item1, score.Item2, learningRate);
             }
 
             _accumulatedScores.Clear();
-        }
-
-        public void Dump()
-        {
-            _initialScores.Dump();
         }
     }
 }
