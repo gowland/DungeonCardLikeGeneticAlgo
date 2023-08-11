@@ -5,15 +5,13 @@ VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticAlgo", "GeneticAlgo\GeneticAlgo.csproj", "{45FE6178-6471-4604-818A-E1A74F568A95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticSolver", "GeneticSolver\GeneticSolver.csproj", "{613107F7-1D9F-457F-B32B-9555BD220622}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCardsGeneticAlgo", "DungeonCardsGeneticAlgo\DungeonCardsGeneticAlgo.csproj", "{6D074FFA-2707-4372-8A5D-C365B646572D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCore", "DungeonCardsCore\GameCore.csproj", "{90AF7A07-9002-4900-A38F-5DD2066EAC4D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DungeonCardsWatcher", "DungeonCardsWatcher\DungeonCardsWatcher.csproj", "{A300C17D-0352-4CD6-AB95-533146E9EF76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticSolver.Tests", "GeneticSolver.Tests\GeneticSolver.Tests.csproj", "{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticSolver", "GeneticAlgorithmCore\GeneticSolver\GeneticSolver.csproj", "{613107F7-1D9F-457F-B32B-9555BD220622}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +23,6 @@ Global
 		{45FE6178-6471-4604-818A-E1A74F568A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45FE6178-6471-4604-818A-E1A74F568A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45FE6178-6471-4604-818A-E1A74F568A95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6D074FFA-2707-4372-8A5D-C365B646572D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6D074FFA-2707-4372-8A5D-C365B646572D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D074FFA-2707-4372-8A5D-C365B646572D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,10 +35,10 @@ Global
 		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A300C17D-0352-4CD6-AB95-533146E9EF76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F07A156D-4EEB-4E0B-8DAE-0BD57E71BB24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{613107F7-1D9F-457F-B32B-9555BD220622}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

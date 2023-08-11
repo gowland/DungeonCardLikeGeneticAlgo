@@ -68,7 +68,7 @@
       <Project>{90af7a07-9002-4900-a38f-5dd2066eac4d}</Project>
       <Name>GameCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\GeneticSolver\GeneticSolver.csproj">
+    <ProjectReference Include="..\GeneticAlgorithmCore\GeneticSolver\GeneticSolver.csproj">
       <Project>{613107f7-1d9f-457f-b32b-9555bd220622}</Project>
       <Name>GeneticSolver</Name>
     </ProjectReference>
