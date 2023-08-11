@@ -12,8 +12,6 @@ using DungeonCardsGeneticAlgo.Support.Multipliers;
 using DungeonCardsGeneticAlgo.Support.WithLogic;
 using DungeonCardsWatcher.Mvvm;
 using Game;
-using GeneticSolver.Expressions;
-using GeneticSolver.Expressions.Implementations;
 
 namespace DungeonCardsWatcher
 {

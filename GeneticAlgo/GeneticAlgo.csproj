@@ -51,13 +51,13 @@
     <Compile Include="Values\MyThingSolverLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GeneticSolver\GeneticSolver.csproj">
+    <Folder Include="Polynomial\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GeneticAlgorithmCore\GeneticSolver\GeneticSolver.csproj">
       <Project>{613107f7-1d9f-457f-b32b-9555bd220622}</Project>
       <Name>GeneticSolver</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Polynomial\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
