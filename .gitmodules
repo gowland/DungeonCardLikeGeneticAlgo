@@ -1,0 +1,3 @@
+[submodule "GeneticAlgorithmCore"]
+	path = GeneticAlgorithmCore
+	url = https://github.com/gowland/GeneticAlgorithmCore
